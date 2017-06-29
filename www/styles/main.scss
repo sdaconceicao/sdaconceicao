@@ -1,0 +1,22 @@
+@import "~normalize.css/normalize.css";
+@import "icons";
+
+html{
+    background-color: grey;
+}
+.splash{
+    text-align: center;
+    .splash-title{
+        font-size: 4rem;
+    }
+    .splash-subtitle{
+        font-size: 1.2rem;
+        font-style: italic;
+    }
+    .splash-nav-social-list{
+        list-style: none;
+    }
+    .splash-nav-social-list-entry{
+        display: inline-block;
+    }
+}

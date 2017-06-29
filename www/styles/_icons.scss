@@ -1,0 +1,24 @@
+.icon {
+    display: block;
+    &.sm{
+        width: 15px;
+        height: 15px;
+    }
+    &.lg{
+        width: 50px;
+        height: 50px;
+    }
+    &.icon-linkedin{
+        background: url('~font-awesome-svg-png/white/svg/linkedin.svg');
+        background-size: contain;
+    }
+    &.icon-twitter{
+        background: url('~font-awesome-svg-png/white/svg/twitter.svg');
+        background-size: contain;
+    }
+    &.icon-bitbucket{
+        background: url('~font-awesome-svg-png/white/svg/bitbucket.svg');
+        background-size: contain;
+    }
+}
+
