@@ -1,26 +1,35 @@
 @import "~normalize.css/normalize.css";
 @import "icons";
 
-html{
-    background-color: grey;
-}
-.splash{
-    text-align: center;
-    font-family: 'Lato', sans-serif;
-    .splash-title{
-        font-size: 4rem;
+body{
+    background-image: url(../media/background.svg);
+    background-position: 50% -140px;
+    background-size: 1500px;
+    .splash{
+        font-family: 'Lato', sans-serif;
+        text-align: center;
         color: white;
-        margin-bottom: 0;
+        margin-top: 400px;
+        .splash-title{
+            font-size: 4rem;
+            margin-bottom: 0;
+        }
+        .splash-subtitle{
+            font-size: 1.2rem;
+            font-style: italic;
+        }
+        .splash-nav-social-list{
+            list-style: none;
+            padding-left: 0;
+        }
+        .splash-nav-social-list-entry{
+            display: inline-block;
+        }
     }
-    .splash-subtitle{
-        font-size: 1.2rem;
-        font-style: italic;
-    }
-    .splash-nav-social-list{
-        list-style: none;
-        padding-left: 0;
-    }
-    .splash-nav-social-list-entry{
-        display: inline-block;
+}
+@media only screen and (max-width: 1000px) {
+    body {
+        background-position: 50% 0px;
+        background-size: 1000px;
     }
 }
