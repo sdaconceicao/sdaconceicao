@@ -1,5 +1,5 @@
 #Details
-The only portfolio of Stephen da Conceicao
+The online portfolio of Stephen da Conceicao
 
 #Dev Requires
 Node 6+
