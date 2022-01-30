@@ -1,15 +1,21 @@
-#Details
-The online portfolio of Stephen da Conceicao
+# Hi, my name is Stephen da Conceicao
 
-#Dev Requires
-Node 6+
-Yarn
+## How do you pronounce that?
 
-#Setup
-yarn install
+- da Con Say Sone
+- because I said so
+- no it's not Italian.
 
-#Startup
-yarn start
+## What do I do?
 
-#Build
-yarn build
+- Frontend Web Development with a focus on
+  - A11y
+  - i18n
+  - CI Automation
+- Woodworking
+- Historical Reenactment
+
+## How can you reach me?
+
+- [LinkedIn](https://www.linkedin.com/in/sdaconceicao)
+- [Github](https://www.github.com/sdaconceicao)
