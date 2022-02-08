@@ -1,38 +1,38 @@
 const colors = {
-  primary: "#2171bb",
-  primaryDark: "#1a4171",
-  primaryLight: "#308ce6",
-  secondary: "#ccc",
-  secondaryDark: "#9a9a9a",
-  secondaryLight: "#e0e0e0",
-  tertiary: "#646464",
-  tertiaryDark: "#202221",
-  tertiaryLight: "#a2aaa5",
-  success: "#439843",
-  successDark: "#2c572c",
-  successLight: "#b5eeb5",
-  warning: "#f79722",
-  warningDark: "#764612",
-  warningLight: "#ffca88",
-  error: "#de4045",
-  errorDark: "#762427",
-  errorLight: "#ffbbbb",
-  info: "#2a7bca",
-  infoDark: "#1a4171",
-  infoLight: "#c3ecff",
-  white: "#fff",
-  g100: "#f1f1f1",
-  g200: "#eee",
-  g300: "#ddd",
-  g400: "#a7a7a7",
-  g500: "#808080",
-  g600: "#333",
-  g700: "#010101",
-  black: "#000",
-}
+  primary: '#2171bb',
+  primaryDark: '#1a4171',
+  primaryLight: '#308ce6',
+  secondary: '#ccc',
+  secondaryDark: '#9a9a9a',
+  secondaryLight: '#e0e0e0',
+  tertiary: '#646464',
+  tertiaryDark: '#202221',
+  tertiaryLight: '#a2aaa5',
+  success: '#439843',
+  successDark: '#2c572c',
+  successLight: '#b5eeb5',
+  warning: '#f79722',
+  warningDark: '#764612',
+  warningLight: '#ffca88',
+  error: '#de4045',
+  errorDark: '#762427',
+  errorLight: '#ffbbbb',
+  info: '#2a7bca',
+  infoDark: '#1a4171',
+  infoLight: '#c3ecff',
+  white: '#fff',
+  g100: '#f1f1f1',
+  g200: '#eee',
+  g300: '#ddd',
+  g400: '#a7a7a7',
+  g500: '#808080',
+  g600: '#333',
+  g700: '#010101',
+  black: '#000'
+};
 
 const theme = {
-  name: "default",
+  maxWidth: 1120,
   palette: {
     primaryBg: colors.primary,
     primaryFg: colors.white,
@@ -52,12 +52,14 @@ const theme = {
     tertiaryBgHover: colors.tertiaryDark,
     tertiaryFgHover: colors.g100,
     tertiaryBorderHover: colors.tertiaryDark,
-    ...colors,
+    link: colors.primary,
+    linkLight: colors.white,
+    ...colors
   },
   font: {
     fontFamily: "'Roboto', 'Arial', 'sans-serif'",
-    fontSize: ".9rem",
-  },
-}
+    fontSize: '.9rem'
+  }
+};
 
-export default theme
+export default theme;

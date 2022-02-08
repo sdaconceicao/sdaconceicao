@@ -8,6 +8,7 @@
     "url": "https://github.com/gatsbyjs/gatsby/issues"
   },
   "dependencies": {
+    "@fontsource/roboto": "^4.5.3",
     "gatsby": "^4.6.0",
     "gatsby-plugin-feed": "^4.6.0",
     "gatsby-plugin-gatsby-cloud": "^4.6.0",
@@ -31,9 +32,7 @@
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
     "react-jss": "^10.9.0",
-    "reset-css": "^5.0.1",
-    "typeface-merriweather": "0.0.72",
-    "typeface-montserrat": "0.0.75"
+    "reset-css": "^5.0.1"
   },
   "devDependencies": {
     "prettier": "^2.5.1"

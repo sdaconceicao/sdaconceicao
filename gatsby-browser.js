@@ -1,8 +1,9 @@
-// custom typefaces
-import 'typeface-montserrat';
-import 'typeface-merriweather';
-
+import React from 'react';
+import { ThemeProvider } from 'react-jss';
+import theme from './src/theme/theme';
+import '@fontsource/roboto';
 import 'reset-css';
 
-// Highlighting for code blocks
-import 'prismjs/themes/prism.css';
+export const wrapRootElement = ({ element }) => (
+  <ThemeProvider theme={theme}>{element}</ThemeProvider>
+);

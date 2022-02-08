@@ -2,7 +2,7 @@ name: Build Docs
 
 on:
   push:
-    paths: ["www"]
+    paths: ['src', 'static', 'content']
     branches: [master]
   workflow_dispatch:
 
@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: 'npm'
       - name: Cache node modules
         id: cache-node-modules
         uses: actions/cache@v2
@@ -38,8 +38,8 @@ jobs:
       - name: Add & Commit
         uses: EndBug/add-and-commit@v7.5.0
         with:
-          add: "docs"
-          message: "build: Building updated portfolio"
+          add: 'docs'
+          message: 'build: Building updated portfolio'
           author_name: sdaconceicaoBot
           author_email: daconcei472+bot@gmail.com
           branch: master
