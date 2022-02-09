@@ -2,7 +2,7 @@ import React from 'react';
 import Nav from '../Nav';
 import useStyles from './index.styles';
 
-const Layout = ({ location, title, children }) => {
+const Layout = ({ location, children }) => {
   const rootPath = `${__PATH_PREFIX__}/`;
   const isRootPath = location.pathname === rootPath;
   const classes = useStyles();

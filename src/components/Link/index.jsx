@@ -1,12 +1,14 @@
 import React from 'react';
-import { Link } from 'gatsby';
+import { Link as GatsbyLink } from 'gatsby';
 import useStyles from './index.styles';
 
-export default ({ to, dark, children }) => {
+const Link = ({ to, dark, children }) => {
   const classes = useStyles({ dark });
   return (
-    <Link to={to} className={classes.link}>
+    <GatsbyLink to={to} className={classes.link}>
       {children}
-    </Link>
+    </GatsbyLink>
   );
 };
+
+export default Link;

@@ -2,13 +2,13 @@ import React from 'react';
 import Link from '../Link';
 import useStyles from './index.styles';
 
-export default () => {
+const Nav = () => {
   const classes = useStyles();
   return (
     <nav className={classes.nav}>
       <div className={classes.content}>
         <div className={classes.logo}>
-          <Link to="about">Home</Link>
+          <Link to="about">Stephen Andrew Designs</Link>
         </div>
         <ul className={classes.list}>
           <li className={classes.listItem}>
@@ -25,3 +25,5 @@ export default () => {
     </nav>
   );
 };
+
+export default Nav;

@@ -18,7 +18,6 @@ export default createUseStyles(({ font, maxWidth }) => ({
   content: {
     maxWidth: maxWidth,
     width: '100%',
-    display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center'
   },
