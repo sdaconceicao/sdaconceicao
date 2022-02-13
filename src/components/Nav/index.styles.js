@@ -15,16 +15,17 @@ export default createUseStyles(({ maxWidth, palette }) => ({
     justifyContent: 'space-between',
     alignItems: 'center'
   },
-  logo: {},
+  logo: {
+    textTransform: 'uppercase'
+  },
   list: {
-    listStyle: 'none',
-    margin: 0,
-    padding: 0,
     justifyContent: 'flex-start',
     flexDirection: 'row'
   },
   listItem: {
     margin: 5,
-    display: 'inline-block'
+    padding: [0, 5],
+    display: 'inline-block',
+    textTransform: 'uppercase'
   }
 }));

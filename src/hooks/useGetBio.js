@@ -9,8 +9,9 @@ const useGetBio = () => {
             name
             summary
           }
-          social {
-            linkedIn
+          contact {
+            type
+            url
           }
         }
       }

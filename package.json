@@ -9,11 +9,13 @@
   },
   "dependencies": {
     "@fontsource/roboto": "^4.5.3",
+    "@react-icons/all-files": "^4.1.0",
     "gatsby": "^4.6.0",
     "gatsby-plugin-feed": "^4.6.0",
     "gatsby-plugin-gatsby-cloud": "^4.6.0",
     "gatsby-plugin-google-analytics": "^4.6.0",
     "gatsby-plugin-image": "^2.6.0",
+    "gatsby-plugin-jss": "^4.7.0",
     "gatsby-plugin-manifest": "^4.6.0",
     "gatsby-plugin-mdx": "^3.6.0",
     "gatsby-plugin-offline": "^5.6.0",
@@ -31,6 +33,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
+    "react-icon": "^1.0.0",
     "react-jss": "^10.9.0",
     "reset-css": "^5.0.1"
   },

@@ -104,15 +104,15 @@ exports.createSchemaCustomization = ({ actions }) => {
     type SiteSiteMetadata {
       author: Author
       siteUrl: String
-      social: Social
+      contact: [Contact]
     }
     type Author {
       name: String
       summary: String
     }
-    type Social {
-      linkedIn: String,
-      github: String
+    type Contact {
+      type: String
+      url: String
     }
     type MarkdownRemark implements Node {
       frontmatter: Frontmatter
