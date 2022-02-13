@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'gatsby';
+import { GatsbyImage, getImage } from 'gatsby-plugin-image';
 import useStyles from './index.styles';
 
 const BlogPosts = ({ posts }) => {
@@ -17,13 +18,14 @@ const BlogPosts = ({ posts }) => {
     <ol className={classes.posts}>
       {posts.map((post) => {
         const title = post.frontmatter.title || post.fields.slug;
-
+        const image = getImage(post.frontmatter.featuredImage);
         return (
           <li key={post.fields.slug}>
             <article className="post-list-item" itemScope itemType="http://schema.org/Article">
               <header>
                 <h2>
                   <Link to={post.fields.slug} itemProp="url">
+                    <GatsbyImage image={image} alt={post.title} />
                     <span itemProp="headline">{title}</span>
                   </Link>
                 </h2>
