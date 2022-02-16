@@ -6,7 +6,10 @@ export default createUseStyles(({ maxWidth, palette }) => ({
     padding: 10,
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    position: 'fixed',
+    width: '100%',
+    zIndex: 5
   },
   content: {
     maxWidth: maxWidth,
@@ -17,6 +20,9 @@ export default createUseStyles(({ maxWidth, palette }) => ({
   },
   logo: {
     textTransform: 'uppercase'
+  },
+  link: {
+    color: `${palette.g600}!important`
   },
   list: {
     justifyContent: 'flex-start',

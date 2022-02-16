@@ -8,17 +8,25 @@ const Nav = () => {
     <nav className={classes.nav}>
       <div className={classes.content}>
         <div className={classes.logo}>
-          <Link to="about">Stephen Andrew Designs</Link>
+          <Link to="about" className={classes.link}>
+            Stephen Andrew Designs
+          </Link>
         </div>
         <ul className={classes.list}>
           <li className={classes.listItem}>
-            <Link to="about">About</Link>
+            <Link to="about" className={classes.link}>
+              About
+            </Link>
           </li>
           <li className={classes.listItem}>
-            <Link to="portfolio">Portfolio</Link>
+            <Link to="portfolio" className={classes.link}>
+              Portfolio
+            </Link>
           </li>
           <li className={classes.listItem}>
-            <Link to="blog">Blog</Link>
+            <Link to="blog" className={classes.link}>
+              Blog
+            </Link>
           </li>
         </ul>
       </div>

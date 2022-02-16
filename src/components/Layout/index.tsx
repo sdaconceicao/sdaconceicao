@@ -2,7 +2,7 @@ import React from 'react';
 import Nav from '../Nav';
 import useStyles from './index.styles';
 
-const Layout = ({ location, children }) => {
+const Layout = ({ location, children, headerContent }: Layout) => {
   const rootPath = `${__PATH_PREFIX__}/`;
   const isRootPath = location.pathname === rootPath;
   const classes = useStyles();
@@ -10,6 +10,7 @@ const Layout = ({ location, children }) => {
     <div data-is-root-path={isRootPath}>
       <header className={classes.header}>
         <Nav />
+        {headerContent}
       </header>
       <main className={classes.main}>
         <div className={classes.content}>{children}</div>
@@ -18,5 +19,13 @@ const Layout = ({ location, children }) => {
     </div>
   );
 };
+
+export interface Layout {
+  location: {
+    pathname: string;
+  };
+  children: React.ReactNode;
+  headerContent?: React.ReactNode | string;
+}
 
 export default Layout;

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'gatsby';
-import { GatsbyImage, getImage } from 'gatsby-plugin-image';
+import { GatsbyImage, getImage, ImageDataLike } from 'gatsby-plugin-image';
 import useStyles from './index.styles';
 
-const BlogPosts = ({ posts }) => {
+const BlogPosts = ({ posts }: BlogPosts) => {
   const classes = useStyles();
 
-  if (posts.length === 0) {
+  if (posts.length < 1) {
     return (
       <p>
         No blog posts found. Add markdown posts to "content/blog" (or the directory you specified
@@ -46,5 +46,23 @@ const BlogPosts = ({ posts }) => {
     </ol>
   );
 };
+
+export interface BlogPosts {
+  posts: [
+    {
+      excerpt?: string;
+      title: string;
+      fields: {
+        slug: string;
+      };
+      frontmatter: {
+        date: string;
+        description: string;
+        featuredImage: ImageDataLike;
+        title: string;
+      };
+    }
+  ];
+}
 
 export default BlogPosts;

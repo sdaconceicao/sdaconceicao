@@ -11,7 +11,7 @@ const Icons = {
   mail: <FaEnvelope />
 };
 
-const Contact = ({ list }) => {
+const Contact = ({ list }: Contact) => {
   const classes = useStyles();
 
   return (
@@ -19,7 +19,7 @@ const Contact = ({ list }) => {
       <ul className={classes.list}>
         {list.map(({ type, url }) => (
           <li className={classes.listItem}>
-            <a href={url} target="_blank" className={classes.link}>
+            <a className={classes.link} href={url} rel="noreferrer" target="_blank">
               {Icons[type]}
             </a>
           </li>
@@ -28,5 +28,14 @@ const Contact = ({ list }) => {
     </div>
   );
 };
+
+export interface Contact {
+  list: [
+    {
+      type: string;
+      url: string;
+    }
+  ];
+}
 
 export default Contact;

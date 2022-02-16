@@ -13,10 +13,8 @@ const BlogIndex = ({ data, location }) => {
   const projects = data.projects.nodes;
 
   return (
-    <Layout location={location} title={siteTitle}>
+    <Layout location={location} title={siteTitle} headerContent={<About />}>
       <Seo title="All posts" />
-      <About />
-      <h3>Portfolio</h3>
       <Projects projects={projects} />
       <h3>Blog</h3>
       <BlogPosts posts={posts} />

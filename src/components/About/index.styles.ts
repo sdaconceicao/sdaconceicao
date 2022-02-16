@@ -1,11 +1,21 @@
 import { createUseStyles } from '../../theme/createUseStylesWithTheme';
 
-export default createUseStyles(({ palette }) => ({
+export default createUseStyles(({ palette, maxWidth }) => ({
   about: {
     width: '100%',
-    height: 500,
     backgroundColor: palette.primary,
-    position: 'relative'
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 40
+  },
+  content: {
+    position: 'relative',
+    maxWidth: maxWidth,
+    width: '100%',
+    height: 500,
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   intro: {
     fontSize: 30
@@ -30,6 +40,9 @@ export default createUseStyles(({ palette }) => ({
       borderBottom: '20px solid transparent',
       bottom: -30
     }
+  },
+  description: {
+    marginTop: 10
   },
   contact: {
     position: 'absolute',
