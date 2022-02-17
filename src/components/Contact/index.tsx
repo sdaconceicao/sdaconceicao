@@ -11,7 +11,7 @@ const Icons = {
   mail: <FaEnvelope />
 };
 
-const Contact = ({ list }: Contact) => {
+const Contact = ({ list }: ContactProps) => {
   const classes = useStyles();
 
   return (
@@ -29,7 +29,7 @@ const Contact = ({ list }: Contact) => {
   );
 };
 
-export interface Contact {
+export interface ContactProps {
   list: [
     {
       type: string;

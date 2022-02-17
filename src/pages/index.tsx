@@ -1,27 +1,39 @@
 import * as React from 'react';
-import { graphql } from 'gatsby';
+import { graphql, Node } from 'gatsby';
 
 import Layout from '../components/Layout';
 import Seo from '../components/SEO';
 import About from '../components/About';
-import BlogPosts from '../components/BlogPosts';
+import Posts from '../components/Posts';
 import Projects from '../components/Projects';
+import { ProjectProps } from '../components/Project';
+import { PostProps } from '../components/Post';
 
-const BlogIndex = ({ data, location }) => {
-  const siteTitle = data.site.siteMetadata?.title || `Title`;
+const BlogIndex = ({ data, location }: BlogIndex) => {
   const posts = data.allMdx.nodes;
   const projects = data.projects.nodes;
 
   return (
-    <Layout location={location} title={siteTitle} headerContent={<About />}>
+    <Layout location={location} headerContent={<About />}>
       <Seo title="All posts" />
       <Projects projects={projects} />
       <h3>Blog</h3>
-      <BlogPosts posts={posts} />
+      <Posts posts={posts} />
     </Layout>
   );
 };
 
+export interface BlogIndex {
+  data: {
+    allMdx: {
+      nodes: [PostProps];
+    };
+    projects: {
+      nodes: [ProjectProps];
+    };
+  };
+  location: Location;
+}
 export default BlogIndex;
 
 export const pageQuery = graphql`

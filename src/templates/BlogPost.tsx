@@ -4,14 +4,14 @@ import { MDXRenderer } from 'gatsby-plugin-mdx';
 
 import Layout from '../components/Layout';
 import Seo from '../components/SEO';
+import { PostProps } from '../components/Post';
 
-const BlogPostTemplate = ({ data, location }) => {
-  const post = data.mdx;
-  const siteTitle = data.site.siteMetadata?.title || `Title`;
+const BlogPostTemplate = ({ data, location }: BlogPostTemplateProps) => {
+  const post: PostProps = data.mdx;
   const { previous, next } = data;
 
   return (
-    <Layout location={location} title={siteTitle}>
+    <Layout location={location}>
       <Seo
         title={post.frontmatter.title}
         description={post.frontmatter.description || post.excerpt}
@@ -53,15 +53,18 @@ const BlogPostTemplate = ({ data, location }) => {
   );
 };
 
+export interface BlogPostTemplateProps {
+  data: {
+    mdx: PostProps;
+    next: PostProps;
+    previous: PostProps;
+  };
+  location: Location;
+}
 export default BlogPostTemplate;
 
 export const pageQuery = graphql`
   query BlogPostBySlug($id: String!, $previousPostId: String, $nextPostId: String) {
-    site {
-      siteMetadata {
-        title
-      }
-    }
     mdx(id: { eq: $id }) {
       id
       excerpt(pruneLength: 160)

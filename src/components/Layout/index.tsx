@@ -2,7 +2,7 @@ import React from 'react';
 import Nav from '../Nav';
 import useStyles from './index.styles';
 
-const Layout = ({ location, children, headerContent }: Layout) => {
+const Layout = ({ location, children, headerContent }: LayoutProps) => {
   const rootPath = `${__PATH_PREFIX__}/`;
   const isRootPath = location.pathname === rootPath;
   const classes = useStyles();
@@ -20,7 +20,7 @@ const Layout = ({ location, children, headerContent }: Layout) => {
   );
 };
 
-export interface Layout {
+export interface LayoutProps {
   location: {
     pathname: string;
   };
