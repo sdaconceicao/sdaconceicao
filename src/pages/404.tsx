@@ -4,9 +4,7 @@ import { graphql } from 'gatsby';
 import Layout from '../components/Layout';
 import Seo from '../components/SEO';
 
-const NotFoundPage = ({ data, location }: NotFoundPageProps) => {
-  const siteTitle = data.site.siteMetadata.title;
-
+const NotFoundPage = ({ location }: NotFoundPageProps) => {
   return (
     <Layout location={location}>
       <Seo title="404: Not Found" />
@@ -17,13 +15,6 @@ const NotFoundPage = ({ data, location }: NotFoundPageProps) => {
 };
 
 export interface NotFoundPageProps {
-  data: {
-    site: {
-      siteMetadata: {
-        title: string;
-      };
-    };
-  };
   location: Location;
 }
 export default NotFoundPage;

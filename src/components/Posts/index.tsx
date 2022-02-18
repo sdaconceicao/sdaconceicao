@@ -1,6 +1,4 @@
 import React from 'react';
-import { Link } from 'gatsby';
-import { GatsbyImage, getImage, ImageDataLike } from 'gatsby-plugin-image';
 import Post, { PostProps } from '../Post';
 import useStyles from './index.styles';
 

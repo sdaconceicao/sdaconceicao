@@ -9,7 +9,7 @@ const Post = ({ frontmatter, fields, excerpt }: PostProps) => {
   const title = frontmatter.title || fields.slug;
   const image = getImage(frontmatter.featuredImage);
   return (
-    <article className="post-list-item" itemScope itemType="http://schema.org/Article">
+    <article className={classes.post} itemScope itemType="http://schema.org/Article">
       <header>
         <h2>
           <Link to={fields.slug} itemProp="url">

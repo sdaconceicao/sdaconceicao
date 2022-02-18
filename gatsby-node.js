@@ -52,28 +52,6 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   }
 };
 
-function nodeFieldPerType(filePath, getNodePath) {
-  if (node.internal.type === 'Mdx' && node.fileAbsolutePath.includes(filePath)) {
-    const value = createFilePath({ node, getNode });
-    createNodeField({
-      name: 'slug',
-      node,
-      value: getNodePath(value)
-    });
-  }
-}
-
-function nodeFieldPerType(filePath, getNodePath) {
-  if (node.internal.type === 'Mdx' && node.fileAbsolutePath.includes(filePath)) {
-    const value = createFilePath({ node, getNode });
-    createNodeField({
-      name: 'slug',
-      node,
-      value: getNodePath(value)
-    });
-  }
-}
-
 exports.onCreateNode = ({ node, actions, getNode }) => {
   const { createNodeField } = actions;
   if (node.internal.type === 'Mdx') {

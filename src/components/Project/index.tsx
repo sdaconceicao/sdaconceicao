@@ -8,7 +8,7 @@ const Project = ({ frontmatter, fields, excerpt }: ProjectProps) => {
 
   const title = frontmatter.title || fields.slug;
   return (
-    <article className="post-list-item" itemScope itemType="http://schema.org/Article">
+    <article className={classes.post} itemScope itemType="http://schema.org/Article">
       <header>
         <h2>
           <Link to={fields.slug} itemProp="url">
