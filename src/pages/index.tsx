@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { graphql } from 'gatsby';
 
-import Layout from '../components/Layout';
-import Seo from '../components/SEO';
-import About from '../components/About';
-import Posts from '../components/Posts';
-import Projects from '../components/Projects';
-import { ProjectProps } from '../components/Project';
-import { PostProps } from '../components/Post';
+import Layout from 'components/Layout';
+import Seo from 'components/SEO';
+import About from 'components/About';
+import Posts from 'components/Posts';
+import Projects from 'components/Projects';
+import { ProjectProps } from 'components/Project';
+import { PostProps } from 'components/Post';
 
 const BlogIndex = ({ data, location }: BlogIndex) => {
   const posts = data.allMdx.nodes;

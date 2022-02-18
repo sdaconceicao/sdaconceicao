@@ -1,6 +1,6 @@
 import React from 'react';
-import useGetBio from '../../hooks/useGetBio';
-import Contact from '../Contact';
+import useGetBio from 'hooks/useGetBio';
+import Contact from 'components/Contact';
 import useStyles from './index.styles';
 
 const About = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import Post, { PostProps } from '../Post';
+import Post, { PostProps } from 'components/Post';
 import useStyles from './index.styles';
 
 const Posts = ({ posts }: PostsProps) => {

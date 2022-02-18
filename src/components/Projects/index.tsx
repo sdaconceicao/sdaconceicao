@@ -1,6 +1,6 @@
 import React from 'react';
 import useStyles from './index.styles';
-import Project, { ProjectProps } from '../Project';
+import Project, { ProjectProps } from 'components/Project';
 
 const Projects = ({ projects }: ProjectsProps) => {
   const classes = useStyles();
