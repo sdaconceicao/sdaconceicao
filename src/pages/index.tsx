@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { graphql } from 'gatsby';
-
-import Layout from 'components/Layout';
-import Seo from 'components/SEO';
+// Components
 import About from 'components/About';
+import Layout from 'components/Layout';
 import Posts from 'components/Posts';
 import Projects from 'components/Projects';
+import Seo from 'components/SEO';
+// Types
 import { ProjectProps } from 'components/Project';
 import { PostProps } from 'components/Post';
 
@@ -15,9 +16,8 @@ const BlogIndex = ({ data, location }: BlogIndex) => {
 
   return (
     <Layout location={location} headerContent={<About />}>
-      <Seo title="All posts" />
+      <Seo title="Hi, I'm Steve" />
       <Projects projects={projects} />
-      <h3>Blog</h3>
       <Posts posts={posts} />
     </Layout>
   );
@@ -59,7 +59,7 @@ export const pageQuery = graphql`
           description
           featuredImage {
             childImageSharp {
-              gatsbyImageData(width: 200)
+              gatsbyImageData(width: 150)
             }
           }
         }

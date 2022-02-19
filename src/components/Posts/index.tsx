@@ -14,13 +14,16 @@ const Posts = ({ posts }: PostsProps) => {
     );
   }
   return (
-    <ol className={classes.posts}>
-      {posts.map((post) => (
-        <li key={post.fields.slug}>
-          <Post {...post} />
-        </li>
-      ))}
-    </ol>
+    <div className={classes.posts}>
+      <h2 className={classes.heading}>Posts</h2>
+      <ul>
+        {posts.map((post) => (
+          <li className={classes.post} key={post.fields.slug}>
+            <Post {...post} />
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

@@ -2,7 +2,10 @@ import { createUseStyles } from 'theme/createUseStylesWithTheme';
 
 export default createUseStyles(({ palette }: ThemeProps) => ({
   projects: {
-    padding: 20,
-    backgroundColor: palette.g300
+    backgroundColor: palette.g300,
+    padding: 20
+  },
+  heading: {
+    fontSize: '1.25rem'
   }
 }));

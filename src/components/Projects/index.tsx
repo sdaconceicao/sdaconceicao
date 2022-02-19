@@ -7,7 +7,7 @@ const Projects = ({ projects }: ProjectsProps) => {
 
   return (
     <div className={classes.projects}>
-      <h3>Projects</h3>
+      <h2 className={classes.heading}>Projects</h2>
       <ul>
         {projects.map((project) => (
           <li key={project.fields.slug}>

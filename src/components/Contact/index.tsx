@@ -18,7 +18,7 @@ const Contact = ({ list }: ContactProps) => {
     <div className={classes.contact}>
       <ul className={classes.list}>
         {list.map(({ type, url }) => (
-          <li className={classes.listItem}>
+          <li className={classes.listItem} key={type}>
             <a className={classes.link} href={url} rel="noreferrer" target="_blank">
               {Icons[type]}
             </a>
@@ -29,10 +29,15 @@ const Contact = ({ list }: ContactProps) => {
   );
 };
 
+export enum IconType {
+  linkedIn = 'linkedIn',
+  github = 'github',
+  mail = 'mail'
+}
 export interface ContactProps {
   list: [
     {
-      type: string;
+      type: IconType;
       url: string;
     }
   ];

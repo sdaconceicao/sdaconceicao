@@ -1,15 +1,13 @@
-import { useTheme, createUseStyles as originalUseStyles } from 'react-jss';
+import { useTheme, createUseStyles as originalUseStyles, DefaultTheme } from 'react-jss';
 
 /**
  * Return method to create classes with theme included in props
- * @param styles
- * @returns {*}
+ * @param generateStylesFn
+ * @returns classes obj
  */
 export const createUseStyles =
-  (
-    styles: any // eslint-disable-line @typescript-eslint/no-explicit-any
-  ) =>
+  (generateStylesFn: (styles: ThemeProps) => Record<string, string | DefaultTheme>) =>
   <P>(props?: P) => {
-    const theme = useTheme();
-    return originalUseStyles(styles)({ ...theme, ...props });
+    const theme = useTheme<DefaultTheme>();
+    return originalUseStyles(generateStylesFn)({ ...theme, ...props });
   };
