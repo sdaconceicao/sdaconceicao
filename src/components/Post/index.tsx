@@ -13,19 +13,14 @@ const Post = ({ frontmatter, fields, excerpt }: PostProps) => {
       <header>
         <h2>
           <Link to={fields.slug} itemProp="url">
-            <GatsbyImage image={image} alt={title} />
+            {image && <GatsbyImage image={image} alt={title} />}
             <span itemProp="headline">{title}</span>
           </Link>
         </h2>
         <small>{frontmatter.date}</small>
       </header>
       <section>
-        <p
-          dangerouslySetInnerHTML={{
-            __html: frontmatter.description || excerpt
-          }}
-          itemProp="description"
-        />
+        <p itemProp="description">{frontmatter.description || excerpt}</p>
       </section>
     </article>
   );

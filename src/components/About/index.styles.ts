@@ -1,6 +1,6 @@
-import { createUseStyles } from '../../theme/createUseStylesWithTheme';
+import { createUseStyles } from 'theme/createUseStylesWithTheme';
 
-export default createUseStyles(({ palette, maxWidth }) => ({
+export default createUseStyles(({ palette, maxWidth }: ThemeProps) => ({
   about: {
     width: '100%',
     backgroundColor: palette.primary,

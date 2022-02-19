@@ -1,6 +1,6 @@
-import { createUseStyles } from '../../theme/createUseStylesWithTheme';
+import { createUseStyles } from 'theme/createUseStylesWithTheme';
 
-export default createUseStyles(({ maxWidth, palette }) => ({
+export default createUseStyles(({ maxWidth, palette }: ThemeProps) => ({
   nav: {
     backgroundColor: palette.primaryBg,
     padding: 10,

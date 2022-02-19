@@ -1,6 +1,6 @@
-import { createUseStyles } from '../../theme/createUseStylesWithTheme';
+import { createUseStyles } from 'theme/createUseStylesWithTheme';
 
-export default createUseStyles(({ font, maxWidth }) => ({
+export default createUseStyles(({ font, maxWidth }: ThemeProps) => ({
   '@global': {
     body: {
       fontFamily: font.fontFamily,

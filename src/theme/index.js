@@ -62,6 +62,7 @@ const theme = {
   }
 };
 
+// TODO Required module.exports and js for usage with gatsby-config
 module.exports = {
   theme
 };

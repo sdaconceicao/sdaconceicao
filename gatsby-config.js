@@ -1,4 +1,4 @@
-const { theme } = require('./src/theme/theme.ts');
+const { theme } = require('./src/theme');
 const path = require('path');
 
 const gatsbyRequiredRules = path.join(

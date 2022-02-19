@@ -1,6 +1,6 @@
-import { createUseStyles } from '../../theme/createUseStylesWithTheme';
+import { createUseStyles } from 'theme/createUseStylesWithTheme';
 
-export default createUseStyles(({ palette }) => ({
+export default createUseStyles(({ palette }: ThemeProps) => ({
   posts: {
     width: '100%',
     height: 500,
