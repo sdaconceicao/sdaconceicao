@@ -21,12 +21,10 @@ export default createUseStyles(({ maxWidth, palette }: ThemeProps) => ({
   logo: {
     textTransform: 'uppercase'
   },
-  link: {
-    color: `${palette.g600}!important`
-  },
   list: {
     justifyContent: 'flex-start',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginRight: '.5rem'
   },
   listItem: {
     margin: 5,

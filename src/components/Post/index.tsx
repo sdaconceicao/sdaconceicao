@@ -30,6 +30,9 @@ const Post = ({ frontmatter, fields, excerpt }: PostProps) => {
           <p className={classes.excerpt} itemProp="description">
             {frontmatter.description || excerpt}
           </p>
+          <Link to={fields.slug} itemProp="url" className={classes.readMore}>
+            Read More -&gt;
+          </Link>
         </section>
       </article>
     </div>

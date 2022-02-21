@@ -1,17 +1,15 @@
 import React from 'react';
 import { FaLinkedin } from '@react-icons/all-files/fa/FaLinkedin';
 import { FaGithubSquare } from '@react-icons/all-files/fa/FaGithubSquare';
-import { FaEnvelope } from '@react-icons/all-files/fa/FaEnvelope';
 
 import useStyles from './index.styles';
 
 const Icons = {
   linkedIn: <FaLinkedin />,
-  github: <FaGithubSquare />,
-  mail: <FaEnvelope />
+  github: <FaGithubSquare />
 };
 
-const Contact = ({ list }: ContactProps) => {
+const Contact = ({ list, buttonClassname = '' }: ContactProps) => {
   const classes = useStyles();
 
   return (
@@ -19,7 +17,12 @@ const Contact = ({ list }: ContactProps) => {
       <ul className={classes.list}>
         {list.map(({ type, url }) => (
           <li className={classes.listItem} key={type}>
-            <a className={classes.link} href={url} rel="noreferrer" target="_blank">
+            <a
+              className={`${classes.link} ${buttonClassname}`}
+              href={url}
+              rel="noreferrer"
+              target="_blank"
+            >
               {Icons[type]}
             </a>
           </li>
@@ -31,8 +34,7 @@ const Contact = ({ list }: ContactProps) => {
 
 export enum IconType {
   linkedIn = 'linkedIn',
-  github = 'github',
-  mail = 'mail'
+  github = 'github'
 }
 export interface ContactProps {
   list: [
@@ -41,6 +43,7 @@ export interface ContactProps {
       url: string;
     }
   ];
+  buttonClassname?: string;
 }
 
 export default Contact;

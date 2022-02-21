@@ -1,15 +1,20 @@
 import React from 'react';
+
 import useGetBio from 'hooks/useGetBio';
-import Contact from 'components/Contact';
+import Social from 'components/Social';
 import useStyles from './index.styles';
+import img from '../../images/me.png';
 
 const About = () => {
   const classes = useStyles();
   const data = useGetBio();
-  const { author, contact } = data.site.siteMetadata;
+  const { author, social } = data.site.siteMetadata;
 
   return (
     <div className={classes.about}>
+      <div className={classes.avatar}>
+        <img className={classes.avatarImage} src={img} alt="Profile picture" />
+      </div>
       <div className={classes.content}>
         <div className={classes.summary}>
           <h3 className={classes.intro}> Hi, my name is {author.name}</h3>
@@ -18,8 +23,9 @@ const About = () => {
             focus on a11y and i18n
           </p>
         </div>
-        <div className={classes.contact}>
-          <Contact list={contact} />
+        <div className={classes.social}>
+          <h3 className={classes.followMe}> You can follow me at </h3>
+          <Social list={social} buttonClassname={classes.socialButtons} />
         </div>
       </div>
     </div>

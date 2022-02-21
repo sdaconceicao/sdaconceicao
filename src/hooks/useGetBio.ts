@@ -5,11 +5,12 @@ const useGetBio = () => {
     query BioQuery {
       site {
         siteMetadata {
+          title
           author {
             name
             summary
           }
-          contact {
+          social {
             type
             url
           }

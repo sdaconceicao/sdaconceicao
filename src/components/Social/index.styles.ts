@@ -4,10 +4,9 @@ export default createUseStyles(({ palette }: ThemeProps) => ({
   contact: {},
   listItem: {
     display: 'inline-block',
-    padding: [0, 10]
+    padding: [10, 10, 0, 0]
   },
   link: {
-    fontSize: 80,
     color: palette.g700
   }
 }));

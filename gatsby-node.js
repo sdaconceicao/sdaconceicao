@@ -82,13 +82,13 @@ exports.createSchemaCustomization = ({ actions }) => {
     type SiteSiteMetadata {
       author: Author
       siteUrl: String
-      contact: [Contact]
+      social: [Social]
     }
     type Author {
       name: String
       summary: String
     }
-    type Contact {
+    type Social {
       type: String
       url: String
     }

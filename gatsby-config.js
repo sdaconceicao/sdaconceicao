@@ -19,10 +19,9 @@ module.exports = {
     },
     description: `A starter blog demonstrating what Gatsby can do.`,
     siteUrl: `http://stephenandrewdesigns.com`,
-    contact: [
+    social: [
       { type: 'linkedIn', url: `https://www.linkedin.com/in/sdaconceicao/` },
-      { type: 'github', url: `https://github.com/sdaconceicao` },
-      { type: 'mail', url: 'mailto:stephen@stephenandrewdesigns.com' }
+      { type: 'github', url: `https://github.com/sdaconceicao` }
     ]
   },
   plugins: [

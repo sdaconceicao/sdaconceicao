@@ -33,6 +33,12 @@ const colors = {
 
 const theme = {
   maxWidth: 1120,
+  breakpoints: {
+    xlarge: '@media screen and (min-width: 1281)',
+    large: '@media screen and (min-width: 901px) and (max-width: 1280px)',
+    medium: '@media screen and (min-width: 651px) and (max-width: 900px)',
+    small: '@media screen and (max-width: 650px)'
+  },
   palette: {
     primaryBg: colors.primary,
     primaryFg: colors.white,

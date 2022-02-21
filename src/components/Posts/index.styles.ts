@@ -9,7 +9,7 @@ export default createUseStyles(({ palette }: ThemeProps) => ({
     fontSize: '1.25rem'
   },
   post: {
-    borderBottom: `1px solid ${palette.g400}`,
+    borderBottom: `1px solid ${palette.g300}`,
     '&:last-child': {
       borderBottom: 'none'
     }
