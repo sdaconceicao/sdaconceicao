@@ -52,12 +52,7 @@ const theme = {
     secondaryBgHover: colors.secondaryDark,
     secondaryFgHover: colors.white,
     secondaryBorderHover: colors.secondaryDark,
-    tertiaryBg: colors.tertiary,
-    tertiaryFg: colors.white,
-    tertiaryBorder: colors.tertiary,
-    tertiaryBgHover: colors.tertiaryDark,
-    tertiaryFgHover: colors.g100,
-    tertiaryBorderHover: colors.tertiaryDark,
+    text: colors.g500,
     link: colors.primary,
     linkLight: colors.white,
     ...colors
