@@ -5,6 +5,50 @@ description: 'There are many different ways to deal with local data'
 featuredImage: './salty_egg.jpg'
 ---
 
-## TEST
+import CodePreview from 'components/CodePreview';
 
-I like mdx
+## Cookies
+
+A cookie is a string stored on the user's computer by the web browser while browsing a website.
+
+### Comparison
+
+| Pros                                          | Cons                            |
+| --------------------------------------------- | ------------------------------- |
+| Native support without any library usage.     | Only supports storing strings   |
+| Simple key/value pairs are easy to understand | Extremely limited storage (4kb) |
+
+### Debugging
+
+To view your current cookies:
+
+- Go to the Application tab in the Chrome Dev console
+- Under storage, go to the Cookies item
+- Click the current url you're on
+
+## Code
+
+### Get Time
+
+Cookies are stored as a giant string that has to be split and iterated over to find our value.
+
+<CodePreview
+  code={`
+import x from 'x';
+const storeTime = (value) => {
+  document.cookie = "time=" + value.toString();
+}
+const getTime = () => (
+    document.cookie.split(';').map(cookie => {
+      const [name, value] = cookie.split('=');
+      if (name === 'time'){
+        return value;
+      }
+    })
+  );
+storeTime(new Date());
+<div>
+  The time is {getTime()}
+</div>
+`}
+/>

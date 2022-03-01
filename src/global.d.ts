@@ -4,6 +4,9 @@ declare module '*.png' {
   const value: any;
   export default value;
 }
+
+declare module 'js-beautify';
+declare module '@babel/standalone';
 declare interface ThemeProps {
   palette: Record<string, unknown>;
   maxWidth: number;

@@ -8,8 +8,11 @@
     "url": "https://github.com/gatsbyjs/gatsby/issues"
   },
   "dependencies": {
+    "@babel/standalone": "^7.17.6",
     "@fontsource/roboto": "^4.5.3",
     "@react-icons/all-files": "^4.1.0",
+    "acorn": "^8.7.0",
+    "escodegen": "^2.0.0",
     "gatsby": "^4.6.0",
     "gatsby-plugin-feed": "^4.6.0",
     "gatsby-plugin-gatsby-cloud": "^4.6.0",
@@ -29,6 +32,8 @@
     "gatsby-source-filesystem": "^4.6.0",
     "gatsby-transformer-remark": "^5.6.0",
     "gatsby-transformer-sharp": "^4.6.0",
+    "js-beautify": "^1.14.0",
+    "object-path": "^0.11.8",
     "prismjs": "^1.25.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -38,6 +43,9 @@
     "reset-css": "^5.0.1"
   },
   "devDependencies": {
+    "@types/escodegen": "^0.0.7",
+    "@types/object-path": "^0.11.1",
+    "@types/react-dom": "^17.0.11",
     "@types/react-helmet": "^6.1.5",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
