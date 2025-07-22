@@ -3,15 +3,13 @@
 ## How do you pronounce that?
 
 - da Con Say Sone
-- because I said so
-- no it's not Italian.
 
 ## What do I do?
 
 - Frontend Web Development with a focus on
   - A11y
-  - i18n
   - CI Automation
+- Using AI to be a more efficient developer
 - Woodworking
 - Historical Reenactment
 
