@@ -5,7 +5,7 @@ export const SITE = {
   author: "Stephen da Conceicao",
   role: "Frontend Lead",
   tagline:
-    "Call me Steve. ",
+    "Call me Steve. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   description:
     "Frontend engineer with 15+ years of experience, focused on accessibility and internationalization. Portfolio, writing, and work history.",
   url: "https://stephenandrewdesigns.com",
@@ -21,6 +21,10 @@ export const SECTIONS = [
   { id: "writing", label: "Writing" },
 ] as const;
 
+/** Lives in /public, so the path is the URL. Referenced by the rail and by the
+ *  Experience section, which is why it is not inlined at either call site. */
+export const RESUME_HREF = "/Resume.pdf";
+
 export const SITE_LINKS = [
   { href: "/projects", label: "All projects" },
   { href: "/blog", label: "Blog" },
@@ -29,4 +33,7 @@ export const SITE_LINKS = [
 export const SOCIALS = [
   { label: "GitHub", href: "https://github.com/sdaconceicao", icon: "github" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/sdaconceicao", icon: "linkedin" },
+  /* Same-origin file rather than a profile -- SocialLinks keys rel="me" off
+     that, since rel="me" is an identity claim and a PDF cannot make one. */
+  { label: "Resume", href: RESUME_HREF, icon: "file-text" },
 ] as const;

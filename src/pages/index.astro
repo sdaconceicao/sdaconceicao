@@ -10,7 +10,7 @@ import { yearsSince } from "../lib/dates";
 import { sortJobs } from "../lib/jobs";
 import { selectLatest } from "../lib/posts";
 import { selectFeatured } from "../lib/projects";
-import { SITE } from "../site";
+import { RESUME_HREF, SITE } from "../site";
 
 const jobs = sortJobs(await getCollection("jobs"));
 const projects = selectFeatured(await getCollection("projects"));
@@ -55,6 +55,11 @@ const years = yearsSince(SITE.careerStart, new Date());
         />
       ))
     }
+    <p class="experience-more">
+      <ArrowLink href={RESUME_HREF} direction="ne" external>
+        View my resume
+      </ArrowLink>
+    </p>
   </Section>
 
   <Section id="projects" title="Projects">
@@ -75,7 +80,7 @@ const years = yearsSince(SITE.careerStart, new Date());
     }
     <p class="projects-more">
       <ArrowLink href="/projects" direction="e">
-        All projects
+        View All projects
       </ArrowLink>
     </p>
   </Section>
@@ -132,6 +137,7 @@ const years = yearsSince(SITE.careerStart, new Date());
     text-decoration-color: currentColor;
   }
 
+  .experience-more,
   .projects-more,
   .writing-more {
     margin-block-start: var(--spacing-8);

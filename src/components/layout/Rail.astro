@@ -74,7 +74,7 @@ const NameTag = variant === "home" ? "h1" : "p";
   .rail {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-10);
+    gap: var(--spacing-6);
     max-inline-size: var(--rail-measure);
     padding-block: var(--spacing-12) var(--spacing-8);
   }
@@ -113,16 +113,37 @@ const NameTag = variant === "home" ? "h1" : "p";
     color: var(--fg-muted);
   }
 
+  /*
+   * Phones get the intro and nothing else: name, role, tagline, socials, then
+   * straight into the content. Two reasons the nav is dead weight down here.
+   * The scroll-spy points at sections that are already the very next thing on
+   * screen in a stacked layout, and the site links duplicate the "All
+   * projects" / "All posts" links that live inside those sections -- so
+   * nothing becomes unreachable. What it buys is a first screen that is the
+   * person rather than a table of contents.
+   *
+   * 48rem is the same phone/not-phone line the cards already use.
+   */
   .rail-nav {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-5);
-    margin-block-start: var(--spacing-4);
+    display: none;
   }
 
   .site-links {
     display: flex;
     gap: var(--spacing-5);
+  }
+
+  @media (min-width: 48rem) {
+    .rail {
+      gap: var(--spacing-10);
+    }
+
+    .rail-nav {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-5);
+      margin-block-start: var(--spacing-4);
+    }
   }
 
   /*

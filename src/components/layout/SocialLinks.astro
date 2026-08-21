@@ -12,7 +12,18 @@ const { items, size = 22 } = Astro.props;
   {
     items.map((item) => (
       <li>
-        <a class="social-link" href={item.href} rel="me noopener noreferrer" target="_blank">
+        {/*
+          rel="me" is an identity claim -- "this profile is the same person as
+          this site", which is what Mastodon and IndieAuth verify against. A
+          same-origin file cannot make that claim, so it gets noopener only.
+          noopener stays on both: every link here opens a new tab.
+        */}
+        <a
+          class="social-link"
+          href={item.href}
+          rel={/^https?:/i.test(item.href) ? "me noopener noreferrer" : "noopener noreferrer"}
+          target="_blank"
+        >
           <Icon name={item.icon as IconName} size={size} />
           {/*
             The accessible name comes from visually-hidden TEXT, not aria-label.

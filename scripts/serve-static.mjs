@@ -35,6 +35,9 @@ const TYPES = {
   ".avif": "image/avif",
   ".woff": "font/woff",
   ".woff2": "font/woff2",
+  /* Without this the resume falls through to octet-stream and every browser
+     downloads it instead of opening it in the tab the link asked for. */
+  ".pdf": "application/pdf",
 };
 
 /** Astro's directory build format: /blog -> /blog/index.html, /404 -> /404.html. */
