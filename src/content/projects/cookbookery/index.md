@@ -6,9 +6,14 @@ repo: https://github.com/sdaconceicao
 tech:
   - React
   - Node.js
-featured: true
+featured: false
+# Optional cover image. Drop the file next to this index.md and uncomment
+# both lines -- image() resolves the relative path at build time, and the
+# schema fails the build if imageAlt is missing.
+# image: ./cover.png
+# imageAlt: ""
 status: archived
-order: 2
+order: 4
 ---
 
 A recipe tracker built to scratch a personal itch: keeping the recipes I

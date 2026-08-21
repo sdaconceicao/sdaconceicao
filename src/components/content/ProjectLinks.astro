@@ -1,0 +1,54 @@
+---
+import Icon from "../ui/Icon.astro";
+
+interface Props {
+  title: string;
+  href?: string;
+  repo?: string;
+}
+
+const { title, href, repo } = Astro.props;
+---
+
+{
+  (href || repo) && (
+    <p class="project-links">
+      {href && (
+        <a href={href} rel="noopener noreferrer" target="_blank">
+          <Icon name="arrow-ne" size={16} />
+          <span>View site</span>
+          <span class="sr-only"> for {title} (opens in a new tab)</span>
+        </a>
+      )}
+      {repo && (
+        <a href={repo} rel="noopener noreferrer" target="_blank">
+          <Icon name="github" size={16} />
+          <span>Source</span>
+          <span class="sr-only"> for {title} (opens in a new tab)</span>
+        </a>
+      )}
+    </p>
+  )
+}
+
+<style>
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+    margin-block-start: var(--spacing-3);
+    font-size: var(--text-sm);
+  }
+
+  .project-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .project-links a:hover {
+    color: var(--accent);
+  }
+</style>

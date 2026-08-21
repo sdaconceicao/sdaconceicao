@@ -3,10 +3,12 @@ import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import Icon from "../ui/Icon.astro";
 import TechTagList from "../ui/TechTagList.astro";
+import ProjectLinks from "./ProjectLinks.astro";
 
 interface Props {
   title: string;
   description: string;
+  slug: string;
   href?: string;
   repo?: string;
   tech: readonly string[];
@@ -16,9 +18,8 @@ interface Props {
   body?: string;
 }
 
-const { title, description, href, repo, tech, image, imageAlt, status } = Astro.props;
-const primary = href ?? repo;
-const external = primary !== undefined;
+const { title, description, slug, href, repo, tech, image, imageAlt, status } = Astro.props;
+const detailHref = `/projects/${slug}`;
 /* A status other than "live" is conveyed as TEXT, not a colour. */
 const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "Archived" : null;
 ---
@@ -39,33 +40,16 @@ const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "
 
   <div class="project-body">
     <h3 class="project-title">
-      {
-        primary ? (
-          <a class="project-link" href={primary} rel="noopener noreferrer" target="_blank">
-            <span>{title}</span>
-            {external && <span class="sr-only"> (opens in a new tab)</span>}
-            <Icon name="arrow-ne" size={16} />
-          </a>
-        ) : (
-          <span>{title}</span>
-        )
-      }
+      <a class="project-link" href={detailHref}>
+        <span>{title}</span>
+        <Icon name="arrow-e" size={16} />
+      </a>
       {statusLabel && <span class="project-status">{statusLabel}</span>}
     </h3>
 
     <p class="project-description">{description}</p>
 
-    {
-      href && repo && (
-        <p class="project-repo">
-          <a href={repo} rel="noopener noreferrer" target="_blank">
-            <Icon name="github" size={16} />
-            <span>Source</span>
-            <span class="sr-only"> for {title} (opens in a new tab)</span>
-          </a>
-        </p>
-      )
-    }
+    <ProjectLinks title={title} href={href} repo={repo} />
 
     <TechTagList items={tech} label={`Technologies used in ${title}`} />
   </div>
@@ -138,7 +122,8 @@ const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "
     inset: 0;
   }
 
-  .project :where(a, button):not(.project-link) {
+  .project :global(a:not(.project-link)),
+  .project :global(button) {
     position: relative;
     z-index: 1;
   }
@@ -154,23 +139,6 @@ const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "
 
   .project:hover .project-link :global(.icon) {
     translate: 0.15em -0.15em;
-  }
-
-  .project-repo {
-    margin-block-start: var(--spacing-3);
-    font-size: var(--text-sm);
-  }
-
-  .project-repo a {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    color: var(--fg-muted);
-    text-decoration: none;
-  }
-
-  .project-repo a:hover {
-    color: var(--accent);
   }
 
   .project-image {

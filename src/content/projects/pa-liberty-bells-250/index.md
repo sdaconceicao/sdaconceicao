@@ -1,23 +1,20 @@
 ---
-title: Code-X / Lago
+title: PA Liberty Bells 250
 description: A React design system built on react-aria-components, providing accessible components, design tokens, and guidelines for building applications.
-repo: https://github.com/sdaconceicao/lago
-url: https://main--6a4eb38660443c1eee94713d.chromatic.com/
+repo: https://github.com/sdaconceicao/pa-libertybells-250
+url: https://pa-libertybells-250.vercel.app/
 tech:
   - React
   - TypeScript
-  - react-aria-components
+  - Tanstack Start
   - Vite
-  - Storybook
   - Playwright
 featured: true
-# Optional cover image. Drop the file next to this index.md and uncomment
-# both lines -- image() resolves the relative path at build time, and the
-# schema fails the build if imageAlt is missing.
-# image: ./cover.png
+image: ./cover.png
+imageAlt: "PA Liberty Bells Homepage"
 # imageAlt: ""
-status: wip
-order: 1
+status: live
+order: 3
 ---
 
 An accessibility-first design system. Every component is built on

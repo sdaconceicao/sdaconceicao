@@ -1,0 +1,64 @@
+---
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import ProjectLinks from "../../components/content/ProjectLinks.astro";
+import Prose from "../../components/content/Prose.astro";
+import TechTagList from "../../components/ui/TechTagList.astro";
+import PageLayout from "../../layouts/PageLayout.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, description, status, url, repo, tech } = project.data;
+/* A status other than "live" is conveyed as TEXT, not a colour. */
+const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "Archived" : "Live";
+---
+
+<PageLayout
+  title={title}
+  description={description}
+  type="article"
+  backHref="/projects"
+  backLabel="All projects"
+>
+  <article>
+    <header class="project-header">
+      <h1 class="project-title">{title}</h1>
+      <p class="project-meta">{statusLabel}</p>
+      <ProjectLinks title={title} href={url} repo={repo} />
+      <TechTagList items={tech} label={`Technologies used in ${title}`} />
+    </header>
+
+    <Prose>
+      <Content />
+    </Prose>
+  </article>
+</PageLayout>
+
+<style>
+  .project-header {
+    margin-block-end: var(--spacing-12);
+  }
+
+  .project-title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tight);
+    text-wrap: balance;
+  }
+
+  .project-meta {
+    margin-block-start: var(--spacing-3);
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+  }
+</style>

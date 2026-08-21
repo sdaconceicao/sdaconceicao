@@ -9,11 +9,11 @@ import HomeLayout from "../layouts/HomeLayout.astro";
 import { yearsSince } from "../lib/dates";
 import { sortJobs } from "../lib/jobs";
 import { selectLatest } from "../lib/posts";
-import { sortProjects } from "../lib/projects";
+import { selectFeatured } from "../lib/projects";
 import { SITE } from "../site";
 
 const jobs = sortJobs(await getCollection("jobs"));
-const projects = sortProjects(await getCollection("projects"));
+const projects = selectFeatured(await getCollection("projects"));
 const posts = selectLatest(await getCollection("blog"), 3);
 const years = yearsSince(SITE.careerStart, new Date());
 ---
@@ -22,7 +22,7 @@ const years = yearsSince(SITE.careerStart, new Date());
   <Section id="about" title="About">
     <div class="about-prose">
       <p>
-        I'm a software engineer with over {years} years of experience in frontend development, focused
+         years of experience in frontend development, focused
         on <strong>accessibility</strong> and <strong>internationalization</strong> — the parts of
         the craft that decide whether software actually works for the people using it.
       </p>
@@ -62,6 +62,7 @@ const years = yearsSince(SITE.careerStart, new Date());
       projects.map((project) => (
         <ProjectCard
           title={project.data.title}
+          slug={project.id}
           description={project.data.description}
           href={project.data.url}
           repo={project.data.repo}
@@ -72,6 +73,11 @@ const years = yearsSince(SITE.careerStart, new Date());
         />
       ))
     }
+    <p class="projects-more">
+      <ArrowLink href="/projects" direction="e">
+        All projects
+      </ArrowLink>
+    </p>
   </Section>
 
   <Section id="writing" title="Writing">
@@ -126,6 +132,7 @@ const years = yearsSince(SITE.careerStart, new Date());
     text-decoration-color: currentColor;
   }
 
+  .projects-more,
   .writing-more {
     margin-block-start: var(--spacing-8);
   }

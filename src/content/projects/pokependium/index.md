@@ -1,23 +1,20 @@
 ---
-title: Code-X / Lago
+title: Pokependium
 description: A React design system built on react-aria-components, providing accessible components, design tokens, and guidelines for building applications.
-repo: https://github.com/sdaconceicao/lago
-url: https://main--6a4eb38660443c1eee94713d.chromatic.com/
+repo: https://github.com/sdaconceicao/pokependium
+url: https://pokedex-frontend-beryl.vercel.app/
 tech:
-  - React
+  - Next.js
+  - GraphQl
+  - nestjs
   - TypeScript
-  - react-aria-components
   - Vite
-  - Storybook
   - Playwright
 featured: true
-# Optional cover image. Drop the file next to this index.md and uncomment
-# both lines -- image() resolves the relative path at build time, and the
-# schema fails the build if imageAlt is missing.
-# image: ./cover.png
-# imageAlt: ""
-status: wip
-order: 1
+image: ./cover.png
+imageAlt: "Pokependium homepage"
+status: live
+order: 2
 ---
 
 An accessibility-first design system. Every component is built on
