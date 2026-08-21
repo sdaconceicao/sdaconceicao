@@ -1,0 +1,19 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": [
+    "dist",
+    ".vercel",
+    "node_modules",
+    "coverage",
+    "playwright-report",
+    "test-results",
+    "docs"
+  ],
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "allowJs": true,
+    "verbatimModuleSyntax": true,
+    "types": ["vitest/globals"]
+  }
+}

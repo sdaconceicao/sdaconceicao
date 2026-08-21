@@ -1,0 +1,9 @@
+---
+description: Accessibility Standards
+globs: **/*.astro,**/*.css,**/*.tsx
+alwaysApply: false
+---
+
+# Accessibility Standards
+
+Read and follow '../../rules/ACCESSIBILITY.md';

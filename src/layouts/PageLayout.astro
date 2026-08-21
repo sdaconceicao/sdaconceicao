@@ -1,0 +1,43 @@
+---
+import Rail from "../components/layout/Rail.astro";
+import Shell from "../components/layout/Shell.astro";
+import SiteFooter from "../components/layout/SiteFooter.astro";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  type?: "website" | "article";
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  noindex?: boolean;
+  backHref?: string;
+  backLabel?: string;
+}
+const { backHref = "/", backLabel = "Back home", ...head } = Astro.props;
+---
+
+<BaseLayout {...head}>
+  <Shell>
+    <Rail slot="rail" variant="compact" backHref={backHref} backLabel={backLabel} />
+    <div slot="main">
+      <main id="main" class="page-main">
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
+  </Shell>
+</BaseLayout>
+
+<style>
+  .page-main {
+    padding-block: var(--spacing-12);
+  }
+
+  @media (min-width: 64rem) and (min-height: 44rem) {
+    .page-main {
+      padding-block: var(--spacing-24) var(--spacing-16);
+    }
+  }
+</style>

@@ -1,0 +1,135 @@
+backend:
+  name: github
+  repo: sdaconceicao/sdaconceicao
+  branch: master
+  # MUST be the exact origin -- no path, no trailing slash, no www.
+  # Decap compares `event.origin === this.base_url` with ===. A mismatch makes
+  # the popup complete successfully and then hang forever, with NO console error
+  # and NO failed request. To verify: open the live /admin/, type
+  # window.location.origin in the console, and paste that exact string here.
+  base_url: https://stephenandrewdesigns.com
+  auth_endpoint: api/auth
+  # public_repo is sufficient for a public repo. The default (`repo`) would grant
+  # full read/write on every private repo the account owns.
+  auth_scope: public_repo
+  commit_messages:
+    create: "content: add {{collection}} {{slug}}"
+    update: "content: update {{collection}} {{slug}}"
+    delete: "content: remove {{collection}} {{slug}}"
+    uploadMedia: "content: upload {{path}}"
+    deleteMedia: "content: remove {{path}}"
+
+# Safe to ship to production: Decap gates this to localhost/127.0.0.1 inside
+# detectProxyServer(). Locally, `pnpm cms:dev` writes straight to disk and no
+# GitHub OAuth app is involved at all.
+local_backend: true
+
+# Editorial workflow is OFF, knowingly. Every save commits directly to the
+# branch above and triggers a production deploy. The alternative creates a
+# branch, a PR, a preview deploy and a CI run per save, and it is historically
+# Decap's least reliable subsystem. The draft:true default plus the view_filters
+# below plus previewable-but-noindexed draft pages gives the same capability.
+publish_mode: simple
+
+site_url: https://stephenandrewdesigns.com
+display_url: https://stephenandrewdesigns.com
+logo_url: https://stephenandrewdesigns.com/favicon.svg
+
+# Global fallback only. The blog collection overrides both to "" to co-locate.
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+  - name: blog
+    label: Blog
+    label_singular: Post
+    description: Posts published at /blog. New posts default to draft.
+    folder: src/content/blog
+    create: true
+    delete: true
+    path: "{{slug}}/index"
+    slug: "{{slug}}"
+    extension: mdx
+    format: yaml-frontmatter
+    # Empty string EXPLICITLY set (not omitted): Decap checks collection.has(key),
+    # so "" counts as configured. This co-locates uploads next to index.mdx and
+    # writes a BARE filename into frontmatter -- which is exactly why
+    # blog.heroImage is z.string() plus a resolver rather than image().
+    media_folder: ""
+    public_folder: ""
+    summary: "{{title}}"
+    sortable_fields: [pubDate, title]
+    view_filters:
+      - label: Drafts
+        field: draft
+        pattern: true
+      - label: Published
+        field: draft
+        pattern: false
+    editor:
+      # Off: the MDX can import Astro components Decap cannot render, so the
+      # preview pane would show a broken half-render and cost more confusion
+      # than it is worth.
+      preview: false
+    fields:
+      - name: title
+        label: Title
+        widget: string
+        pattern: ["^.{1,120}$", "Max 120 characters"]
+      - name: description
+        label: Description
+        widget: text
+        hint: Used for the post list, RSS, and the meta description.
+        pattern: ["^[\\s\\S]{1,300}$", "Max 300 characters"]
+      - name: pubDate
+        label: Publish date
+        widget: datetime
+        date_format: YYYY-MM-DD
+        time_format: false
+        picker_utc: true
+        format: YYYY-MM-DD
+      - name: updatedDate
+        label: Last updated
+        widget: datetime
+        required: false
+        date_format: YYYY-MM-DD
+        time_format: false
+        picker_utc: true
+        format: YYYY-MM-DD
+      - name: draft
+        label: Draft
+        widget: boolean
+        default: true
+        hint: Drafts build to a previewable, noindexed URL but stay off /blog and RSS.
+      - name: tags
+        label: Tags
+        widget: list
+        required: false
+        default: []
+        field: { name: tag, label: Tag, widget: string }
+      - name: heroImage
+        label: Hero image
+        widget: image
+        required: false
+        allow_multiple: false
+        media_library:
+          config:
+            max_file_size: 2097152
+      - name: heroImageAlt
+        label: Hero image alt text
+        widget: string
+        required: false
+        hint: Required whenever a hero image is set -- the build fails without it.
+      - name: canonicalUrl
+        label: Canonical URL
+        widget: string
+        required: false
+        hint: Only if this post was published elsewhere first.
+      - name: body
+        label: Body
+        widget: markdown

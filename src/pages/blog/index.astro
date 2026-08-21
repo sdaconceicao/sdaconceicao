@@ -1,0 +1,60 @@
+---
+import { getCollection } from "astro:content";
+import PostCard from "../../components/content/PostCard.astro";
+import PageLayout from "../../layouts/PageLayout.astro";
+import { readingTimeMinutes } from "../../lib/dates";
+import { selectPublished } from "../../lib/posts";
+
+const posts = selectPublished(await getCollection("blog"));
+---
+
+<PageLayout
+  title="Writing"
+  description="Posts on frontend development, accessibility, and internationalization."
+>
+  <h1 class="page-title">Writing</h1>
+  <p class="page-intro">
+    Notes on frontend development, accessibility, and the parts of the browser that surprise me.
+  </p>
+
+  {
+    posts.length > 0 ? (
+      <div class="post-list">
+        {posts.map((post) => (
+          <PostCard
+            title={post.data.title}
+            href={`/blog/${post.id}`}
+            pubDate={post.data.pubDate}
+            description={post.data.description}
+            tags={post.data.tags}
+            readingTime={readingTimeMinutes(post.body ?? "")}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class="empty">No published posts yet.</p>
+    )
+  }
+</PageLayout>
+
+<style>
+  .page-title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .page-intro {
+    max-inline-size: var(--measure);
+    margin-block-start: var(--spacing-3);
+  }
+
+  .post-list {
+    margin-block-start: var(--spacing-12);
+  }
+
+  .empty {
+    margin-block-start: var(--spacing-8);
+    color: var(--fg-dim);
+  }
+</style>

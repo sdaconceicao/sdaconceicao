@@ -1,0 +1,50 @@
+---
+interface Props {
+  id: string;
+  title: string;
+}
+const { id, title } = Astro.props;
+const titleId = `${id}-title`;
+---
+
+<!--
+  tabindex="-1" so fragment navigation actually moves focus rather than only
+  scrolling. Deliberately NOT paired with outline: none -- programmatic focus
+  after a click does not match :focus-visible, so no ring appears anyway.
+  A named <section> maps to a region landmark, making the page navigable by
+  landmark rotor. Four regions is the right number; do not add more.
+-->
+<section id={id} aria-labelledby={titleId} tabindex="-1" class="section">
+  <h2 id={titleId} class="section-title">{title}</h2>
+  <slot />
+</section>
+
+<style>
+  .section {
+    padding-block: var(--spacing-12);
+  }
+
+  /*
+   * Headings stay VISIBLE at every breakpoint. The inspiration sr-only's them on
+   * desktop because its sticky nav supplies the labels; visible headings are
+   * better for cognitive accessibility (SC 2.4.6) and for anyone arriving at
+   * #experience from a deep link.
+   */
+  .section-title {
+    margin-block-end: var(--spacing-8);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    /* Uppercased in CSS, not in source: VoiceOver spells out short all-caps
+       source strings letter by letter. */
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 64rem) and (min-height: 44rem) {
+    .section {
+      padding-block: var(--spacing-16);
+    }
+  }
+</style>

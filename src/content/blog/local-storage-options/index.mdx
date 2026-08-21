@@ -1,0 +1,66 @@
+---
+title: Local Storage Options
+description: There are many different ways to deal with local data in the browser, and the tradeoffs are not obvious.
+pubDate: 2026-08-20
+draft: true
+tags:
+  - JavaScript
+  - Browser
+---
+
+## Cookies
+
+A cookie is a string stored on the user's computer by the web browser while
+browsing a website.
+
+### Comparison
+
+| Pros                                          | Cons                            |
+| --------------------------------------------- | ------------------------------- |
+| Native support without any library usage      | Only supports storing strings   |
+| Simple key/value pairs are easy to understand | Extremely limited storage (4kb) |
+
+### Debugging
+
+To view your current cookies:
+
+- Go to the Application tab in the Chrome dev console
+- Under Storage, go to the Cookies item
+- Click the current URL you're on
+
+### Reading and writing
+
+Cookies are stored as one long string that has to be split and iterated over to
+find a single value.
+
+```js
+const storeTime = (value) => {
+  document.cookie = `time=${value.toString()}`;
+};
+
+const getTime = () =>
+  document.cookie
+    .split(";")
+    .map((cookie) => cookie.split("="))
+    .find(([name]) => name.trim() === "time")?.[1];
+
+storeTime(new Date());
+```
+
+Note the `.find()` rather than a `.map()` that returns `undefined` for every
+non-matching entry — the naive version leaves holes in the array and forces the
+caller to filter them out.
+
+{/* TODO: this post still owes the reader the sections its title promises. */}
+
+## localStorage
+
+TODO
+
+## sessionStorage
+
+TODO
+
+## IndexedDB
+
+TODO

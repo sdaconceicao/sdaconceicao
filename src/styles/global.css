@@ -1,0 +1,9 @@
+/* Layer order. Component <style> blocks stay UNLAYERED on purpose: unlayered
+ * rules outrank every layered rule regardless of specificity, which is exactly
+ * the override direction we want. Same mental model as
+ * pokedex/frontend/app/globals.css. */
+@layer reset, tokens, base, utilities;
+
+@import url("./reset.css") layer(reset);
+@import url("./tokens.css") layer(tokens);
+@import url("./base.css") layer(base);

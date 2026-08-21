@@ -1,0 +1,24 @@
+---
+import ArrowLink from "../components/ui/ArrowLink.astro";
+import PageLayout from "../layouts/PageLayout.astro";
+---
+
+<PageLayout title="Page not found" description="That page does not exist." noindex>
+  <h1 class="title">404</h1>
+  <p class="message">That page doesn't exist. It may have been part of the old site.</p>
+  <p><ArrowLink href="/" direction="w">Back home</ArrowLink></p>
+</PageLayout>
+
+<style>
+  .title {
+    font-family: var(--font-mono);
+    font-size: var(--text-display);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .message {
+    max-inline-size: var(--measure);
+    margin-block: var(--spacing-4) var(--spacing-6);
+  }
+</style>

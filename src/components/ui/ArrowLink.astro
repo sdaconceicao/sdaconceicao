@@ -1,0 +1,67 @@
+---
+import Icon, { type IconName } from "./Icon.astro";
+
+interface Props {
+  href: string;
+  /** Owns external-link semantics so they cannot be forgotten at a call site. */
+  external?: boolean;
+  direction?: "ne" | "e" | "w";
+  class?: string;
+}
+
+const { href, external = false, direction = "ne", class: className } = Astro.props;
+const iconName = `arrow-${direction}` as IconName;
+---
+
+<a
+  href={href}
+  rel={external ? "noopener noreferrer" : undefined}
+  target={external ? "_blank" : undefined}
+  class:list={["arrow-link", className]}
+  data-direction={direction}
+>
+  <span><slot /></span>
+  {external && <span class="sr-only"> (opens in a new tab)</span>}
+  <Icon name={iconName} size={16} />
+</a>
+
+<style>
+  .arrow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .arrow-link:hover {
+    color: var(--accent-hover);
+  }
+
+  /* --dur-fast is already 1ms under reduced motion, so this needs no media
+     query of its own. That is the payoff of zeroing motion at the token. */
+  .arrow-link :global(.icon) {
+    transition: translate var(--dur-fast) var(--ease);
+  }
+
+  .arrow-link[data-direction="ne"]:hover :global(.icon),
+  .arrow-link[data-direction="ne"]:focus-visible :global(.icon) {
+    translate: 0.15em -0.15em;
+  }
+
+  .arrow-link[data-direction="e"]:hover :global(.icon),
+  .arrow-link[data-direction="e"]:focus-visible :global(.icon) {
+    translate: 0.2em 0;
+  }
+
+  .arrow-link[data-direction="w"]:hover :global(.icon),
+  .arrow-link[data-direction="w"]:focus-visible :global(.icon) {
+    translate: -0.2em 0;
+  }
+
+  /* The arrow glyphs are one of the two things logical properties cannot fix. */
+  :global([dir="rtl"]) .arrow-link :global(.icon) {
+    scale: -1 1;
+  }
+</style>

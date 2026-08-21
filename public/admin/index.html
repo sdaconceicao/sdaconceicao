@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Content Manager &middot; stephenandrewdesigns.com</title>
+  </head>
+  <body>
+    <!--
+      Loaded from a CDN, EXACT-pinned, with an SRI hash.
+
+      Why the CDN and not npm: Astro copies public/ byte-for-byte and never runs
+      it through Vite, so this cannot break when Astro or Vite bumps a major.
+      The npm route means pushing a ~5MB CJS React bundle that references
+      global/require through Vite's dep optimizer -- hours of archaeology for no
+      user-visible benefit, and it re-breaks on every Vite major.
+
+      /admin holds a GitHub token with write access to this repo, so SRI is what
+      closes that hole: an SRI-pinned script physically cannot be swapped. Note
+      that a floating version range and an SRI hash are mutually exclusive, and
+      the floating range is the actual risk -- hence the exact 3.15.1.
+
+      To bump: change the version, then recompute with
+        curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A
+    -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/decap-cms@3.15.1/dist/decap-cms.js"
+      integrity="sha384-in6eHztHveqQ7uMZ1fDaKlDmacQLFuLH2wWrFTiymyuS8zQ5bixwL8U3AeRi8h/L"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

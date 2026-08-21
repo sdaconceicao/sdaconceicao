@@ -1,0 +1,31 @@
+---
+/** The two-column grid. Grid, not flex: the columns are a real 2D relationship. */
+---
+
+<div class="shell">
+  <slot name="rail" />
+  <slot name="main" />
+</div>
+
+<style>
+  .shell {
+    max-inline-size: var(--layout-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /*
+   * position: sticky on the rail rather than fixed, so the rail stays a grid
+   * item. fixed would remove it from flow and force a hardcoded
+   * margin-inline-start on main that breaks at every zoom level and in RTL.
+   * Sticky degrades to a plain stacked document the instant this stops matching.
+   */
+  @media (min-width: 64rem) and (min-height: 44rem) {
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
+      gap: var(--spacing-16);
+      align-items: start;
+    }
+  }
+</style>

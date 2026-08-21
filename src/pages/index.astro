@@ -1,0 +1,136 @@
+---
+import { getCollection } from "astro:content";
+import JobCard from "../components/content/JobCard.astro";
+import PostCard from "../components/content/PostCard.astro";
+import ProjectCard from "../components/content/ProjectCard.astro";
+import Section from "../components/content/Section.astro";
+import ArrowLink from "../components/ui/ArrowLink.astro";
+import HomeLayout from "../layouts/HomeLayout.astro";
+import { yearsSince } from "../lib/dates";
+import { sortJobs } from "../lib/jobs";
+import { selectLatest } from "../lib/posts";
+import { sortProjects } from "../lib/projects";
+import { SITE } from "../site";
+
+const jobs = sortJobs(await getCollection("jobs"));
+const projects = sortProjects(await getCollection("projects"));
+const posts = selectLatest(await getCollection("blog"), 3);
+const years = yearsSince(SITE.careerStart, new Date());
+---
+
+<HomeLayout title={SITE.name} description={SITE.description}>
+  <Section id="about" title="About">
+    <div class="about-prose">
+      <p>
+        I'm a software engineer with over {years} years of experience in frontend development, focused
+        on <strong>accessibility</strong> and <strong>internationalization</strong> — the parts of
+        the craft that decide whether software actually works for the people using it.
+      </p>
+      <p>
+        Most of my time goes into design systems: making the accessible thing the easy thing, so
+        correctness is the default rather than a code review comment. My own system,{" "}
+        <a href="#projects">Code-X / Lago</a>, is built on that premise.
+      </p>
+      <p>
+        Away from a keyboard I'm usually doing woodworking, historical reenactment, or gaming. And
+        yes, people ask — <em>da Conceicao</em> is pronounced <strong>da Con Say Sone</strong>. It's
+        not Italian.
+      </p>
+    </div>
+  </Section>
+
+  <Section id="experience" title="Experience">
+    {
+      jobs.map((job) => (
+        <JobCard
+          company={job.data.company}
+          title={job.data.title}
+          dateStart={job.data.dateStart}
+          dateEnd={job.data.dateEnd}
+          current={job.data.current}
+          url={job.data.url}
+          summary={job.data.summary}
+          highlights={job.data.highlights}
+          tech={job.data.tech}
+        />
+      ))
+    }
+  </Section>
+
+  <Section id="projects" title="Projects">
+    {
+      projects.map((project) => (
+        <ProjectCard
+          title={project.data.title}
+          description={project.data.description}
+          href={project.data.url}
+          repo={project.data.repo}
+          tech={project.data.tech}
+          image={project.data.image}
+          imageAlt={project.data.imageAlt}
+          status={project.data.status}
+        />
+      ))
+    }
+  </Section>
+
+  <Section id="writing" title="Writing">
+    {
+      posts.length > 0 ? (
+        <>
+          {posts.map((post) => (
+            <PostCard
+              title={post.data.title}
+              href={`/blog/${post.id}`}
+              pubDate={post.data.pubDate}
+              description={post.data.description}
+              tags={post.data.tags}
+            />
+          ))}
+          <p class="writing-more">
+            <ArrowLink href="/blog" direction="e">
+              All posts
+            </ArrowLink>
+          </p>
+        </>
+      ) : (
+        <p class="writing-empty">Nothing published yet — drafts in progress.</p>
+      )
+    }
+  </Section>
+</HomeLayout>
+
+<style>
+  .about-prose {
+    max-inline-size: var(--measure);
+  }
+
+  .about-prose p + p {
+    margin-block-start: var(--spacing-4);
+  }
+
+  .about-prose strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .about-prose a {
+    color: var(--accent);
+    text-decoration-line: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.2em;
+    text-decoration-color: color-mix(in oklab, var(--accent) 45%, transparent);
+  }
+
+  .about-prose a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .writing-more {
+    margin-block-start: var(--spacing-8);
+  }
+
+  .writing-empty {
+    color: var(--fg-dim);
+  }
+</style>

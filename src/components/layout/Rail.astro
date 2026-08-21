@@ -1,0 +1,153 @@
+---
+import { Image } from "astro:assets";
+import me from "../../assets/me.png";
+import { SECTIONS, SITE, SITE_LINKS, SOCIALS } from "../../site";
+import ArrowLink from "../ui/ArrowLink.astro";
+import ScrollSpyNav from "./ScrollSpyNav.astro";
+import SocialLinks from "./SocialLinks.astro";
+
+interface Props {
+  /** "home" carries the scroll-spy nav; "compact" is the blog routes' header. */
+  variant?: "home" | "compact";
+  backHref?: string;
+  backLabel?: string;
+}
+
+const { variant = "home", backHref = "/", backLabel = "Back home" } = Astro.props;
+
+/**
+ * The rail carries the <h1> only on the homepage, where the person IS the
+ * subject. On /blog and /blog/[slug] the page's own title is the h1, so the name
+ * renders as a paragraph -- two h1s on one page is a heading-structure bug, and
+ * a screen-reader user cannot tell which one is the document title.
+ */
+const NameTag = variant === "home" ? "h1" : "p";
+---
+
+<header class="rail">
+  <div class="rail-top">
+    {/* alt is deliberately empty: the <h1> immediately beside this says the
+        name, so repeating it is pure noise for a screen-reader user. */}
+    <Image
+      src={me}
+      alt=""
+      width={96}
+      height={96}
+      class="rail-avatar"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <NameTag class="rail-name">{SITE.author}</NameTag>
+    <p class="rail-role">{SITE.role}</p>
+    {variant === "home" && <p class="rail-tagline">{SITE.tagline}</p>}
+
+    {
+      variant === "home" ? (
+        <div class="rail-nav">
+          <ScrollSpyNav items={SECTIONS} />
+          <nav aria-label="Site">
+            <ul class="site-links" role="list">
+              {SITE_LINKS.map((link) => (
+                <li>
+                  <ArrowLink href={link.href} direction="e">
+                    {link.label}
+                  </ArrowLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      ) : (
+        <p class="rail-back">
+          <ArrowLink href={backHref} direction="w">
+            {backLabel}
+          </ArrowLink>
+        </p>
+      )
+    }
+  </div>
+
+  <SocialLinks items={SOCIALS} />
+</header>
+
+<style>
+  .rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-10);
+    max-inline-size: var(--rail-measure);
+    padding-block: var(--spacing-12) var(--spacing-8);
+  }
+
+  .rail-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+  }
+
+  .rail-avatar {
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+  }
+
+  .rail-name {
+    /* Set explicitly: this element is an <h1> on the homepage and a <p>
+       elsewhere, and base.css only colours headings. Without this the name
+       silently renders in muted grey on the blog routes. */
+    color: var(--fg);
+    font-size: var(--text-display);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+  }
+
+  .rail-role {
+    color: var(--fg);
+    font-size: var(--text-xl);
+    font-weight: 500;
+  }
+
+  .rail-tagline {
+    max-inline-size: var(--measure-narrow);
+    color: var(--fg-muted);
+  }
+
+  .rail-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-5);
+    margin-block-start: var(--spacing-4);
+  }
+
+  .site-links {
+    display: flex;
+    gap: var(--spacing-5);
+  }
+
+  /*
+   * Sticky only when there is BOTH width and height for it. The height
+   * condition is load-bearing: a 1366x640 laptop window or a landscape phone is
+   * wide enough for two columns but too short to hold the rail, and a rail that
+   * does not fit becomes a nested scroll region -- unreachable by keyboard in
+   * Safari, which (unlike Chrome 127+ and Firefox) does not make scroll
+   * containers focusable automatically.
+   *
+   * Content is budgeted to ~660px against the 704px available here, so the
+   * overflow below should never engage. It is a safety valve, not a feature.
+   * If rail content grows past the budget, move something OUT of the rail.
+   */
+  @media (min-width: 64rem) and (min-height: 44rem) {
+    .rail {
+      position: sticky;
+      inset-block-start: 0;
+      justify-content: space-between;
+      max-block-size: 100vh;
+      max-block-size: 100svh;
+      padding-block: var(--spacing-24) var(--spacing-16);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+    }
+  }
+</style>

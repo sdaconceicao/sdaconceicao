@@ -1,0 +1,10 @@
+{
+  "name": "Stephen Andrew Designs",
+  "short_name": "SAD",
+  "description": "The online portfolio of Stephen da Conceicao",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0a0b",
+  "theme_color": "#0c0a0b",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

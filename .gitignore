@@ -1,4 +1,22 @@
-/node_modules
-.idea
+# build output
+dist/
+.astro/
+.vercel/
+
+# dependencies
+node_modules/
+
+# test artifacts
+coverage/
+playwright-report/
+test-results/
+
+# environment
+.env
+.env.production
+.env*.local
+
+# editor / os
 .DS_Store
-npm-debug.log
+*.log
+.serena
