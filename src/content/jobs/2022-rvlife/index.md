@@ -1,11 +1,13 @@
 ---
 company: "RV Life"
+url: "https://www.rvlife.com"
 title: "Principal Engineer"
 dateStart: 2022-05-01
 dateEnd: 2025-08-15
 current: false
 location: "remote"
 employmentType: full-time
+logo: "./logo.png"
 summary: "At RV Life, I was responsible for architectural decisions for multiple product teams."
 highlights:
   - "Led adoption of an NX monorepo architecture to unify multiple applications, decreasing duplicate code by 66% and reducing build/configuration inconsistencies by ~75%, and reducing new package creation setup by ~80%"

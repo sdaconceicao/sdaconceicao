@@ -1,10 +1,12 @@
 ---
 company: "NCS Credit"
+url: "https://www.ncscredit.com"
 title: "Staff Engineer"
 dateStart: 2025-11-15
 current: true
 location: "Remote"
 employmentType: full-time
+logo: "./logo.png"
 
 summary: "I joined NCS Credit to help modernize development processes across multiple teams, and establish a Design System for use across all products."
 highlights:

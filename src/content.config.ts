@@ -46,34 +46,45 @@ const blog = defineCollection({
 });
 
 const jobs = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/jobs" }),
-  schema: z
-    .object({
-      company: z.string().min(1),
-      title: z.string().min(1),
-      dateStart: z.coerce.date(),
-      dateEnd: z.coerce.date().optional(),
-      current: z.boolean().default(false),
-      location: z.string().optional(),
-      employmentType: z
-        .enum(["full-time", "part-time", "contract", "freelance"])
-        .default("full-time"),
-      url: z.string().url().optional(),
-      summary: z.string().min(1).max(400),
-      /** Named to match JSON Resume, so a resume export stays a pure mapping. */
-      highlights: z.array(z.string().min(1)).default([]),
-      tech: z.array(z.string().min(1)).default([]),
-      /** Manual tie-break for same-month roles only. Default sort is by date. */
-      order: z.number().int().optional(),
-    })
-    .refine((data) => data.current || data.dateEnd !== undefined, {
-      message: "dateEnd is required unless current is true",
-      path: ["dateEnd"],
-    })
-    .refine((data) => !data.dateEnd || data.dateEnd >= data.dateStart, {
-      message: "dateEnd cannot precede dateStart",
-      path: ["dateEnd"],
-    }),
+  /** Folder-per-role, same shape as projects, so a logo can sit beside its index.md. */
+  loader: glob({ pattern: "**/index.md", base: "./src/content/jobs" }),
+  schema: ({ image }) =>
+    z
+      .object({
+        company: z.string().min(1),
+        title: z.string().min(1),
+        dateStart: z.coerce.date(),
+        dateEnd: z.coerce.date().optional(),
+        current: z.boolean().default(false),
+        location: z.string().optional(),
+        employmentType: z
+          .enum(["full-time", "part-time", "contract", "freelance"])
+          .default("full-time"),
+        url: z.string().url().optional(),
+        summary: z.string().min(1).max(400),
+        /** Named to match JSON Resume, so a resume export stays a pure mapping. */
+        highlights: z.array(z.string().min(1)).default([]),
+        tech: z.array(z.string().min(1)).default([]),
+        /** Manual tie-break for same-month roles only. Default sort is by date. */
+        order: z.number().int().optional(),
+        /** Hand-authored, so a relative "./logo.png" resolves through image(). */
+        logo: image().optional(),
+        /**
+         * Deliberately NOT required the way projects.imageAlt is: the company name
+         * is in the heading right beside the mark, so the default empty alt is the
+         * correct one -- "Aura logo" would just make a screen reader say it twice.
+         * Set it only for a mark that carries information the heading does not.
+         */
+        logoAlt: z.string().default(""),
+      })
+      .refine((data) => data.current || data.dateEnd !== undefined, {
+        message: "dateEnd is required unless current is true",
+        path: ["dateEnd"],
+      })
+      .refine((data) => !data.dateEnd || data.dateEnd >= data.dateStart, {
+        message: "dateEnd cannot precede dateStart",
+        path: ["dateEnd"],
+      }),
 });
 
 const projects = defineCollection({
