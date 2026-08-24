@@ -45,17 +45,36 @@ const blog = defineCollection({
     }),
 });
 
+/**
+ * One role held at a company. A job carries an ARRAY of these, so a promotion is
+ * another title inside the same entry rather than a second entry that has to
+ * repeat the company, url, logo and summary.
+ */
+const role = z
+  .object({
+    title: z.string().min(1),
+    dateStart: z.coerce.date(),
+    dateEnd: z.coerce.date().optional(),
+    current: z.boolean().default(false),
+  })
+  .refine((data) => data.current || data.dateEnd !== undefined, {
+    message: "dateEnd is required unless current is true",
+    path: ["dateEnd"],
+  })
+  .refine((data) => !data.dateEnd || data.dateEnd >= data.dateStart, {
+    message: "dateEnd cannot precede dateStart",
+    path: ["dateEnd"],
+  });
+
 const jobs = defineCollection({
-  /** Folder-per-role, same shape as projects, so a logo can sit beside its index.md. */
+  /** Folder-per-company, same shape as projects, so a logo can sit beside its index.md. */
   loader: glob({ pattern: "**/index.md", base: "./src/content/jobs" }),
   schema: ({ image }) =>
     z
       .object({
         company: z.string().min(1),
-        title: z.string().min(1),
-        dateStart: z.coerce.date(),
-        dateEnd: z.coerce.date().optional(),
-        current: z.boolean().default(false),
+        /** Newest role first is the display order; the card does not re-sort. */
+        titles: z.array(role).min(1),
         location: z.string().optional(),
         employmentType: z
           .enum(["full-time", "part-time", "contract", "freelance"])
@@ -65,7 +84,10 @@ const jobs = defineCollection({
         /** Named to match JSON Resume, so a resume export stays a pure mapping. */
         highlights: z.array(z.string().min(1)).default([]),
         tech: z.array(z.string().min(1)).default([]),
-        /** Manual tie-break for same-month roles only. Default sort is by date. */
+        /**
+         * Manual tie-break for two COMPANIES joined in the same month. Promotions
+         * no longer need it -- they are titles within one entry.
+         */
         order: z.number().int().optional(),
         /** Hand-authored, so a relative "./logo.png" resolves through image(). */
         logo: image().optional(),
@@ -77,14 +99,14 @@ const jobs = defineCollection({
          */
         logoAlt: z.string().default(""),
       })
-      .refine((data) => data.current || data.dateEnd !== undefined, {
-        message: "dateEnd is required unless current is true",
-        path: ["dateEnd"],
-      })
-      .refine((data) => !data.dateEnd || data.dateEnd >= data.dateStart, {
-        message: "dateEnd cannot precede dateStart",
-        path: ["dateEnd"],
-      }),
+      .refine(
+        (data) =>
+          data.titles.every((t, i) => i === 0 || t.dateStart <= data.titles[i - 1].dateStart),
+        {
+          message: "titles must be ordered newest first",
+          path: ["titles"],
+        },
+      ),
 });
 
 const projects = defineCollection({

@@ -1,9 +1,10 @@
 ---
 company: "NCS Credit"
 url: "https://www.ncscredit.com"
-title: "Staff Engineer"
-dateStart: 2025-11-15
-current: true
+titles:
+  - title: "Staff Engineer"
+    dateStart: 2025-11-15
+    current: true
 location: "Remote"
 employmentType: full-time
 logo: "./logo.png"
@@ -12,8 +13,6 @@ summary: "I joined NCS Credit to help modernize development processes across mul
 highlights:
   - "Established CI/CD processes that increased deployment frequency by ~100%, reduced build/test failures by ~35%, and improved deployment confidence with automated validation and release safeguards."
   - "Led team training on effective AI agent workflows, optimizing prompt strategies and model selection to reduce token consumption costs by ~70% within two months."
-  - "Implemented asynchronous backlog refinement processes to reduce dependency on recurring meetings, decreasing team meeting time by ~75% while maintaining delivery alignment"
-
 tech:
   - TypeScript
   - Storybook

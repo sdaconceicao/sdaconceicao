@@ -1,16 +1,15 @@
 ---
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
-import { formatMonthYear, toISODate } from "../../lib/dates";
+import { type JobRole, jobTenure } from "../../lib/jobs";
 import Icon from "../ui/Icon.astro";
 import TechTagList from "../ui/TechTagList.astro";
+import DateRange from "./DateRange.astro";
 
 interface Props {
   company: string;
-  title: string;
-  dateStart: Date;
-  dateEnd?: Date;
-  current: boolean;
+  /** Newest role first, as authored. */
+  titles: readonly JobRole[];
   url?: string;
   summary: string;
   highlights: readonly string[];
@@ -19,20 +18,8 @@ interface Props {
   logoAlt?: string;
 }
 
-const {
-  company,
-  title,
-  dateStart,
-  dateEnd,
-  current,
-  url,
-  summary,
-  highlights,
-  tech,
-  logo,
-  logoAlt,
-} = Astro.props;
-const showEnd = !current && dateEnd !== undefined;
+const { company, titles, url, summary, highlights, tech, logo, logoAlt } = Astro.props;
+const tenure = jobTenure(titles);
 ---
 
 <article class="job">
@@ -55,21 +42,6 @@ const showEnd = !current && dateEnd !== undefined;
         />
       )
     }
-
-    <p class="job-period meta">
-      <span class="sr-only">From </span>
-      <time datetime={toISODate(dateStart)}>{formatMonthYear(dateStart)}</time>
-      <span aria-hidden="true"> — </span><span class="sr-only"> to </span>
-      {
-        showEnd ? (
-          <time datetime={toISODate(dateEnd!)}>{formatMonthYear(dateEnd!)}</time>
-        ) : (
-          /* Plain text: there is no valid datetime for "Present", and an invalid
-             datetime is worse than none. */
-          <span>Present</span>
-        )
-      }
-    </p>
   </div>
 
   <div class="job-body">
@@ -77,19 +49,34 @@ const showEnd = !current && dateEnd !== undefined;
       {
         url ? (
           <a class="job-link" href={url} rel="noopener noreferrer" target="_blank">
-            <span>
-              {title} · {company}
-            </span>
+            <span>{company}</span>
             <span class="sr-only"> (opens in a new tab)</span>
             <Icon name="arrow-ne" size={16} />
           </a>
         ) : (
-          <span>
-            {title} · {company}
-          </span>
+          <span>{company}</span>
         )
       }
     </h3>
+
+    <!--
+      Rendered for one title as readily as for five: the company heads the card,
+      every title sits under it with its own dates, and the aside carries the
+      whole tenure. A single-role card is then the same shape as a promoted one.
+    -->
+    <ol class="job-roles" role="list">
+      {
+        titles.map((role) => (
+          <li>
+            <span class="job-role-title">{role.title}</span>
+            <span class="job-role-period meta">
+              <DateRange dateStart={role.dateStart} dateEnd={role.dateEnd} current={role.current} />
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+
     <p class="job-summary">{summary}</p>
     {
       highlights.length > 0 && (
@@ -152,18 +139,31 @@ const showEnd = !current && dateEnd !== undefined;
 
   /* Typography comes from .meta; this is the optical nudge that lines the
      date up with the first line of the title beside it. */
-  .job-period {
-    padding-block-start: 0.2em;
-  }
-
-  /* With a logo present the date no longer sits on the title's first line, so
-     the optical nudge that aligned them would just add a stray gap. */
-  .job-aside:has(.job-logo) .job-period {
-    padding-block-start: 0;
-  }
-
   .job-title {
     font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  /* Each promotion on its own line: title, then the dates it was held. Wraps to
+     two lines rather than shrinking, so a long title keeps its dates. */
+  .job-roles {
+    margin-block-start: var(--spacing-2);
+    list-style: none;
+  }
+
+  .job-roles li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--spacing-3);
+  }
+
+  .job-roles li + li {
+    margin-block-start: var(--spacing-1);
+  }
+
+  .job-role-title {
+    font-size: var(--text-base);
     font-weight: 600;
   }
 

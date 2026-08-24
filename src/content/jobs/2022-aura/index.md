@@ -1,10 +1,10 @@
 ---
 company: "Aura"
 url: "https://www.aura.com"
-title: "Frontend Web Lead"
-dateStart: 2022-01-01
-dateEnd: 2022-04-30
-current: false
+titles:
+  - title: "Frontend Web Lead"
+    dateStart: 2022-01-01
+    dateEnd: 2022-04-30
 employmentType: full-time
 logo: "./logo.png"
 summary: "I came into Aura as an a11y expert to help setup a Design System within the company"

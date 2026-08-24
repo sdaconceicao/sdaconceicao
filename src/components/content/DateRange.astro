@@ -1,0 +1,30 @@
+---
+import FormattedDate from "./FormattedDate.astro";
+
+/**
+ * A month-precision "start — end" range. Extracted because a job now prints one
+ * of these per title as well as one for the whole tenure, and the screen-reader
+ * scaffolding around the dash has to be identical in every copy.
+ */
+interface Props {
+  dateStart: Date;
+  dateEnd?: Date;
+  current?: boolean;
+}
+
+const { dateStart, dateEnd, current = false } = Astro.props;
+const showEnd = !current && dateEnd !== undefined;
+---
+
+<span class="sr-only">From </span>
+<FormattedDate date={dateStart} format="month" />
+<span aria-hidden="true"> — </span><span class="sr-only"> to </span>
+{
+  showEnd ? (
+    <FormattedDate date={dateEnd!} format="month" />
+  ) : (
+    /* Plain text: there is no valid datetime for "Present", and an invalid
+       datetime is worse than none. */
+    <span>Present</span>
+  )
+}

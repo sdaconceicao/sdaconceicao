@@ -22,19 +22,13 @@ const years = yearsSince(SITE.careerStart, new Date());
   <Section id="about" title="About">
     <div class="about-prose">
       <p>
-         years of experience in frontend development, focused
-        on <strong>accessibility</strong> and <strong>internationalization</strong> — the parts of
-        the craft that decide whether software actually works for the people using it.
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
       </p>
       <p>
-        Most of my time goes into design systems: making the accessible thing the easy thing, so
-        correctness is the default rather than a code review comment. My own system,{" "}
-        <a href="#projects">Code-X / Lago</a>, is built on that premise.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
       </p>
       <p>
-        Away from a keyboard I'm usually doing woodworking, historical reenactment, or gaming. And
-        yes, people ask — <em>da Conceicao</em> is pronounced <strong>da Con Say Sone</strong>. It's
-        not Italian.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
       </p>
     </div>
   </Section>
@@ -44,10 +38,7 @@ const years = yearsSince(SITE.careerStart, new Date());
       jobs.map((job) => (
         <JobCard
           company={job.data.company}
-          title={job.data.title}
-          dateStart={job.data.dateStart}
-          dateEnd={job.data.dateEnd}
-          current={job.data.current}
+          titles={job.data.titles}
           url={job.data.url}
           summary={job.data.summary}
           highlights={job.data.highlights}

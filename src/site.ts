@@ -7,7 +7,7 @@ export const SITE = {
   tagline:
     "Call me Steve. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   description:
-    "Frontend engineer with 15+ years of experience, focused on accessibility and internationalization. Portfolio, writing, and work history.",
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   url: "https://stephenandrewdesigns.com",
   locale: "en",
   /** Career start, used to derive the years-of-experience line. */
@@ -33,7 +33,5 @@ export const SITE_LINKS = [
 export const SOCIALS = [
   { label: "GitHub", href: "https://github.com/sdaconceicao", icon: "github" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/sdaconceicao", icon: "linkedin" },
-  /* Same-origin file rather than a profile -- SocialLinks keys rel="me" off
-     that, since rel="me" is an identity claim and a PDF cannot make one. */
   { label: "Resume", href: RESUME_HREF, icon: "file-text" },
 ] as const;
