@@ -12,10 +12,6 @@ html {
 }
 
 body {
-  /* The spotlight sits at z-index: -1, which requires that neither body nor html
-   * create a stacking context. Do not add transform, filter, opacity,
-   * backdrop-filter, or isolation here -- a later "add page transitions" commit
-   * is exactly how this breaks silently. */
   background-color: var(--bg);
   color: var(--fg-muted);
   font-family: var(--font-sans);

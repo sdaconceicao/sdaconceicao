@@ -9,21 +9,14 @@
 :root {
   color-scheme: dark;
 
-  /* ── Brand ramp ────────────────────────────────────────────────────────────
-   * One hue (~oklch h 27). Note the role split: #FF5A5A is the only red that
-   * may be text or a control fill. Brand #A4161A is DECORATIVE ONLY here --
-   * against the page it measures 2.55:1, which fails SC 1.4.11, so it can never
-   * be a button. It survives as the spotlight tint and the tinted surface. */
+  /* ── Brand ramp ─────────────────────────────────────────────────────────── */
   --red-200: #ff8a8a; /* accent hover / visited           8.70:1 AAA */
   --red-300: #ff5a5a; /* ALL red text, links, active nav  6.45:1 AA  */
   --red-400: #ff7a7a; /* prefers-contrast: more           7.82:1 AAA */
   --red-600: #a4161a; /* BRAND. decorative only -- never text, never a fill */
   --red-900: #2a1416; /* tinted surface (tags, selection, inline code) */
 
-  /* ── Warm neutral ramp ─────────────────────────────────────────────────────
-   * Every step carries a trace of the brand hue, so black and red read as one
-   * decision rather than two. Pure #000 is deliberately absent: it maximises
-   * halation against light text and leaves no room for a recessed surface. */
+  /* ── Warm neutral ramp ──────────────────────────────────────────────────── */
   --stone-100: #f5f1f2;
   --stone-300: #b0a7aa;
   --stone-500: #8b8285;
@@ -127,20 +120,6 @@
   --dur-fast: 120ms;
   --dur: 200ms;
   --dur-slow: 320ms;
-
-  /* ── Spotlight ─────────────────────────────────────────────────────────────
-   * 18% is a contrast budget, not a taste call. The glow composites over the
-   * page and lowers every text ratio beneath it, so the alpha is bounded by the
-   * weakest text token rather than chosen by eye.
-   *
-   * Measured against --fg-dim directly under the cursor, using gamma-encoded
-   * sRGB source-over (what the browser actually does):
-   *   18% -> 4.91:1  PASS, with headroom
-   *   26% -> 4.66:1  passes, but nearly no margin
-   *   40% -> 4.15:1  FAILS
-   * Asserted in src/lib/contrast.test.ts. Do not raise this. */
-  --spot-size: 40rem;
-  --spot-tint: color-mix(in oklab, var(--red-600) 18%, transparent);
 }
 
 /* Motion is zeroed AT THE TOKEN, so no component transition needs a guard of
@@ -160,7 +139,6 @@
     --fg-dim: var(--stone-300); /* 8.42:1 */
     --accent: var(--red-400); /* 7.82:1 */
     --border: var(--border-strong);
-    --spot-tint: transparent;
   }
 }
 

@@ -1,5 +1,4 @@
 ---
-import Spotlight from "../components/layout/Spotlight.astro";
 import BaseHead from "../components/seo/BaseHead.astro";
 import SkipLink from "../components/ui/SkipLink.astro";
 import { SITE } from "../site";
@@ -24,7 +23,6 @@ const props = Astro.props;
   <body>
     <!-- Must be the first focusable element in the DOM. -->
     <SkipLink />
-    <Spotlight />
     <slot />
   </body>
 </html>

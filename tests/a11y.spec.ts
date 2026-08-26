@@ -56,17 +56,6 @@ test.describe("accessibility", () => {
     await expect(page.getByRole("contentinfo")).toHaveCount(1);
   });
 
-  test("the spotlight is hidden from assistive tech", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.locator(".spotlight")).toHaveAttribute("aria-hidden", "true");
-  });
-
-  test("the spotlight is removed entirely under reduced motion", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/");
-    await expect(page.locator(".spotlight")).toBeHidden();
-  });
-
   test("motion is neutralised under reduced motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
