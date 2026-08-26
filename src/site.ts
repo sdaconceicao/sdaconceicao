@@ -2,10 +2,10 @@
 
 export const SITE = {
   name: "Stephen Andrew Designs",
-  author: "Stephen da Conceicao",
-  role: "Frontend Lead",
+  author: "Just call me Steve",
+  role: "Software Engineer and tinkerer",
   tagline:
-    "Call me Steve. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "I’m a software engineer who enjoys building great products and even better teams. I like helping people grow, automating what we can, and keeping our work simple and dependable.",
   description:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   url: "https://stephenandrewdesigns.com",
@@ -16,8 +16,8 @@ export const SITE = {
 
 export const SECTIONS = [
   { id: "about", label: "About" },
-  { id: "experience", label: "Experience" },
   { id: "projects", label: "Projects" },
+  { id: "experience", label: "Experience" },
   { id: "writing", label: "Writing" },
 ] as const;
 
@@ -33,5 +33,6 @@ export const SITE_LINKS = [
 export const SOCIALS = [
   { label: "GitHub", href: "https://github.com/sdaconceicao", icon: "github" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/sdaconceicao", icon: "linkedin" },
+  { label: "NPM", href: "https://www.npmjs.com/~sdaconceicao", icon: "npm" },
   { label: "Resume", href: RESUME_HREF, icon: "file-text" },
 ] as const;

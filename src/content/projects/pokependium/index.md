@@ -1,6 +1,6 @@
 ---
-title: Pokependium
-description: A React design system built on react-aria-components, providing accessible components, design tokens, and guidelines for building applications.
+title: Poképendium
+description: A full stack application that provides all the information on Pokémon you ever wanted
 repo: https://github.com/sdaconceicao/pokependium
 url: https://pokedex-frontend-beryl.vercel.app/
 tech:

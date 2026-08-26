@@ -33,27 +33,7 @@ const years = yearsSince(SITE.careerStart, new Date());
     </div>
   </Section>
 
-  <Section id="experience" title="Experience">
-    {
-      jobs.map((job) => (
-        <JobCard
-          company={job.data.company}
-          titles={job.data.titles}
-          url={job.data.url}
-          summary={job.data.summary}
-          highlights={job.data.highlights}
-          tech={job.data.tech}
-          logo={job.data.logo}
-          logoAlt={job.data.logoAlt}
-        />
-      ))
-    }
-    <p class="experience-more">
-      <ArrowLink href={RESUME_HREF} direction="ne" external>
-        View my resume
-      </ArrowLink>
-    </p>
-  </Section>
+
 
   <Section id="projects" title="Projects">
     {
@@ -74,6 +54,28 @@ const years = yearsSince(SITE.careerStart, new Date());
     <p class="projects-more">
       <ArrowLink href="/projects" direction="e">
         View All projects
+      </ArrowLink>
+    </p>
+  </Section>
+
+  <Section id="experience" title="Experience">
+    {
+      jobs.map((job) => (
+        <JobCard
+          company={job.data.company}
+          titles={job.data.titles}
+          url={job.data.url}
+          summary={job.data.summary}
+          highlights={job.data.highlights}
+          tech={job.data.tech}
+          logo={job.data.logo}
+          logoAlt={job.data.logoAlt}
+        />
+      ))
+    }
+    <p class="experience-more">
+      <ArrowLink href={RESUME_HREF} direction="ne" external>
+        View my resume
       </ArrowLink>
     </p>
   </Section>

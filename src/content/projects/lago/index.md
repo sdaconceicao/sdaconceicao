@@ -11,11 +11,8 @@ tech:
   - Storybook
   - Playwright
 featured: true
-# Optional cover image. Drop the file next to this index.md and uncomment
-# both lines -- image() resolves the relative path at build time, and the
-# schema fails the build if imageAlt is missing.
-# image: ./cover.png
-# imageAlt: ""
+image: ./cover.png
+imageAlt: "Lago's Button documentation in Storybook: a rendered button above its props table"
 status: wip
 order: 1
 ---

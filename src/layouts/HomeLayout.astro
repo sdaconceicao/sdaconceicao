@@ -12,15 +12,6 @@ const { title, description } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description}>
-  <!--
-    <header> maps to banner and <footer> to contentinfo only when not nested in
-    sectioning content. Two consequences, both load-bearing:
-      1. SiteFooter is a SIBLING of <main>, never a child. Nesting it inside
-         <main> silently drops the contentinfo landmark entirely.
-      2. Shell must keep rendering a plain <div>. If it ever becomes a <section>
-         or <article>, both landmarks vanish just as quietly.
-    tests/a11y.spec.ts asserts both landmarks exist, so this cannot regress.
-  -->
   <Shell>
     <Rail slot="rail" variant="home" />
     <div slot="main">

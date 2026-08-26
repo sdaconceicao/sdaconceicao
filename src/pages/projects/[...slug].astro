@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import ProjectLinks from "../../components/content/ProjectLinks.astro";
 import Prose from "../../components/content/Prose.astro";
@@ -16,7 +17,7 @@ interface Props {
 
 const { project } = Astro.props;
 const { Content } = await render(project);
-const { title, description, status, url, repo, tech } = project.data;
+const { title, description, status, url, repo, tech, image, imageAlt } = project.data;
 /* A status other than "live" is conveyed as TEXT, not a colour. */
 const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "Archived" : "Live";
 ---
@@ -34,6 +35,21 @@ const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "
       <p class="project-meta meta">{statusLabel}</p>
       <ProjectLinks title={title} href={url} repo={repo} />
       <TechTagList items={tech} label={`Technologies used in ${title}`} />
+      {
+        image && (
+          /* Full column width, unlike the 200px thumbnail on the card: this is
+             the one place the work is actually shown. eager because it is above
+             the fold on every viewport. */
+          <Image
+            src={image}
+            alt={imageAlt}
+            class="project-hero"
+            widths={[480, 960, 1200]}
+            sizes="(min-width: 64rem) 37rem, 100vw"
+            loading="eager"
+          />
+        )
+      }
     </header>
 
     <Prose>
@@ -49,5 +65,15 @@ const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "
 
   .project-meta {
     margin-block-start: var(--spacing-3);
+  }
+
+  /* Matches the blog hero: same border, same large radius, so a project page and
+     a post page read as the same template. */
+  .project-hero {
+    margin-block-start: var(--spacing-8);
+    inline-size: 100%;
+    block-size: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
   }
 </style>

@@ -26,18 +26,20 @@ const NameTag = variant === "home" ? "h1" : "p";
 
 <header class="rail">
   <div class="rail-top">
-    {/* alt is deliberately empty: the <h1> immediately beside this says the
-        name, so repeating it is pure noise for a screen-reader user. */}
-    <Image
-      src={me}
-      alt=""
-      width={96}
-      height={96}
-      class="rail-avatar"
-      loading="eager"
-      fetchpriority="high"
-    />
-    <NameTag class="rail-name">{SITE.author}</NameTag>
+    <div class="rail-identity">
+      {/* alt is deliberately empty: the <h1> immediately beside this says the
+          name, so repeating it is pure noise for a screen-reader user. */}
+      <Image
+        src={me}
+        alt=""
+        width={96}
+        height={96}
+        class="rail-avatar"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <NameTag class="rail-name">{SITE.author}</NameTag>
+    </div>
     <p class="rail-role">{SITE.role}</p>
     {variant === "home" && <p class="rail-tagline">{SITE.tagline}</p>}
 
@@ -86,7 +88,16 @@ const NameTag = variant === "home" ? "h1" : "p";
     gap: var(--spacing-4);
   }
 
+  .rail-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+  }
+
   .rail-avatar {
+    /* The name beside it is display-sized, so let the text take any leftover
+       inline space rather than squashing a circular crop into an ellipse. */
+    flex-shrink: 0;
     border-radius: var(--radius-pill);
     border: 1px solid var(--border-strong);
   }
