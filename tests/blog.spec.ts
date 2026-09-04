@@ -77,6 +77,19 @@ test.describe("blog", () => {
     expect(breadcrumbX).toBe(titleX);
   });
 
+  test("aligns interior content with the desktop rail", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    for (const path of ["/blog", "/blog/local-storage-options"]) {
+      await page.goto(path);
+      const contentTop = (selector: string) =>
+        page.locator(selector).evaluate((element) => {
+          const style = getComputedStyle(element);
+          return element.getBoundingClientRect().top + Number.parseFloat(style.paddingBlockStart);
+        });
+      expect(await contentTop(".page-main")).toBe(await contentTop(".rail"));
+    }
+  });
+
   test("detail pages reveal the non-home shortcuts after their compact hero", async ({
     page,
   }) => {

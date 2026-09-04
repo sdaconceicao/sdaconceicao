@@ -77,13 +77,14 @@ const isDetailPage = Astro.url.pathname.split("/").filter(Boolean).length > 1;
     text-underline-offset: var(--spacing-1);
   }
 
-  @media (min-width: 64rem) and (min-height: 48rem) {
-    .page-main {
-      padding-block: var(--spacing-24) var(--spacing-16);
-    }
-  }
-
   .page-main[data-detail="true"] {
     padding-block-start: 0;
+  }
+
+  @media (min-width: 64rem) and (min-height: 48rem) {
+    .page-main,
+    .page-main[data-detail="true"] {
+      padding-block: var(--spacing-6) var(--spacing-16);
+    }
   }
 </style>

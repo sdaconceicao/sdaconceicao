@@ -77,6 +77,17 @@ test.describe("homepage", () => {
     expect(display).toBe("grid");
   });
 
+  test("aligns the first home section with the desktop rail", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const contentTop = (selector: string) =>
+      page.locator(selector).evaluate((element) => {
+        const style = getComputedStyle(element);
+        return element.getBoundingClientRect().top + Number.parseFloat(style.paddingBlockStart);
+      });
+    expect(await contentTop("#projects")).toBe(await contentTop(".rail"));
+  });
+
   test("uses the full row for the profile at the tablet breakpoint", async ({ page }) => {
     await page.setViewportSize({ width: 980, height: 1200 });
     await page.goto("/");
