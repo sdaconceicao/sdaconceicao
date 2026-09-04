@@ -17,7 +17,7 @@ export const SITE = {
 export const SECTIONS = [
   { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },
-  { id: "writing", label: "Writing" },
+  { id: "activity", label: "Writing" },
 ] as const;
 
 /** Lives in /public, so the path is the URL. Referenced by the rail and by the

@@ -16,11 +16,12 @@ test.describe("homepage", () => {
   });
 
   test("exposes the in-page navigation with a distinct accessible name", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
     await expect(page.getByRole("navigation", { name: "On this page" })).toBeVisible();
   });
 
-  test("gives icon-only social links real accessible names", async ({ page }) => {
+  test("gives social links real accessible names", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "GitHub" })).toBeVisible();
     await expect(page.getByRole("link", { name: "LinkedIn" })).toBeVisible();
@@ -42,9 +43,7 @@ test.describe("homepage", () => {
     await page.locator("#projects").scrollIntoViewIfNeeded();
     // "location", never "page" -- these are in-page fragments, not navigation.
     await expect(projectsLink).toHaveAttribute("aria-current", "location", { timeout: 5000 });
-
-    const experienceLink = page.locator('[data-spy-link][href="#experience"]');
-    await expect(experienceLink).not.toHaveAttribute("aria-current", "location");
+    await expect(page.locator('[data-spy-link][aria-current="location"]')).toHaveCount(1);
   });
 
   test("job cards reveal their highlight on keyboard focus, not just hover", async ({ page }) => {
@@ -78,6 +77,61 @@ test.describe("homepage", () => {
     expect(display).toBe("grid");
   });
 
+  test("uses the full row for the profile at the tablet breakpoint", async ({ page }) => {
+    await page.setViewportSize({ width: 980, height: 1200 });
+    await page.goto("/");
+    const [rail, shell] = await Promise.all([
+      page.locator(".rail").boundingBox(),
+      page.locator(".shell").boundingBox(),
+    ]);
+    expect(rail?.width).toBeGreaterThan((shell?.width ?? 0) * 0.9);
+    await expect(page.getByRole("navigation", { name: "On this page" })).toBeHidden();
+    expect(
+      (await page.getByRole("heading", { name: "Selected projects" }).boundingBox())?.y,
+    ).toBeLessThan(700);
+  });
+
+  test("brings selected work into the first phone viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto("/");
+    const projectsHeading = await page
+      .getByRole("heading", { name: "Selected projects" })
+      .boundingBox();
+    expect(projectsHeading?.y).toBeLessThan(800);
+  });
+
+  test("shows the icon nav after the one-column hero scrolls away", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto("/");
+    const nav = page.getByRole("navigation", { name: "Page sections" });
+    await expect(nav).toBeHidden();
+    await page.locator("#experience").scrollIntoViewIfNeeded();
+    await expect(nav).toBeVisible();
+    await expect(nav.getByRole("link")).toHaveCount(3);
+  });
+
+  test("removes the timeline gutter from one-column job cards", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto("/");
+    await expect(page.locator(".job-period").first()).toBeHidden();
+  });
+
+  test("keeps both homepage actions on one line at 320px", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto("/");
+    for (const name of ["View work", /Résumé/]) {
+      const link = page.getByRole("link", { name });
+      const lineHeight = Number.parseFloat(
+        await link.evaluate((el) => getComputedStyle(el).lineHeight),
+      );
+      const labelHeight = await link
+        .locator("span")
+        .first()
+        .evaluate((el) => el.getBoundingClientRect().height);
+      expect(labelHeight).toBeLessThanOrEqual(lineHeight + 1);
+    }
+  });
+
   test("uses one lead project and two equal secondary projects", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
@@ -91,14 +145,24 @@ test.describe("homepage", () => {
     expect(first?.width).toBeCloseTo(second?.width ?? 0, 0);
   });
 
-  test("persists the selected colour theme", async ({ page }) => {
+  test("only shows navigation labels and the theme control when they fit", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
     await page.goto("/");
-    const toggle = page.getByRole("button", { name: "Switch to dark theme" });
-    await toggle.click();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect(page.getByRole("button", { name: "Switch to light theme" })).toBeVisible();
-    await page.reload();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.locator("#experience").scrollIntoViewIfNeeded();
+    await expect(page.locator(".floating-label").first()).toBeHidden();
+    await expect(page.getByRole("button", { name: /Switch to .* theme/ })).toBeHidden();
+
+    await page.setViewportSize({ width: 640, height: 800 });
+    await expect(page.locator(".floating-label").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /Switch to .* theme/ })).toBeHidden();
+
+    await page.setViewportSize({ width: 1045, height: 900 });
+    await page.goto("/");
+    await expect(page.locator(".social-label").first()).toBeHidden();
+    await expect(page.getByRole("button", { name: /Switch to .* theme/ })).toBeVisible();
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(page.locator(".social-label").first()).toBeVisible();
   });
 
   test("keeps GitHub activity as an empty implementation placeholder", async ({ page }) => {

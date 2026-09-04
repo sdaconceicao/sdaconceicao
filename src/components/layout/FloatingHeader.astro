@@ -1,0 +1,125 @@
+---
+import { Image } from "astro:assets";
+import me from "../../assets/me.png";
+import Icon, { type IconName } from "../ui/Icon.astro";
+
+interface Props {
+  items: readonly { id: string; label: string }[];
+}
+
+const { items } = Astro.props;
+const icons: Record<string, IconName> = {
+  projects: "folder",
+  experience: "briefcase",
+  activity: "file-text",
+};
+---
+
+<div class="floating-header" data-floating-header hidden>
+  <Image src={me} alt="" width={48} height={48} class="floating-avatar" />
+  <nav aria-label="Page sections">
+    <ul role="list">
+      {
+        items.map((item) => (
+          <li>
+			<a href={`#${item.id}`}>
+				<Icon name={icons[item.id] ?? "link"} size={20} />
+				<span class="floating-label" aria-hidden="true">{item.label}</span>
+				<span class="sr-only">{item.label}</span>
+			</a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</div>
+
+<script>
+  const initFloatingHeader = () => {
+    const header = document.querySelector<HTMLElement>("[data-floating-header]");
+    const hero = document.querySelector<HTMLElement>('.rail[data-variant="home"]');
+    if (!header || !hero || header.dataset.bound === "true") return;
+
+    header.dataset.bound = "true";
+    new IntersectionObserver(([entry]) => {
+      if (entry) header.hidden = entry.boundingClientRect.bottom > 0;
+    }).observe(hero);
+  };
+
+  initFloatingHeader();
+  document.addEventListener("astro:page-load", initFloatingHeader);
+</script>
+
+<style>
+  .floating-header {
+    position: fixed;
+    z-index: 10;
+    inset-block-start: 0;
+    inset-inline: 0;
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-1);
+		border-block-end: 1px solid var(--border-strong);
+		background-color: var(--surface-1);
+	}
+
+  .floating-header[hidden] {
+    display: none;
+  }
+
+  .floating-avatar {
+    flex: 0 0 auto;
+    inline-size: var(--spacing-10);
+    aspect-ratio: 1;
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+  }
+
+  nav {
+    flex: 1;
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    list-style: none;
+  }
+
+  a {
+    display: grid;
+    min-block-size: 44px;
+    place-items: center;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+	a:hover,
+	a:focus-visible {
+		color: var(--accent);
+	}
+
+	.floating-label {
+		display: none;
+	}
+
+	@media (min-width: 30rem) {
+		a {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: var(--spacing-2);
+		}
+
+		.floating-label {
+			display: inline;
+			font-family: var(--font-mono);
+			font-size: var(--text-xs);
+		}
+	}
+
+	@media (min-width: 64rem) and (min-height: 48rem) {
+    .floating-header {
+      display: none;
+    }
+  }
+</style>

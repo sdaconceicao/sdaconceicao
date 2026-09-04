@@ -4,11 +4,12 @@ import Icon, { type IconName } from "../ui/Icon.astro";
 interface Props {
   items: readonly { label: string; href: string; icon: string }[];
   size?: number;
+  showLabels?: boolean;
 }
-const { items, size = 22 } = Astro.props;
+const { items, size = 22, showLabels = false } = Astro.props;
 ---
 
-<ul class="socials" role="list">
+<ul class="socials" role="list" data-labels={showLabels}>
   {
     items.map((item) => (
       <li>
@@ -23,8 +24,8 @@ const { items, size = 22 } = Astro.props;
           href={item.href}
           rel={/^https?:/i.test(item.href) ? "me noopener noreferrer" : "noopener noreferrer"}
           target="_blank"
-        >
-          <Icon name={item.icon as IconName} size={size} />
+		>
+			<Icon name={item.icon as IconName} size={size} />
           {/*
             The accessible name comes from visually-hidden TEXT, not aria-label.
             aria-label is invisible to browser translation and to machine
@@ -32,8 +33,9 @@ const { items, size = 22 } = Astro.props;
             mean the nav is monolingual for screen-reader users elsewhere. It is
             also what "find on page" actually matches.
           */}
-          <span class="sr-only">{item.label}</span>
-        </a>
+			<span class="sr-only">{item.label}</span>
+			{showLabels && <span class="social-label" aria-hidden="true">{item.label}</span>}
+		</a>
       </li>
     ))
   }
@@ -57,7 +59,41 @@ const { items, size = 22 } = Astro.props;
     transition: color var(--dur-fast) var(--ease);
   }
 
-  .social-link:hover {
+  .social-link:hover,
+  .social-link:focus-visible {
     color: var(--accent);
   }
+
+	.socials[data-labels="true"] {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+    inline-size: 100%;
+    padding-block-start: var(--spacing-3);
+    border-block-start: 1px solid var(--border);
+  }
+
+  .socials[data-labels="true"] .social-link {
+    display: flex;
+    gap: var(--spacing-2);
+    justify-content: center;
+    padding-inline: var(--spacing-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-decoration: none;
+  }
+
+	.social-label {
+		min-inline-size: 0;
+		white-space: nowrap;
+	}
+
+	@container rail (max-width: 24.5rem) {
+		.social-label {
+			display: none;
+		}
+
+		.socials[data-labels="true"] .social-link {
+			padding-inline: 0;
+		}
+	}
 </style>

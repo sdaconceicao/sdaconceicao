@@ -82,9 +82,15 @@ test.describe("accessibility", () => {
     expect(box?.height).toBeGreaterThanOrEqual(44);
   });
 
-  test("the theme toggle meets the 44px touch target floor", async ({ page }) => {
+  test("floating navigation links meet the 44px touch target floor", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
     await page.goto("/");
-    const box = await page.getByRole("button", { name: /Switch to .* theme/ }).boundingBox();
+    await page.locator("#experience").scrollIntoViewIfNeeded();
+    const box = await page
+      .getByRole("navigation", { name: "Page sections" })
+      .getByRole("link", { name: "Projects" })
+      .boundingBox();
+    expect(box?.width).toBeGreaterThanOrEqual(44);
     expect(box?.height).toBeGreaterThanOrEqual(44);
   });
 });

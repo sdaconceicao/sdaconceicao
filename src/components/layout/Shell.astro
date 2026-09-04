@@ -4,6 +4,7 @@
 
 <div class="shell">
   <slot name="rail" />
+  <slot name="floating" />
   <slot name="main" />
 </div>
 
@@ -23,7 +24,7 @@
   @media (min-width: 64rem) and (min-height: 48rem) {
     .shell {
       display: grid;
-      grid-template-columns: minmax(0, 38fr) minmax(0, 62fr);
+      grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
       gap: var(--spacing-10);
       align-items: start;
     }

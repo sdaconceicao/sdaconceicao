@@ -28,10 +28,12 @@ const IntroTag = variant === "home" ? "section" : "div";
 
 <header class="rail" data-variant={variant}>
   <div class="rail-top">
-    <div class="rail-toolbar">
-      <a class="prompt-mark" href="/" aria-label="Home"><span aria-hidden="true">&gt;_</span></a>
-      <ThemeToggle />
-    </div>
+		<div class="rail-toolbar">
+			<a class="prompt-mark" href="/" aria-label="Home"><span aria-hidden="true">&gt;_</span></a>
+			<div class="rail-theme">
+				<ThemeToggle />
+			</div>
+		</div>
 
     <IntroTag
       class="rail-intro"
@@ -88,23 +90,24 @@ const IntroTag = variant === "home" ? "section" : "div";
     }
   </div>
 
-  <SocialLinks items={SOCIALS} />
+  <SocialLinks items={SOCIALS} showLabels={variant === "home"} />
 </header>
 
 <style>
-  .rail {
-    display: flex;
+	.rail {
+		container-name: rail;
+		container-type: inline-size;
+		display: flex;
     flex-direction: column;
-    gap: var(--spacing-6);
-    max-inline-size: var(--rail-measure);
-    padding-block: var(--spacing-8);
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-4);
   }
 
   .rail-top {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-6);
+    gap: var(--spacing-4);
   }
 
   .rail-toolbar {
@@ -116,28 +119,32 @@ const IntroTag = variant === "home" ? "section" : "div";
     border-block-end: 1px solid var(--border);
   }
 
-  .prompt-mark {
+	.prompt-mark {
     color: var(--accent);
     font-family: var(--font-mono);
     font-size: var(--text-xl);
     font-weight: 600;
-    text-decoration: none;
-  }
+		text-decoration: none;
+	}
+
+	.rail-theme {
+		display: none;
+	}
 
   .rail-intro {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: var(--spacing-20) minmax(0, 1fr);
     align-items: flex-start;
     gap: var(--spacing-3);
   }
 
   .rail-identity {
-    margin-block-end: var(--spacing-3);
+    grid-row: 1 / span 2;
   }
 
   .rail-avatar {
     flex-shrink: 0;
-    inline-size: var(--avatar-size);
+    inline-size: var(--spacing-20);
     aspect-ratio: 1;
     object-fit: contain;
     filter: saturate(0.88);
@@ -154,6 +161,11 @@ const IntroTag = variant === "home" ? "section" : "div";
     font-weight: 700;
     letter-spacing: var(--tracking-tight);
     line-height: var(--leading-tight);
+  }
+
+  .rail-tagline,
+  .rail-actions {
+    grid-column: 1 / -1;
   }
 
   .rail-role {
@@ -178,11 +190,13 @@ const IntroTag = variant === "home" ? "section" : "div";
 
   .rail-actions :global(.rail-action) {
     justify-content: center;
+    min-inline-size: 0;
     min-block-size: 44px;
     padding-inline: var(--spacing-4);
     border: 1px solid var(--border-strong);
     color: var(--fg);
     font-family: var(--font-mono);
+    white-space: nowrap;
   }
 
   .rail-actions :global(.rail-action-primary) {
@@ -215,15 +229,37 @@ const IntroTag = variant === "home" ? "section" : "div";
 
   @media (min-width: 48rem) {
     .rail {
-      gap: var(--spacing-10);
+      gap: var(--spacing-6);
+      max-inline-size: none;
+      padding-block: var(--spacing-6);
     }
 
-    .rail-nav {
-      display: flex;
-      flex-direction: column;
+    .rail-top {
       gap: var(--spacing-5);
-      margin-block-start: var(--spacing-4);
     }
+
+    .rail-intro {
+      grid-template-columns: var(--avatar-size) minmax(0, 1fr);
+      inline-size: 100%;
+    }
+
+    .rail-identity {
+      grid-row: 1 / span 4;
+    }
+
+    .rail-avatar {
+      inline-size: var(--avatar-size);
+    }
+
+    .rail-name {
+      max-inline-size: none;
+    }
+
+    .rail-tagline,
+    .rail-actions {
+      grid-column: 2;
+    }
+
   }
 
   /*
@@ -238,12 +274,24 @@ const IntroTag = variant === "home" ? "section" : "div";
    * overflow below should never engage. It is a safety valve, not a feature.
    * If rail content grows past the budget, move something OUT of the rail.
    */
-  @media (min-width: 64rem) and (min-height: 48rem) {
+	@media (min-width: 64rem) and (min-height: 48rem) {
+		.rail-theme {
+			display: block;
+		}
+
+		.rail-nav {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-5);
+      inline-size: 100%;
+    }
+
     .rail {
       position: sticky;
       inset-block-start: 0;
       justify-content: space-between;
       gap: var(--spacing-6);
+      max-inline-size: var(--rail-measure);
       max-block-size: 100vh;
       max-block-size: 100svh;
       padding-block: var(--spacing-6);
@@ -259,11 +307,23 @@ const IntroTag = variant === "home" ? "section" : "div";
     }
 
     .rail-intro {
+      display: flex;
+      flex-direction: column;
       gap: var(--spacing-2);
     }
 
     .rail-identity {
+      grid-row: auto;
       margin-block-end: var(--spacing-1);
+    }
+
+    .rail-name {
+      max-inline-size: 9ch;
+    }
+
+    .rail-tagline,
+    .rail-actions {
+      grid-column: auto;
     }
   }
 </style>

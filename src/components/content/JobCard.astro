@@ -105,8 +105,7 @@ const tenureLabel = tenure.current
   .job {
     position: relative;
     isolation: isolate;
-    display: grid;
-    grid-template-columns: var(--timeline-col-mobile) minmax(0, 1fr);
+    display: block;
     border-block-start: 1px solid var(--border);
   }
 
@@ -134,9 +133,7 @@ const tenureLabel = tenure.current
   }
 
   .job-period {
-    position: relative;
-    padding-block: var(--spacing-6);
-    padding-inline-end: var(--spacing-4);
+    display: none;
   }
 
   .job-period .meta {
@@ -182,7 +179,7 @@ const tenureLabel = tenure.current
 
   .job-body {
     min-inline-size: 0;
-    padding: var(--spacing-6) 0 var(--spacing-6) var(--spacing-5);
+    padding-block: var(--spacing-6);
   }
 
   .job-heading {
@@ -268,9 +265,17 @@ const tenureLabel = tenure.current
     font-family: var(--font-mono);
   }
 
-  @media (min-width: 48rem) {
+  @media (min-width: 64rem) and (min-height: 48rem) {
     .job {
+      display: grid;
       grid-template-columns: var(--timeline-col) minmax(0, 1fr);
+    }
+
+    .job-period {
+      display: block;
+      position: relative;
+      padding-block: var(--spacing-6);
+      padding-inline-end: var(--spacing-4);
     }
 
     .job-body {
