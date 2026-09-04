@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import me from "../../assets/me.png";
-import { RESUME_HREF, SECTIONS, SITE, SOCIALS } from "../../site";
+import { PAGE_LINKS, RESUME_HREF, SECTIONS, SITE, SOCIALS } from "../../site";
 import ArrowLink from "../ui/ArrowLink.astro";
 import ThemeToggle from "../ui/ThemeToggle.astro";
 import ScrollSpyNav from "./ScrollSpyNav.astro";
@@ -10,11 +10,10 @@ import SocialLinks from "./SocialLinks.astro";
 interface Props {
   /** "home" carries the scroll-spy nav; "compact" is the blog routes' header. */
   variant?: "home" | "compact";
-  backHref?: string;
-  backLabel?: string;
 }
 
-const { variant = "home", backHref = "/", backLabel = "Back home" } = Astro.props;
+const { variant = "home" } = Astro.props;
+const pathname = Astro.url.pathname;
 
 /**
  * The rail carries the <h1> only on the homepage, where the person IS the
@@ -81,11 +80,30 @@ const IntroTag = variant === "home" ? "section" : "div";
           <ScrollSpyNav items={SECTIONS} />
         </div>
       ) : (
-        <p class="rail-back">
-          <ArrowLink href={backHref} direction="w">
-            {backLabel}
-          </ArrowLink>
-        </p>
+        <nav class="site-nav" aria-label="Primary">
+          <ul role="list">
+            {PAGE_LINKS.map((item, index) => (
+              <li>
+                <a
+                  href={item.href}
+                  aria-current={
+                    pathname === item.href
+                      ? "page"
+                      : pathname.startsWith(`${item.href}/`)
+                        ? "location"
+                        : undefined
+                  }
+                >
+                  <span class="site-index" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span class="site-indicator" aria-hidden="true" />
+                  <span class="site-label meta">{item.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
       )
     }
   </div>
@@ -219,12 +237,82 @@ const IntroTag = variant === "home" ? "section" : "div";
     display: none;
   }
 
+  .site-nav,
+  .site-nav ul {
+    inline-size: 100%;
+  }
+
+  .site-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2) var(--spacing-6);
+  }
+
+  .site-nav a {
+    display: flex;
+    align-items: center;
+    min-block-size: 44px;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    text-decoration: none;
+  }
+
+  .site-nav a:hover,
+  .site-nav a:focus-visible,
+  .site-nav a[aria-current] {
+    color: var(--accent);
+  }
+
+  .site-nav a[aria-current] {
+    text-decoration: underline;
+    text-underline-offset: var(--spacing-2);
+  }
+
+  .site-index,
+  .site-indicator {
+    display: none;
+  }
+
   .rail[data-variant="compact"] .rail-avatar {
     inline-size: calc(var(--avatar-size) / 2);
   }
 
   .rail[data-variant="compact"] .rail-name {
     font-size: var(--text-display);
+  }
+
+  @media (max-width: 47.99rem) {
+    .rail[data-variant="compact"] {
+      gap: var(--spacing-3);
+      padding-block: var(--spacing-3);
+    }
+
+    .rail[data-variant="compact"] .rail-intro {
+      grid-template-columns: var(--spacing-12) minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .rail[data-variant="compact"] .rail-identity {
+      grid-row: auto;
+    }
+
+    .rail[data-variant="compact"] .rail-avatar {
+      inline-size: var(--spacing-12);
+    }
+
+    .rail[data-variant="compact"] .rail-name {
+      max-inline-size: none;
+      font-size: var(--text-lg);
+    }
+
+    .rail[data-variant="compact"] .rail-role,
+    .rail[data-variant="compact"] :global(.socials) {
+      display: none;
+    }
+
+    .rail[data-variant="compact"] .rail-theme {
+      display: block;
+    }
   }
 
   @media (min-width: 48rem) {
@@ -275,6 +363,55 @@ const IntroTag = variant === "home" ? "section" : "div";
    * If rail content grows past the budget, move something OUT of the rail.
    */
 	@media (min-width: 64rem) and (min-height: 48rem) {
+    .site-nav ul {
+      flex-direction: column;
+      gap: var(--spacing-2);
+    }
+
+    .site-nav a {
+      display: grid;
+      grid-template-columns: auto auto minmax(var(--spacing-8), 1fr);
+      gap: var(--spacing-3);
+      inline-size: 100%;
+      padding-block: var(--spacing-2);
+      border-block-end: 1px solid var(--border);
+      text-decoration: none;
+    }
+
+    .site-index {
+      display: block;
+      color: var(--accent);
+      font-size: var(--text-xs);
+    }
+
+    .site-indicator {
+      display: block;
+      order: 3;
+      justify-self: end;
+      block-size: 1px;
+      inline-size: 50%;
+      background-color: var(--border-strong);
+      transition:
+        inline-size var(--dur) var(--ease),
+        background-color var(--dur) var(--ease);
+    }
+
+    .site-nav a:hover .site-indicator,
+    .site-nav a:focus-visible .site-indicator,
+    .site-nav a[aria-current] .site-indicator {
+      inline-size: 100%;
+    }
+
+    .site-nav a[aria-current] .site-indicator {
+      background-color: var(--accent);
+    }
+
+    .site-nav a:hover .site-label,
+    .site-nav a:focus-visible .site-label,
+    .site-nav a[aria-current] .site-label {
+      color: var(--fg);
+    }
+
 		.rail-theme {
 			display: block;
 		}

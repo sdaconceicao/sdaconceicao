@@ -10,8 +10,6 @@ export const SITE = {
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   url: "https://stephenandrewdesigns.com",
   locale: "en",
-  /** Career start, used to derive the years-of-experience line. */
-  careerStart: new Date("2006-01-01T00:00:00Z"),
 } as const;
 
 export const SECTIONS = [
@@ -24,9 +22,10 @@ export const SECTIONS = [
  *  Experience section, which is why it is not inlined at either call site. */
 export const RESUME_HREF = "/Resume.pdf";
 
-export const SITE_LINKS = [
-  { href: "/projects", label: "All projects" },
-  { href: "/blog", label: "Blog" },
+export const PAGE_LINKS = [
+  { id: "projects", href: "/projects", label: "Projects" },
+  { id: "experience", href: RESUME_HREF, label: "Experience" },
+  { id: "activity", href: "/blog", label: "Writing" },
 ] as const;
 
 export const SOCIALS = [

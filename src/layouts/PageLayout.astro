@@ -1,7 +1,9 @@
 ---
+import FloatingHeader from "../components/layout/FloatingHeader.astro";
 import Rail from "../components/layout/Rail.astro";
 import Shell from "../components/layout/Shell.astro";
 import SiteFooter from "../components/layout/SiteFooter.astro";
+import { PAGE_LINKS } from "../site";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
@@ -16,13 +18,30 @@ interface Props {
   backLabel?: string;
 }
 const { backHref = "/", backLabel = "Back home", ...head } = Astro.props;
+const isDetailPage = Astro.url.pathname.split("/").filter(Boolean).length > 1;
 ---
 
 <BaseLayout {...head}>
   <Shell>
-    <Rail slot="rail" variant="compact" backHref={backHref} backLabel={backLabel} />
+    <Rail slot="rail" variant="compact" />
+    <FloatingHeader
+      slot="floating"
+      items={PAGE_LINKS}
+      label="Site shortcuts"
+      homeHref="/"
+    />
     <div slot="main">
-      <main id="main" class="page-main">
+      <main id="main" class="page-main" data-detail={isDetailPage}>
+        {
+          isDetailPage && (
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <ol class="breadcrumb-list" role="list">
+                <li><a href={backHref}>{backLabel}</a></li>
+                <li aria-current="page">{Astro.props.title}</li>
+              </ol>
+            </nav>
+          )
+        }
         <slot />
       </main>
       <SiteFooter />
@@ -35,9 +54,36 @@ const { backHref = "/", backLabel = "Back home", ...head } = Astro.props;
     padding-block: var(--spacing-12);
   }
 
+  .breadcrumb {
+    margin-block-end: var(--spacing-6);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+
+  .breadcrumb li + li::before {
+    margin-inline-end: var(--spacing-2);
+    color: var(--fg-dim);
+    content: "/";
+  }
+
+  .breadcrumb a {
+    color: var(--accent);
+    text-underline-offset: var(--spacing-1);
+  }
+
   @media (min-width: 64rem) and (min-height: 48rem) {
     .page-main {
       padding-block: var(--spacing-24) var(--spacing-16);
     }
+  }
+
+  .page-main[data-detail="true"] {
+    padding-block-start: 0;
   }
 </style>

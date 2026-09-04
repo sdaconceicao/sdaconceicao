@@ -46,8 +46,67 @@ test.describe("blog", () => {
     expect(body).not.toContain("Local Storage Options");
   });
 
-  test("the compact rail offers a way back", async ({ page }) => {
+  test("detail pages expose global and contextual navigation", async ({ page }) => {
     await page.goto("/blog/local-storage-options");
-    await expect(page.getByRole("link", { name: /All posts/ })).toBeVisible();
+
+    const primary = page.getByRole("navigation", { name: "Primary" });
+    await expect(primary.getByRole("link", { name: "Home" })).toHaveCount(0);
+    await expect(primary.getByRole("link", { name: "Projects" })).toHaveAttribute(
+      "href",
+      "/projects",
+    );
+    await expect(primary.getByRole("link", { name: "Experience" })).toHaveAttribute(
+      "href",
+      "/Resume.pdf",
+    );
+    await expect(primary.getByRole("link", { name: "Writing" })).toHaveAttribute(
+      "aria-current",
+      "location",
+    );
+
+    const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
+    await expect(breadcrumb.getByRole("link", { name: "All posts" })).toBeVisible();
+    const [breadcrumbX, titleX] = await Promise.all([
+      breadcrumb
+        .getByRole("link", { name: "All posts" })
+        .evaluate((element) => element.getBoundingClientRect().x),
+      page
+        .getByRole("heading", { level: 1 })
+        .evaluate((element) => element.getBoundingClientRect().x),
+    ]);
+    expect(breadcrumbX).toBe(titleX);
+  });
+
+  test("detail pages reveal the non-home shortcuts after their compact hero", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto("/blog/local-storage-options");
+
+    const padding = await page
+      .getByRole("main")
+      .evaluate((element) => getComputedStyle(element).paddingBlockStart);
+    expect(padding).toBe("0px");
+
+    const floating = page.locator("[data-floating-header]");
+    await expect(floating).toBeHidden();
+
+    await page.getByRole("contentinfo").scrollIntoViewIfNeeded();
+    await expect(floating).toBeVisible();
+
+    await expect(floating.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+    const shortcuts = floating.getByRole("navigation", { name: "Site shortcuts" });
+    await expect(shortcuts.getByRole("link", { name: "Projects" })).toHaveAttribute(
+      "href",
+      "/projects",
+    );
+    await expect(shortcuts.getByRole("link", { name: "Experience" })).toHaveAttribute(
+      "href",
+      "/Resume.pdf",
+    );
+    await expect(shortcuts.getByRole("link", { name: "Writing" })).toHaveAttribute(
+      "href",
+      "/blog",
+    );
   });
 });

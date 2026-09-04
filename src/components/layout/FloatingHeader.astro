@@ -4,10 +4,12 @@ import me from "../../assets/me.png";
 import Icon, { type IconName } from "../ui/Icon.astro";
 
 interface Props {
-  items: readonly { id: string; label: string }[];
+  items: readonly { id: string; label: string; href?: string }[];
+  label?: string;
+  homeHref?: string;
 }
 
-const { items } = Astro.props;
+const { items, label = "Page sections", homeHref } = Astro.props;
 const icons: Record<string, IconName> = {
   projects: "folder",
   experience: "briefcase",
@@ -16,13 +18,22 @@ const icons: Record<string, IconName> = {
 ---
 
 <div class="floating-header" data-floating-header hidden>
-  <Image src={me} alt="" width={48} height={48} class="floating-avatar" />
-  <nav aria-label="Page sections">
+  {
+    homeHref ? (
+      <a class="floating-home" href={homeHref}>
+        <Image src={me} alt="" width={48} height={48} class="floating-avatar" />
+        <span class="sr-only">Home</span>
+      </a>
+    ) : (
+      <Image src={me} alt="" width={48} height={48} class="floating-avatar" />
+    )
+  }
+  <nav aria-label={label}>
     <ul role="list">
       {
         items.map((item) => (
           <li>
-			<a href={`#${item.id}`}>
+			<a href={item.href ?? `#${item.id}`}>
 				<Icon name={icons[item.id] ?? "link"} size={20} />
 				<span class="floating-label" aria-hidden="true">{item.label}</span>
 				<span class="sr-only">{item.label}</span>
@@ -37,7 +48,7 @@ const icons: Record<string, IconName> = {
 <script>
   const initFloatingHeader = () => {
     const header = document.querySelector<HTMLElement>("[data-floating-header]");
-    const hero = document.querySelector<HTMLElement>('.rail[data-variant="home"]');
+    const hero = document.querySelector<HTMLElement>(".rail");
     if (!header || !hero || header.dataset.bound === "true") return;
 
     header.dataset.bound = "true";
