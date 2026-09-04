@@ -5,7 +5,7 @@ export const SITE = {
   author: "Just call me Steve",
   role: "Software Engineer and tinkerer",
   tagline:
-    "I’m a software engineer who enjoys building great products and even better teams. I like helping people grow, automating what we can, and keeping our work simple and dependable.",
+    "I’m a software engineer who enjoys building great products and great teams. I care about helping people grow, automating the tedious work, and keeping things simple and reliable.",
   description:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   url: "https://stephenandrewdesigns.com",
@@ -15,7 +15,6 @@ export const SITE = {
 } as const;
 
 export const SECTIONS = [
-  { id: "about", label: "About" },
   { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },
   { id: "writing", label: "Writing" },

@@ -1,8 +1,9 @@
 ---
 import { Image } from "astro:assets";
 import me from "../../assets/me.png";
-import { SECTIONS, SITE, SITE_LINKS, SOCIALS } from "../../site";
+import { RESUME_HREF, SECTIONS, SITE, SOCIALS } from "../../site";
 import ArrowLink from "../ui/ArrowLink.astro";
+import ThemeToggle from "../ui/ThemeToggle.astro";
 import ScrollSpyNav from "./ScrollSpyNav.astro";
 import SocialLinks from "./SocialLinks.astro";
 
@@ -22,42 +23,60 @@ const { variant = "home", backHref = "/", backLabel = "Back home" } = Astro.prop
  * a screen-reader user cannot tell which one is the document title.
  */
 const NameTag = variant === "home" ? "h1" : "p";
+const IntroTag = variant === "home" ? "section" : "div";
 ---
 
-<header class="rail">
+<header class="rail" data-variant={variant}>
   <div class="rail-top">
-    <div class="rail-identity">
-      {/* alt is deliberately empty: the <h1> immediately beside this says the
-          name, so repeating it is pure noise for a screen-reader user. */}
-      <Image
-        src={me}
-        alt=""
-        width={96}
-        height={96}
-        class="rail-avatar"
-        loading="eager"
-        fetchpriority="high"
-      />
-      <NameTag class="rail-name">{SITE.author}</NameTag>
+    <div class="rail-toolbar">
+      <a class="prompt-mark" href="/" aria-label="Home"><span aria-hidden="true">&gt;_</span></a>
+      <ThemeToggle />
     </div>
-    <p class="rail-role">{SITE.role}</p>
-    {variant === "home" && <p class="rail-tagline">{SITE.tagline}</p>}
+
+    <IntroTag
+      class="rail-intro"
+      id={variant === "home" ? "about" : undefined}
+      aria-label={variant === "home" ? "About" : undefined}
+      tabindex={variant === "home" ? "-1" : undefined}
+    >
+      <div class="rail-identity">
+        {/* The adjacent name already identifies this decorative portrait. */}
+        <Image
+          src={me}
+          alt=""
+          width={208}
+          height={208}
+          class="rail-avatar"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+      <NameTag class="rail-name">{SITE.author}</NameTag>
+      <p class="rail-role">{SITE.role}</p>
+      {variant === "home" && <p class="rail-tagline">{SITE.tagline}</p>}
+      {
+        variant === "home" && (
+          <div class="rail-actions">
+            <ArrowLink href="/projects" direction="e" class="rail-action rail-action-primary">
+              View work
+            </ArrowLink>
+            <ArrowLink
+              href={RESUME_HREF}
+              direction="ne"
+              external
+              class="rail-action"
+            >
+              Résumé
+            </ArrowLink>
+          </div>
+        )
+      }
+    </IntroTag>
 
     {
       variant === "home" ? (
         <div class="rail-nav">
           <ScrollSpyNav items={SECTIONS} />
-          <nav aria-label="Site">
-            <ul class="site-links" role="list">
-              {SITE_LINKS.map((link) => (
-                <li>
-                  <ArrowLink href={link.href} direction="e">
-                    {link.label}
-                  </ArrowLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
         </div>
       ) : (
         <p class="rail-back">
@@ -78,28 +97,50 @@ const NameTag = variant === "home" ? "h1" : "p";
     flex-direction: column;
     gap: var(--spacing-6);
     max-inline-size: var(--rail-measure);
-    padding-block: var(--spacing-12) var(--spacing-8);
+    padding-block: var(--spacing-8);
   }
 
   .rail-top {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-4);
+    gap: var(--spacing-6);
+  }
+
+  .rail-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    inline-size: 100%;
+    padding-block-end: var(--spacing-3);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .prompt-mark {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-xl);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .rail-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
   }
 
   .rail-identity {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-4);
+    margin-block-end: var(--spacing-3);
   }
 
   .rail-avatar {
-    /* The name beside it is display-sized, so let the text take any leftover
-       inline space rather than squashing a circular crop into an ellipse. */
     flex-shrink: 0;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border-strong);
+    inline-size: var(--avatar-size);
+    aspect-ratio: 1;
+    object-fit: contain;
+    filter: saturate(0.88);
   }
 
   .rail-name {
@@ -107,21 +148,46 @@ const NameTag = variant === "home" ? "h1" : "p";
        elsewhere, and base.css only colours headings. Without this the name
        silently renders in muted grey on the blog routes. */
     color: var(--fg);
-    font-size: var(--text-display);
+    max-inline-size: 9ch;
+    font-family: var(--font-mono);
+    font-size: var(--text-hero);
     font-weight: 700;
     letter-spacing: var(--tracking-tight);
     line-height: var(--leading-tight);
   }
 
   .rail-role {
-    color: var(--fg);
-    font-size: var(--text-xl);
-    font-weight: 500;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    font-weight: 600;
   }
 
   .rail-tagline {
     max-inline-size: var(--measure-narrow);
     color: var(--fg-muted);
+  }
+
+  .rail-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+    inline-size: 100%;
+    margin-block-start: var(--spacing-3);
+  }
+
+  .rail-actions :global(.rail-action) {
+    justify-content: center;
+    min-block-size: 44px;
+    padding-inline: var(--spacing-4);
+    border: 1px solid var(--border-strong);
+    color: var(--fg);
+    font-family: var(--font-mono);
+  }
+
+  .rail-actions :global(.rail-action-primary) {
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   /*
@@ -139,9 +205,12 @@ const NameTag = variant === "home" ? "h1" : "p";
     display: none;
   }
 
-  .site-links {
-    display: flex;
-    gap: var(--spacing-5);
+  .rail[data-variant="compact"] .rail-avatar {
+    inline-size: calc(var(--avatar-size) / 2);
+  }
+
+  .rail[data-variant="compact"] .rail-name {
+    font-size: var(--text-display);
   }
 
   @media (min-width: 48rem) {
@@ -169,17 +238,32 @@ const NameTag = variant === "home" ? "h1" : "p";
    * overflow below should never engage. It is a safety valve, not a feature.
    * If rail content grows past the budget, move something OUT of the rail.
    */
-  @media (min-width: 64rem) and (min-height: 44rem) {
+  @media (min-width: 64rem) and (min-height: 48rem) {
     .rail {
       position: sticky;
       inset-block-start: 0;
       justify-content: space-between;
+      gap: var(--spacing-6);
       max-block-size: 100vh;
       max-block-size: 100svh;
-      padding-block: var(--spacing-24) var(--spacing-16);
+      padding-block: var(--spacing-6);
+      padding-inline-end: var(--spacing-8);
+      border-inline-end: 1px solid var(--border);
       overflow-y: auto;
       overscroll-behavior: contain;
       scrollbar-gutter: stable;
+    }
+
+    .rail-top {
+      gap: var(--spacing-4);
+    }
+
+    .rail-intro {
+      gap: var(--spacing-2);
+    }
+
+    .rail-identity {
+      margin-block-end: var(--spacing-1);
     }
   }
 </style>

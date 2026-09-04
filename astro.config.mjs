@@ -29,7 +29,7 @@ export default defineConfig({
         codeFontSize: "var(--text-sm)",
         borderRadius: "var(--radius-lg)",
         borderColor: "var(--border)",
-        codeBackground: "var(--surface-1)",
+        codeBackground: "var(--code-bg)",
         focusBorder: "var(--focus-ring)",
         frames: {
           frameBoxShadowCssValue: "none",

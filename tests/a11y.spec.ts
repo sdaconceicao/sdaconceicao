@@ -82,12 +82,9 @@ test.describe("accessibility", () => {
     expect(box?.height).toBeGreaterThanOrEqual(44);
   });
 
-  test("prose links inside body copy are underlined, not colour-only", async ({ page }) => {
+  test("the theme toggle meets the 44px touch target floor", async ({ page }) => {
     await page.goto("/");
-    const decoration = await page
-      .locator(".about-prose a")
-      .first()
-      .evaluate((el) => getComputedStyle(el).textDecorationLine);
-    expect(decoration).toContain("underline");
+    const box = await page.getByRole("button", { name: /Switch to .* theme/ }).boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
   });
 });

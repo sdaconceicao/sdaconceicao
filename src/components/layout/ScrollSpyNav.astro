@@ -9,9 +9,10 @@ const { items, label = "On this page" } = Astro.props;
 <nav aria-label={label}>
   <ul class="spy-list" role="list">
     {
-      items.map((item) => (
+      items.map((item, index) => (
         <li>
           <a class="spy-link" href={`#${item.id}`} data-spy-link>
+            <span class="spy-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <span class="spy-indicator" aria-hidden="true" />
             <span class="spy-label meta">{item.label}</span>
           </a>
@@ -87,6 +88,12 @@ const { items, label = "On this page" } = Astro.props;
     text-decoration: none;
   }
 
+  .spy-index {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
   /*
    * The active state is a LENGTH change as well as a colour change, so it does
    * not depend on colour perception (SC 1.4.1).
@@ -127,11 +134,21 @@ const { items, label = "On this page" } = Astro.props;
     color: var(--fg);
   }
 
-  @media (min-width: 64rem) and (min-height: 44rem) {
+  @media (min-width: 64rem) and (min-height: 48rem) {
     .spy-list {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: stretch;
       gap: var(--spacing-2);
+    }
+
+    .spy-link {
+      inline-size: 100%;
+      border-block-end: 1px solid var(--border);
+    }
+
+    .spy-indicator {
+      order: 3;
+      margin-inline-start: auto;
     }
   }
 

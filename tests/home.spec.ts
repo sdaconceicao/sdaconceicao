@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("homepage", () => {
   test("renders every section as a named landmark region", async ({ page }) => {
     await page.goto("/");
-    for (const name of ["About", "Experience", "Projects", "Writing"]) {
+    for (const name of ["About", "Selected projects", "Recent experience", "Activity"]) {
       await expect(page.getByRole("region", { name })).toBeVisible();
     }
   });
@@ -12,13 +12,12 @@ test.describe("homepage", () => {
     await page.goto("/");
     const h1 = page.getByRole("heading", { level: 1 });
     await expect(h1).toHaveCount(1);
-    await expect(h1).toHaveText("Stephen da Conceicao");
+    await expect(h1).toHaveText("Just call me Steve");
   });
 
-  test("exposes both navs with distinct accessible names", async ({ page }) => {
+  test("exposes the in-page navigation with a distinct accessible name", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("navigation", { name: "On this page" })).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Site" })).toBeVisible();
   });
 
   test("gives icon-only social links real accessible names", async ({ page }) => {
@@ -44,8 +43,8 @@ test.describe("homepage", () => {
     // "location", never "page" -- these are in-page fragments, not navigation.
     await expect(projectsLink).toHaveAttribute("aria-current", "location", { timeout: 5000 });
 
-    const aboutLink = page.locator('[data-spy-link][href="#about"]');
-    await expect(aboutLink).not.toHaveAttribute("aria-current", "location");
+    const experienceLink = page.locator('[data-spy-link][href="#experience"]');
+    await expect(experienceLink).not.toHaveAttribute("aria-current", "location");
   });
 
   test("job cards reveal their highlight on keyboard focus, not just hover", async ({ page }) => {
@@ -79,13 +78,33 @@ test.describe("homepage", () => {
     expect(display).toBe("grid");
   });
 
-  test("keeps whitespace around inline links in body copy", async ({ page }) => {
+  test("uses one lead project and two equal secondary projects", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
-    // Astro 7's compressHTML: 'jsx' collapses the newline before a line-leading
-    // inline element, silently gluing a link to the preceding word.
-    const text = await page.locator(".about-prose").innerText();
-    expect(text).toContain("My own system, Code-X / Lago");
-    expect(text).not.toContain("system,Code-X");
+    await expect(page.locator('.project[data-variant="lead"]')).toHaveCount(1);
+    const tiles = page.locator('.project[data-variant="tile"]');
+    await expect(tiles).toHaveCount(2);
+    const [first, second] = await Promise.all([
+      tiles.nth(0).boundingBox(),
+      tiles.nth(1).boundingBox(),
+    ]);
+    expect(first?.width).toBeCloseTo(second?.width ?? 0, 0);
+  });
+
+  test("persists the selected colour theme", async ({ page }) => {
+    await page.goto("/");
+    const toggle = page.getByRole("button", { name: "Switch to dark theme" });
+    await toggle.click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.getByRole("button", { name: "Switch to light theme" })).toBeVisible();
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  });
+
+  test("keeps GitHub activity as an empty implementation placeholder", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("article", { name: "3-month activity" })).toBeVisible();
+    await expect(page.locator(".github-placeholder")).toBeEmpty();
   });
 
   test("never scrolls horizontally, even at 400% zoom equivalent", async ({ page }) => {

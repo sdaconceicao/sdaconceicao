@@ -10,19 +10,22 @@ interface Props {
   description: string;
   tags: readonly string[];
   readingTime?: number;
+  variant?: "default" | "signal";
 }
-const { title, href, pubDate, description, tags, readingTime } = Astro.props;
+const { title, href, pubDate, description, tags, readingTime, variant = "default" } = Astro.props;
 ---
 
-<article class="post-card">
+<article class="post-card" data-variant={variant}>
   <p class="post-meta meta">
     <FormattedDate date={pubDate} format="month" />
-    {readingTime !== undefined && readingTime > 0 && (
-      <>
-        <span aria-hidden="true"> · </span>
-        <span>{readingTime} min read</span>
-      </>
-    )}
+    {
+      readingTime !== undefined && readingTime > 0 && (
+        <>
+          <span aria-hidden="true"> · </span>
+          <span>{readingTime} min read</span>
+        </>
+      )
+    }
   </p>
 
   <div>
@@ -40,18 +43,18 @@ const { title, href, pubDate, description, tags, readingTime } = Astro.props;
 <style>
   .post-card {
     position: relative;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-sm);
   }
 
   .post-card + .post-card {
-    margin-block-start: var(--spacing-10);
+    margin-block-start: var(--spacing-8);
   }
 
   .post-card::before {
     content: "";
     position: absolute;
     z-index: -1;
-    inset: calc(var(--spacing-4) * -1);
+    inset: calc(var(--spacing-3) * -1);
     border: 1px solid var(--border);
     border-radius: inherit;
     background-color: var(--surface-1);
@@ -69,14 +72,15 @@ const { title, href, pubDate, description, tags, readingTime } = Astro.props;
   }
 
   .post-title {
+    font-family: var(--font-mono);
     font-size: var(--text-lg);
     font-weight: 600;
   }
 
   .post-link {
     display: inline-flex;
-    align-items: baseline;
-    gap: var(--spacing-1);
+    align-items: center;
+    gap: var(--spacing-2);
     color: var(--fg);
     text-decoration: none;
   }
@@ -87,33 +91,25 @@ const { title, href, pubDate, description, tags, readingTime } = Astro.props;
     inset: 0;
   }
 
-  .post-card :where(a, button):not(.post-link) {
-    position: relative;
-    z-index: 1;
-  }
-
   .post-card:hover .post-link,
   .post-card:focus-within .post-link {
     color: var(--accent);
   }
 
-  .post-link :global(.icon) {
-    transition: translate var(--dur-fast) var(--ease);
-  }
-
-  .post-card:hover .post-link :global(.icon) {
-    translate: 0.2em 0;
-  }
-
   .post-description {
-    margin-block-start: var(--spacing-3);
+    margin-block-start: var(--spacing-2);
     font-size: var(--text-sm);
   }
 
+  .post-card[data-variant="signal"] {
+    display: grid;
+    gap: var(--spacing-2);
+  }
+
   @media (min-width: 48rem) {
-    .post-card {
+    .post-card[data-variant="default"] {
       display: grid;
-      grid-template-columns: var(--job-date-col) 1fr;
+      grid-template-columns: var(--timeline-col) 1fr;
       column-gap: var(--spacing-6);
     }
   }

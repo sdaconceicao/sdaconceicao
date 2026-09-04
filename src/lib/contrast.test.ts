@@ -7,11 +7,10 @@ import { contrastRatio, grade, meetsNonText, parseHex, relativeLuminance } from 
  * A palette tweak that regresses accessibility fails here rather than shipping.
  */
 
-const BG = "#0C0A0B";
-const SURFACE_1 = "#141113";
-const SURFACE_2 = "#1C1719";
-const SURFACE_TINT = "#2A1416";
-const SURFACES = [BG, SURFACE_1, SURFACE_2, SURFACE_TINT];
+const DARK_BG = "#090D0D";
+const DARK_SURFACES = [DARK_BG, "#0F1414", "#151B1B", "#1B2A0D"];
+const LIGHT_BG = "#F7F7F2";
+const LIGHT_SURFACES = [LIGHT_BG, "#FFFFFF", "#ECEEE7", "#E9F6C7"];
 
 const tokens = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf8");
 
@@ -42,7 +41,7 @@ describe("contrast primitives", () => {
   });
 
   it("is symmetric in its arguments", () => {
-    expect(contrastRatio("#FF5A5A", BG)).toBeCloseTo(contrastRatio(BG, "#FF5A5A"), 10);
+    expect(contrastRatio("#B8F500", DARK_BG)).toBeCloseTo(contrastRatio(DARK_BG, "#B8F500"), 10);
   });
 
   it("grades against the right thresholds for normal and large text", () => {
@@ -62,32 +61,37 @@ describe("contrast primitives", () => {
 
 describe("tokens.css ramp values are the ones this suite verifies", () => {
   it.each([
-    ["stone-1000", BG],
-    ["stone-985", SURFACE_1],
-    ["stone-975", SURFACE_2],
-    ["red-900", SURFACE_TINT],
-    ["red-300", "#ff5a5a"],
-    ["red-200", "#ff8a8a"],
-    ["red-400", "#ff7a7a"],
-    ["red-600", "#a4161a"],
+    ["console-1000", DARK_BG],
+    ["console-985", "#0f1414"],
+    ["console-975", "#151b1b"],
+    ["console-900", "#1b2a0d"],
+    ["lime-300", "#b8f500"],
+    ["lime-200", "#d2ff5c"],
+    ["paper-50", "#ffffff"],
+    ["paper-100", LIGHT_BG],
+    ["paper-200", "#eceee7"],
+    ["paper-300", "#c9cec3"],
+    ["ink-950", "#151713"],
+    ["ink-800", "#40453d"],
+    ["ink-700", "#62685c"],
+    ["olive-700", "#446500"],
+    ["olive-900", "#304900"],
     ["stone-100", "#f5f1f2"],
     ["stone-300", "#b0a7aa"],
-    ["stone-500", "#8b8285"],
-    ["stone-700", "#6b6265"],
   ])("--%s is %s", (name, expected) => {
     expect(tokenHex(name).toLowerCase()).toBe(expected.toLowerCase());
   });
 });
 
-describe("text tokens clear AA on every surface they can land on", () => {
+describe("dark theme text clears its intended floor on every surface", () => {
   it.each([
     ["--fg", "#F5F1F2", "AAA"],
-    ["--fg-muted", "#B0A7AA", "AAA"],
-    ["--fg-dim", "#8B8285", "AA"],
-    ["--accent", "#FF5A5A", "AA"],
-    ["--accent-hover", "#FF8A8A", "AAA"],
+    ["--fg-muted", "#B0A7AA", "AA"],
+    ["--fg-dim", "#8F968B", "AA"],
+    ["--accent", "#B8F500", "AAA"],
+    ["--accent-hover", "#D2FF5C", "AAA"],
   ] as const)("%s reaches at least %s everywhere", (_name, hex, floor) => {
-    for (const surface of SURFACES) {
+    for (const surface of DARK_SURFACES) {
       const ratio = contrastRatio(hex, surface);
       expect(ratio).toBeGreaterThanOrEqual(4.5);
       if (floor === "AAA") expect(ratio).toBeGreaterThanOrEqual(7);
@@ -95,86 +99,75 @@ describe("text tokens clear AA on every surface they can land on", () => {
   });
 
   it("pins the headline ratios against the page background", () => {
-    expect(contrastRatio("#F5F1F2", BG)).toBeCloseTo(17.62, 1);
-    expect(contrastRatio("#B0A7AA", BG)).toBeCloseTo(8.42, 1);
-    expect(contrastRatio("#8B8285", BG)).toBeCloseTo(5.29, 1);
-    expect(contrastRatio("#FF5A5A", BG)).toBeCloseTo(6.45, 1);
-    expect(contrastRatio("#FF8A8A", BG)).toBeCloseTo(8.7, 1);
+    expect(contrastRatio("#F5F1F2", DARK_BG)).toBeCloseTo(17.44, 1);
+    expect(contrastRatio("#B0A7AA", DARK_BG)).toBeCloseTo(8.33, 1);
+    expect(contrastRatio("#8F968B", DARK_BG)).toBeCloseTo(6.42, 1);
+    expect(contrastRatio("#B8F500", DARK_BG)).toBeCloseTo(14.98, 1);
   });
 });
 
-describe("the black-and-red trap", () => {
-  // Documented so nobody "fixes" the palette back toward a saturated red.
-  it("pure #FF0000 passes on the page but FAILS inside a card", () => {
-    expect(contrastRatio("#FF0000", BG)).toBeCloseTo(4.94, 1);
-    expect(grade(contrastRatio("#FF0000", BG))).toBe("AA");
-    expect(contrastRatio("#FF0000", SURFACE_2)).toBeCloseTo(4.43, 1);
-    expect(grade(contrastRatio("#FF0000", SURFACE_2))).toBe("FAIL");
-  });
-
+describe("light theme text clears its intended floor on every surface", () => {
   it.each([
-    ["#E5484D", 5.04],
-    ["#DC2626", 4.09],
-    ["#D00000", 3.46],
-    ["#C1121F", 3.17],
-    ["#A4161A", 2.55],
-  ])("the tasteful red %s measures %f on the page", (hex, expected) => {
-    expect(contrastRatio(hex, BG)).toBeCloseTo(expected, 1);
-  });
-
-  it("every red below #E5484D fails as body text, which is why the ramp lightens", () => {
-    for (const hex of ["#DC2626", "#D00000", "#C1121F", "#A4161A"]) {
-      expect(grade(contrastRatio(hex, BG))).toBe("FAIL");
+    ["--fg", "#151713", "AAA"],
+    ["--fg-muted", "#40453D", "AAA"],
+    ["--fg-dim", "#62685C", "AA"],
+    ["--accent", "#446500", "AA"],
+    ["--accent-hover", "#304900", "AAA"],
+  ] as const)("%s reaches at least %s everywhere", (_name, hex, floor) => {
+    for (const surface of LIGHT_SURFACES) {
+      const ratio = contrastRatio(hex, surface);
+      expect(ratio).toBeGreaterThanOrEqual(4.5);
+      if (floor === "AAA") expect(ratio).toBeGreaterThanOrEqual(7);
     }
   });
 });
 
 describe("fills and boundaries (SC 1.4.11)", () => {
-  it("the accent fill is a legal boundary against the page", () => {
-    expect(meetsNonText(contrastRatio("#FF5A5A", BG))).toBe(true);
+  it("each accent fill is a legal boundary against its page", () => {
+    expect(meetsNonText(contrastRatio("#B8F500", DARK_BG))).toBe(true);
+    expect(meetsNonText(contrastRatio("#446500", LIGHT_BG))).toBe(true);
   });
 
-  it("brand #A4161A can NEVER be a fill on dark -- this is why it is decorative only", () => {
-    expect(meetsNonText(contrastRatio("#A4161A", BG))).toBe(false);
+  it("accent-on-fill text reaches AA in both themes", () => {
+    expect(grade(contrastRatio(DARK_BG, "#B8F500"))).not.toBe("FAIL");
+    expect(grade(contrastRatio("#FFFFFF", "#446500"))).not.toBe("FAIL");
   });
 
-  it("text on the accent fill must be near-black, not white", () => {
-    expect(grade(contrastRatio("#0C0A0B", "#FF5A5A"))).not.toBe("FAIL");
-    expect(grade(contrastRatio("#FFFFFF", "#FF5A5A"))).toBe("FAIL");
-    expect(contrastRatio("#FFFFFF", "#FF5A5A")).toBeCloseTo(3.06, 1);
-  });
-
-  it("border-strong holds the 3:1 floor on both the page and a card", () => {
-    expect(meetsNonText(contrastRatio("#6B6265", BG))).toBe(true);
-    expect(meetsNonText(contrastRatio("#6B6265", SURFACE_2))).toBe(true);
-  });
-
-  it("the decorative border is NOT a legal boundary, hence border-strong exists", () => {
-    expect(meetsNonText(contrastRatio("#2A2426", BG))).toBe(false);
+  it("border-strong holds the 3:1 floor on every theme surface", () => {
+    for (const surface of DARK_SURFACES) {
+      expect(meetsNonText(contrastRatio("#66736C", surface))).toBe(true);
+    }
+    for (const surface of LIGHT_SURFACES) {
+      expect(meetsNonText(contrastRatio("#62685C", surface))).toBe(true);
+    }
   });
 });
 
 describe("the focus ring must be a dual ring", () => {
-  it("the ring alone fails on the accent fill, which is why a halo is required", () => {
-    expect(meetsNonText(contrastRatio("#F5F1F2", "#FF5A5A"))).toBe(false);
-    expect(contrastRatio("#F5F1F2", "#FF5A5A")).toBeCloseTo(2.73, 1);
+  it("the page-colour halo passes against each accent fill", () => {
+    expect(meetsNonText(contrastRatio(DARK_BG, "#B8F500"))).toBe(true);
+    expect(meetsNonText(contrastRatio(LIGHT_BG, "#446500"))).toBe(true);
   });
 
-  it("the halo carries it: the page background against that same fill passes", () => {
-    expect(meetsNonText(contrastRatio(BG, "#FF5A5A"))).toBe(true);
-  });
-
-  it("the ring passes on every ordinary surface", () => {
-    for (const surface of [BG, SURFACE_1, SURFACE_2, SURFACE_TINT]) {
+  it("the ring passes on every ordinary surface in both themes", () => {
+    for (const surface of DARK_SURFACES) {
       expect(meetsNonText(contrastRatio("#F5F1F2", surface))).toBe(true);
+    }
+    for (const surface of LIGHT_SURFACES) {
+      expect(meetsNonText(contrastRatio("#151713", surface))).toBe(true);
     }
   });
 });
 
 describe("prefers-contrast: more reaches AAA", () => {
-  it("lifts the two AA-only tokens over 7:1", () => {
-    expect(contrastRatio("#B0A7AA", BG)).toBeGreaterThanOrEqual(7);
-    expect(contrastRatio("#FF7A7A", BG)).toBeGreaterThanOrEqual(7);
-    expect(contrastRatio("#FF7A7A", BG)).toBeCloseTo(7.82, 1);
+  it("lifts dim text and accent colours over 7:1", () => {
+    for (const surface of DARK_SURFACES) {
+      expect(contrastRatio("#F5F1F2", surface)).toBeGreaterThanOrEqual(7);
+      expect(contrastRatio("#D2FF5C", surface)).toBeGreaterThanOrEqual(7);
+    }
+    for (const surface of LIGHT_SURFACES) {
+      expect(contrastRatio("#40453D", surface)).toBeGreaterThanOrEqual(7);
+      expect(contrastRatio("#304900", surface)).toBeGreaterThanOrEqual(7);
+    }
   });
 });

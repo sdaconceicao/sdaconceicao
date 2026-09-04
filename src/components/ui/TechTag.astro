@@ -6,15 +6,17 @@ interface Props {
 const { label, as: Tag = "span" } = Astro.props;
 ---
 
-<Tag class="tech-tag pill">{label}</Tag>
+<Tag class="tech-tag">{label}</Tag>
 
 <style>
-  /* The fill needs more inline padding than the outlined pills do, and
-     line-height 1.6 is what keeps the fill from cropping descenders. */
   .tech-tag {
-    padding: var(--spacing-1) var(--spacing-3);
-    background-color: var(--surface-tint);
-    color: var(--accent);
-    line-height: 1.6;
+    padding: 0 var(--spacing-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-2);
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.5;
   }
 </style>

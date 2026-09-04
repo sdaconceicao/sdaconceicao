@@ -41,6 +41,10 @@ export const sortJobs = (jobs: Job[]): Job[] =>
 export const currentJobs = (jobs: Job[]): Job[] =>
   sortJobs(jobs).filter((j) => jobTenure(j.data.titles).current);
 
+/** Keep homepage job entries scannable while leaving the full résumé intact. */
+export const selectHighlights = (highlights: readonly string[], limit = 2): string[] =>
+  highlights.slice(0, Math.max(0, limit));
+
 /** Distinct tech across every role, for the About section's skill list. */
 export const collectJobTech = (jobs: Job[]): string[] =>
   [...new Set(jobs.flatMap((j) => j.data.tech))].sort((a, b) => a.localeCompare(b));

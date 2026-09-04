@@ -1,6 +1,13 @@
 import type { CollectionEntry } from "astro:content";
 import { describe, expect, it } from "vitest";
-import { collectJobTech, currentJobs, type JobRole, jobTenure, sortJobs } from "./jobs";
+import {
+  collectJobTech,
+  currentJobs,
+  type JobRole,
+  jobTenure,
+  selectHighlights,
+  sortJobs,
+} from "./jobs";
 
 type Job = CollectionEntry<"jobs">;
 
@@ -116,6 +123,26 @@ describe("currentJobs", () => {
 
   it("is empty when nothing is current", () => {
     expect(currentJobs([soloJob("a", "2015-01-01", "2016-01-01")])).toEqual([]);
+  });
+});
+
+describe("selectHighlights", () => {
+  it("keeps the first two highlights by default", () => {
+    expect(selectHighlights(["one", "two", "three"])).toEqual(["one", "two"]);
+  });
+
+  it("accepts an explicit limit", () => {
+    expect(selectHighlights(["one", "two"], 1)).toEqual(["one"]);
+  });
+
+  it("returns an empty list for a negative limit", () => {
+    expect(selectHighlights(["one"], -1)).toEqual([]);
+  });
+
+  it("does not mutate the source list", () => {
+    const highlights = ["one", "two", "three"];
+    selectHighlights(highlights);
+    expect(highlights).toEqual(["one", "two", "three"]);
   });
 });
 

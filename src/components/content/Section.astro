@@ -2,8 +2,9 @@
 interface Props {
   id: string;
   title: string;
+  number?: string;
 }
-const { id, title } = Astro.props;
+const { id, title, number } = Astro.props;
 const titleId = `${id}-title`;
 ---
 
@@ -15,13 +16,33 @@ const titleId = `${id}-title`;
   landmark rotor. Four regions is the right number; do not add more.
 -->
 <section id={id} aria-labelledby={titleId} tabindex="-1" class="section">
-  <h2 id={titleId} class="section-title">{title}</h2>
+  <header class="section-heading">
+    {number && <span class="section-number" aria-hidden="true">{number}</span>}
+    <h2 id={titleId} class="section-title">{title}</h2>
+    <div class="section-action"><slot name="action" /></div>
+  </header>
   <slot />
 </section>
 
 <style>
   .section {
-    padding-block: var(--spacing-12);
+    padding-block: var(--spacing-10);
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-block-end: var(--spacing-6);
+    padding-block-end: var(--spacing-3);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .section-number {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 600;
   }
 
   /*
@@ -31,20 +52,22 @@ const titleId = `${id}-title`;
    * #experience from a deep link.
    */
   .section-title {
-    margin-block-end: var(--spacing-8);
-    color: var(--accent);
+    color: var(--fg);
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
+    font-size: var(--text-lg);
     font-weight: 600;
-    letter-spacing: var(--tracking-wide);
-    /* Uppercased in CSS, not in source: VoiceOver spells out short all-caps
-       source strings letter by letter. */
-    text-transform: uppercase;
+    letter-spacing: var(--tracking-tight);
   }
 
-  @media (min-width: 64rem) and (min-height: 44rem) {
+  .section-action {
+    margin-inline-start: auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  @media (min-width: 64rem) and (min-height: 48rem) {
     .section {
-      padding-block: var(--spacing-16);
+      padding-block: var(--spacing-12);
     }
   }
 </style>
