@@ -1,7 +1,5 @@
 ---
 import FloatingHeader from "../components/layout/FloatingHeader.astro";
-import Rail from "../components/layout/Rail.astro";
-import Shell from "../components/layout/Shell.astro";
 import SiteFooter from "../components/layout/SiteFooter.astro";
 import { PAGE_LINKS } from "../site";
 import BaseLayout from "./BaseLayout.astro";
@@ -16,40 +14,40 @@ interface Props {
   noindex?: boolean;
   backHref?: string;
   backLabel?: string;
+  fullWidthAtWide?: boolean;
 }
-const { backHref = "/", backLabel = "Back home", ...head } = Astro.props;
+const { backHref = "/", backLabel = "Back home", fullWidthAtWide = false, ...head } = Astro.props;
 const isDetailPage = Astro.url.pathname.split("/").filter(Boolean).length > 1;
 ---
 
 <BaseLayout {...head}>
-  <Shell>
-    <Rail slot="rail" variant="compact" />
-    <FloatingHeader
-      slot="floating"
-      items={PAGE_LINKS}
-      label="Site shortcuts"
-      homeHref="/"
-    />
-    <div slot="main">
-      <main id="main" class="page-main" data-detail={isDetailPage}>
-        {
-          isDetailPage && (
-            <nav class="breadcrumb" aria-label="Breadcrumb">
-              <ol class="breadcrumb-list" role="list">
-                <li><a href={backHref}>{backLabel}</a></li>
-                <li aria-current="page">{Astro.props.title}</li>
-              </ol>
-            </nav>
-          )
-        }
-        <slot />
-      </main>
-      <SiteFooter />
-    </div>
-  </Shell>
+  <FloatingHeader variant="page" items={PAGE_LINKS} label="Primary" homeHref="/" />
+  <div class="page-shell" data-width={fullWidthAtWide ? "full" : "bounded"}>
+    <main id="main" class="page-main" data-detail={isDetailPage}>
+      {
+        isDetailPage && (
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol class="breadcrumb-list" role="list">
+              <li><a href={backHref}>{backLabel}</a></li>
+              <li aria-current="page">{Astro.props.title}</li>
+            </ol>
+          </nav>
+        )
+      }
+      <slot />
+    </main>
+    <SiteFooter />
+  </div>
 </BaseLayout>
 
 <style>
+  .page-shell {
+    max-inline-size: var(--layout-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    padding-block-end: calc(var(--spacing-16) + env(safe-area-inset-bottom));
+  }
+
   .page-main {
     padding-block: var(--spacing-12);
   }
@@ -78,13 +76,23 @@ const isDetailPage = Astro.url.pathname.split("/").filter(Boolean).length > 1;
   }
 
   .page-main[data-detail="true"] {
-    padding-block-start: 0;
+    padding-block-start: var(--spacing-6);
   }
 
   @media (min-width: 64rem) and (min-height: 48rem) {
+    .page-shell {
+      padding-block-end: 0;
+    }
+
     .page-main,
     .page-main[data-detail="true"] {
       padding-block: var(--spacing-6) var(--spacing-16);
+    }
+  }
+
+  @media (min-width: 90rem) {
+    .page-shell[data-width="full"] {
+      max-inline-size: none;
     }
   }
 </style>

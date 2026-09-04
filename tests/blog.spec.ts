@@ -77,49 +77,29 @@ test.describe("blog", () => {
     expect(breadcrumbX).toBe(titleX);
   });
 
-  test("aligns interior content with the desktop rail", async ({ page }) => {
+  test("uses the full-width single-column page shell", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     for (const path of ["/blog", "/blog/local-storage-options"]) {
       await page.goto(path);
-      const contentTop = (selector: string) =>
-        page.locator(selector).evaluate((element) => {
-          const style = getComputedStyle(element);
-          return element.getBoundingClientRect().top + Number.parseFloat(style.paddingBlockStart);
-        });
-      expect(await contentTop(".page-main")).toBe(await contentTop(".rail"));
+      await expect(page.locator(".rail")).toHaveCount(0);
+      const shell = await page.locator(".page-shell").boundingBox();
+      expect(shell?.width).toBeGreaterThan(1440 * 0.9);
     }
   });
 
-  test("detail pages reveal the non-home shortcuts after their compact hero", async ({
-    page,
-  }) => {
+  test("uses a desktop masthead and fixed mobile navigation dock", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
     await page.goto("/blog/local-storage-options");
 
-    const padding = await page
-      .getByRole("main")
-      .evaluate((element) => getComputedStyle(element).paddingBlockStart);
-    expect(padding).toBe("0px");
+    const header = page.locator('.floating-header[data-variant="page"]');
+    const primary = page.getByRole("navigation", { name: "Primary" });
+    await expect(header).toBeVisible();
+    await expect(header.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+    expect(await primary.evaluate((element) => getComputedStyle(element).position)).toBe("fixed");
+    await expect(primary.getByRole("link", { name: "Writing" })).toBeVisible();
 
-    const floating = page.locator("[data-floating-header]");
-    await expect(floating).toBeHidden();
-
-    await page.getByRole("contentinfo").scrollIntoViewIfNeeded();
-    await expect(floating).toBeVisible();
-
-    await expect(floating.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-    const shortcuts = floating.getByRole("navigation", { name: "Site shortcuts" });
-    await expect(shortcuts.getByRole("link", { name: "Projects" })).toHaveAttribute(
-      "href",
-      "/projects",
-    );
-    await expect(shortcuts.getByRole("link", { name: "Experience" })).toHaveAttribute(
-      "href",
-      "/Resume.pdf",
-    );
-    await expect(shortcuts.getByRole("link", { name: "Writing" })).toHaveAttribute(
-      "href",
-      "/blog",
-    );
+    await page.setViewportSize({ width: 1440, height: 900 });
+    expect(await primary.evaluate((element) => getComputedStyle(element).position)).toBe("static");
+    await expect(primary.locator("svg")).toHaveCount(3);
   });
 });

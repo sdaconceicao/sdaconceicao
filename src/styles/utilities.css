@@ -48,6 +48,7 @@
  * that same base rule, so they are not restated.
  */
 .page-title {
+  font-family: var(--font-mono);
   font-size: var(--text-3xl);
   font-weight: 700;
   letter-spacing: var(--tracking-tight);
