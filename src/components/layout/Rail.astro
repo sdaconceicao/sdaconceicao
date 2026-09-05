@@ -52,9 +52,9 @@ const IntroTag = variant === "home" ? "section" : "div";
           fetchpriority="high"
         />
       </div>
-      <NameTag class="rail-name">{SITE.author}</NameTag>
+      <NameTag class="rail-tagline">{SITE.tagline}</NameTag>
       <p class="rail-role">{SITE.role}</p>
-      {variant === "home" && <p class="rail-tagline">{SITE.tagline}</p>}
+      {variant === "home" && <p class="rail-description">{SITE.description}</p>}
       {
         variant === "home" && (
           <div class="rail-actions">
@@ -168,7 +168,7 @@ const IntroTag = variant === "home" ? "section" : "div";
     filter: saturate(0.88);
   }
 
-  .rail-name {
+  .rail-tagline {
     /* Set explicitly: this element is an <h1> on the homepage and a <p>
        elsewhere, and base.css only colours headings. Without this the name
        silently renders in muted grey on the blog routes. */
@@ -181,7 +181,7 @@ const IntroTag = variant === "home" ? "section" : "div";
     line-height: var(--leading-tight);
   }
 
-  .rail-tagline,
+  .rail-description,
   .rail-actions {
     grid-column: 1 / -1;
   }
@@ -193,7 +193,7 @@ const IntroTag = variant === "home" ? "section" : "div";
     font-weight: 600;
   }
 
-  .rail-tagline {
+  .rail-description {
     max-inline-size: var(--measure-narrow);
     color: var(--fg-muted);
   }
@@ -273,11 +273,15 @@ const IntroTag = variant === "home" ? "section" : "div";
     display: none;
   }
 
+  .rail-avatar {
+    border-radius: 50%;
+  }
+
   .rail[data-variant="compact"] .rail-avatar {
     inline-size: calc(var(--avatar-size) / 2);
   }
 
-  .rail[data-variant="compact"] .rail-name {
+  .rail[data-variant="compact"] .rail-tagline {
     font-size: var(--text-display);
   }
 
@@ -300,7 +304,7 @@ const IntroTag = variant === "home" ? "section" : "div";
       inline-size: var(--spacing-12);
     }
 
-    .rail[data-variant="compact"] .rail-name {
+    .rail[data-variant="compact"] .rail-tagline {
       max-inline-size: none;
       font-size: var(--text-lg);
     }
@@ -339,7 +343,7 @@ const IntroTag = variant === "home" ? "section" : "div";
       inline-size: var(--avatar-size);
     }
 
-    .rail-name {
+    .rail-tagline {
       max-inline-size: none;
     }
 
@@ -432,8 +436,25 @@ const IntroTag = variant === "home" ? "section" : "div";
       max-block-size: 100vh;
       max-block-size: 100svh;
       padding-block: var(--spacing-6);
+      padding-inline-start: var(--gutter);
       padding-inline-end: var(--spacing-8);
       border-inline-end: 1px solid var(--border);
+      background-image:
+        linear-gradient(to bottom, transparent 20%, var(--bg) 75%),
+        linear-gradient(
+          to right,
+          color-mix(in oklab, var(--border) 35%, transparent) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          to bottom,
+          color-mix(in oklab, var(--border) 35%, transparent) 1px,
+          transparent 1px
+        );
+      background-size:
+        100% 100%,
+        var(--spacing-4) var(--spacing-4),
+        var(--spacing-4) var(--spacing-4);
       overflow-y: auto;
       overscroll-behavior: contain;
       scrollbar-gutter: stable;
@@ -454,11 +475,11 @@ const IntroTag = variant === "home" ? "section" : "div";
       margin-block-end: var(--spacing-1);
     }
 
-    .rail-name {
+    .rail-tagline {
       max-inline-size: 9ch;
     }
 
-    .rail-tagline,
+    .rail-description,
     .rail-actions {
       grid-column: auto;
     }

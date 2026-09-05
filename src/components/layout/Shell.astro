@@ -24,9 +24,11 @@
   @media (min-width: 64rem) and (min-height: 48rem) {
     .shell {
       display: grid;
+      max-inline-size: none;
       grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
       gap: var(--spacing-10);
       align-items: start;
+      padding-inline-start: 0;
     }
   }
 </style>

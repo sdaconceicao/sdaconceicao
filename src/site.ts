@@ -2,12 +2,11 @@
 
 export const SITE = {
   name: "Stephen Andrew Designs",
-  author: "Just call me Steve",
+  author: "Stephen da Conceicao",
   role: "Software Engineer and tinkerer",
-  tagline:
-    "I’m a software engineer who enjoys building great products and great teams. I care about helping people grow, automating the tedious work, and keeping things simple and reliable.",
+  tagline: "Just call me Steve",
   description:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "I’m a software engineer who enjoys building great products and great teams. I care about helping people grow, automating the tedious work, and keeping things simple and reliable.",
   url: "https://stephenandrewdesigns.com",
   locale: "en",
 } as const;
