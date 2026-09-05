@@ -185,7 +185,9 @@ test.describe("homepage", () => {
     await expect(page.locator(".social-label").first()).toBeHidden();
     await expect(page.getByRole("button", { name: /Switch to .* theme/ })).toBeVisible();
 
-    await page.setViewportSize({ width: 1440, height: 900 });
+    // The stacked tablet rail has room for labels; the capped desktop rail
+    // can remain too narrow once scrollbar space and padding are reserved.
+    await page.setViewportSize({ width: 800, height: 900 });
     await expect(page.locator(".social-label").first()).toBeVisible();
   });
 

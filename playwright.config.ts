@@ -21,7 +21,8 @@ export default defineConfig({
   webServer: {
     // astro preview is unavailable once an adapter is configured, so the suite
     // runs against the real built output via a tiny static server.
-    command: "pnpm build && pnpm serve",
+    // CI builds in the preceding step; local runs still build fresh output.
+    command: process.env.CI ? "pnpm serve" : "pnpm build && pnpm serve",
     url: `http://localhost:${PORT}`,
     env: { PORT: String(PORT) },
     reuseExistingServer: false,
