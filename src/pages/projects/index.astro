@@ -1,0 +1,41 @@
+---
+import { getCollection } from "astro:content";
+import ProjectCard from "../../components/content/ProjectCard.astro";
+import PageLayout from "../../layouts/PageLayout.astro";
+import { sortProjects } from "../../lib/projects";
+
+const projects = sortProjects(await getCollection("projects"));
+---
+
+<PageLayout
+  title="Projects"
+  description="Things I've designed, built, and shipped."
+  backHref="/#projects"
+  backLabel="Back home"
+>
+  <h1 class="page-title">Projects</h1>
+
+  <div class="project-list">
+    {
+      projects.map((project) => (
+        <ProjectCard
+          title={project.data.title}
+          slug={project.id}
+          description={project.data.description}
+          href={project.data.url}
+          repo={project.data.repo}
+          tech={project.data.tech}
+          image={project.data.image}
+          imageAlt={project.data.imageAlt}
+          status={project.data.status}
+        />
+      ))
+    }
+  </div>
+</PageLayout>
+
+<style>
+  .project-list {
+    margin-block-start: var(--spacing-12);
+  }
+</style>

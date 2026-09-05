@@ -1,0 +1,77 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  number?: string;
+}
+const { id, title, number } = Astro.props;
+const titleId = `${id}-title`;
+---
+
+<!--
+  tabindex="-1" so fragment navigation actually moves focus rather than only
+  scrolling. Deliberately NOT paired with outline: none -- programmatic focus
+  after a click does not match :focus-visible, so no ring appears anyway.
+  A named <section> maps to a region landmark, making the page navigable by
+  landmark rotor. Four regions is the right number; do not add more.
+-->
+<section id={id} aria-labelledby={titleId} tabindex="-1" class="section">
+  <header class="section-heading">
+    {number && <span class="section-number" aria-hidden="true">{number}</span>}
+    <h2 id={titleId} class="section-title">{title}</h2>
+    <div class="section-action"><slot name="action" /></div>
+  </header>
+  <slot />
+</section>
+
+<style>
+  .section {
+    padding-block: var(--spacing-10);
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-block-end: var(--spacing-6);
+    padding-block-end: var(--spacing-3);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .section-number {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  /*
+   * Headings stay VISIBLE at every breakpoint. The inspiration sr-only's them on
+   * desktop because its sticky nav supplies the labels; visible headings are
+   * better for cognitive accessibility (SC 2.4.6) and for anyone arriving at
+   * #experience from a deep link.
+   */
+  .section-title {
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .section-action {
+    margin-inline-start: auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  @media (min-width: 64rem) and (min-height: 48rem) {
+    .section {
+      padding-block: var(--spacing-12);
+    }
+
+    .section:first-child {
+      padding-block-start: var(--spacing-6);
+    }
+  }
+</style>

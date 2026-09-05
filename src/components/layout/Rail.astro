@@ -1,0 +1,487 @@
+---
+import { Image } from "astro:assets";
+import me from "../../assets/me.png";
+import { PAGE_LINKS, RESUME_HREF, SECTIONS, SITE, SOCIALS } from "../../site";
+import ArrowLink from "../ui/ArrowLink.astro";
+import ThemeToggle from "../ui/ThemeToggle.astro";
+import ScrollSpyNav from "./ScrollSpyNav.astro";
+import SocialLinks from "./SocialLinks.astro";
+
+interface Props {
+  /** "home" carries the scroll-spy nav; "compact" is the blog routes' header. */
+  variant?: "home" | "compact";
+}
+
+const { variant = "home" } = Astro.props;
+const pathname = Astro.url.pathname;
+
+/**
+ * The rail carries the <h1> only on the homepage, where the person IS the
+ * subject. On /blog and /blog/[slug] the page's own title is the h1, so the name
+ * renders as a paragraph -- two h1s on one page is a heading-structure bug, and
+ * a screen-reader user cannot tell which one is the document title.
+ */
+const NameTag = variant === "home" ? "h1" : "p";
+const IntroTag = variant === "home" ? "section" : "div";
+---
+
+<header class="rail" data-variant={variant}>
+  <div class="rail-top">
+		<div class="rail-toolbar">
+			<a class="prompt-mark" href="/" aria-label="Home"><span aria-hidden="true">&gt;_</span></a>
+			<div class="rail-theme">
+				<ThemeToggle />
+			</div>
+		</div>
+
+    <IntroTag
+      class="rail-intro"
+      id={variant === "home" ? "about" : undefined}
+      aria-label={variant === "home" ? "About" : undefined}
+      tabindex={variant === "home" ? "-1" : undefined}
+    >
+      <div class="rail-identity">
+        {/* The adjacent name already identifies this decorative portrait. */}
+        <Image
+          src={me}
+          alt=""
+          width={208}
+          height={208}
+          class="rail-avatar"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+      <NameTag class="rail-tagline">{SITE.tagline}</NameTag>
+      <p class="rail-role">{SITE.role}</p>
+      {variant === "home" && <p class="rail-description">{SITE.description}</p>}
+      {
+        variant === "home" && (
+          <div class="rail-actions">
+            <ArrowLink href="/projects" direction="e" class="rail-action rail-action-primary">
+              View work
+            </ArrowLink>
+            <ArrowLink
+              href={RESUME_HREF}
+              direction="ne"
+              external
+              class="rail-action"
+            >
+              Résumé
+            </ArrowLink>
+          </div>
+        )
+      }
+    </IntroTag>
+
+    {
+      variant === "home" ? (
+        <div class="rail-nav">
+          <ScrollSpyNav items={SECTIONS} />
+        </div>
+      ) : (
+        <nav class="site-nav" aria-label="Primary">
+          <ul role="list">
+            {PAGE_LINKS.map((item, index) => (
+              <li>
+                <a
+                  href={item.href}
+                  aria-current={
+                    pathname === item.href
+                      ? "page"
+                      : pathname.startsWith(`${item.href}/`)
+                        ? "location"
+                        : undefined
+                  }
+                >
+                  <span class="site-index" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span class="site-indicator" aria-hidden="true" />
+                  <span class="site-label meta">{item.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+  </div>
+
+  <SocialLinks items={SOCIALS} showLabels={variant === "home"} />
+</header>
+
+<style>
+	.rail {
+		container-name: rail;
+		container-type: inline-size;
+		display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-4);
+  }
+
+  .rail-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+  }
+
+  .rail-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    inline-size: 100%;
+    padding-block-end: var(--spacing-3);
+    border-block-end: 1px solid var(--border);
+  }
+
+	.prompt-mark {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-xl);
+    font-weight: 600;
+		text-decoration: none;
+	}
+
+	.rail-theme {
+		display: none;
+	}
+
+  .rail-intro {
+    display: grid;
+    grid-template-columns: var(--spacing-20) minmax(0, 1fr);
+    align-items: flex-start;
+    gap: var(--spacing-3);
+  }
+
+  .rail-identity {
+    grid-row: 1 / span 2;
+  }
+
+  .rail-avatar {
+    flex-shrink: 0;
+    inline-size: var(--spacing-20);
+    aspect-ratio: 1;
+    object-fit: contain;
+    filter: saturate(0.88);
+  }
+
+  .rail-tagline {
+    /* Set explicitly: this element is an <h1> on the homepage and a <p>
+       elsewhere, and base.css only colours headings. Without this the name
+       silently renders in muted grey on the blog routes. */
+    color: var(--fg);
+    max-inline-size: 9ch;
+    font-family: var(--font-mono);
+    font-size: var(--text-hero);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+  }
+
+  .rail-description,
+  .rail-actions {
+    grid-column: 1 / -1;
+  }
+
+  .rail-role {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .rail-description {
+    max-inline-size: var(--measure-narrow);
+    color: var(--fg-muted);
+  }
+
+  .rail-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+    inline-size: 100%;
+    margin-block-start: var(--spacing-3);
+  }
+
+  .rail-actions :global(.rail-action) {
+    justify-content: center;
+    min-inline-size: 0;
+    min-block-size: 44px;
+    padding-inline: var(--spacing-4);
+    border: 1px solid var(--border-strong);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .rail-actions :global(.rail-action-primary) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /*
+   * Phones get the intro and nothing else: name, role, tagline, socials, then
+   * straight into the content. Two reasons the nav is dead weight down here.
+   * The scroll-spy points at sections that are already the very next thing on
+   * screen in a stacked layout, and the site links duplicate the "All
+   * projects" / "All posts" links that live inside those sections -- so
+   * nothing becomes unreachable. What it buys is a first screen that is the
+   * person rather than a table of contents.
+   *
+   * 48rem is the same phone/not-phone line the cards already use.
+   */
+  .rail-nav {
+    display: none;
+  }
+
+  .site-nav,
+  .site-nav ul {
+    inline-size: 100%;
+  }
+
+  .site-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2) var(--spacing-6);
+  }
+
+  .site-nav a {
+    display: flex;
+    align-items: center;
+    min-block-size: 44px;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    text-decoration: none;
+  }
+
+  .site-nav a:hover,
+  .site-nav a:focus-visible,
+  .site-nav a[aria-current] {
+    color: var(--accent);
+  }
+
+  .site-nav a[aria-current] {
+    text-decoration: underline;
+    text-underline-offset: var(--spacing-2);
+  }
+
+  .site-index,
+  .site-indicator {
+    display: none;
+  }
+
+  .rail-avatar {
+    border-radius: 50%;
+  }
+
+  .rail[data-variant="compact"] .rail-avatar {
+    inline-size: calc(var(--avatar-size) / 2);
+  }
+
+  .rail[data-variant="compact"] .rail-tagline {
+    font-size: var(--text-display);
+  }
+
+  @media (max-width: 47.99rem) {
+    .rail[data-variant="compact"] {
+      gap: var(--spacing-3);
+      padding-block: var(--spacing-3);
+    }
+
+    .rail[data-variant="compact"] .rail-intro {
+      grid-template-columns: var(--spacing-12) minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .rail[data-variant="compact"] .rail-identity {
+      grid-row: auto;
+    }
+
+    .rail[data-variant="compact"] .rail-avatar {
+      inline-size: var(--spacing-12);
+    }
+
+    .rail[data-variant="compact"] .rail-tagline {
+      max-inline-size: none;
+      font-size: var(--text-lg);
+    }
+
+    .rail[data-variant="compact"] .rail-role,
+    .rail[data-variant="compact"] :global(.socials) {
+      display: none;
+    }
+
+    .rail[data-variant="compact"] .rail-theme {
+      display: block;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .rail {
+      gap: var(--spacing-6);
+      max-inline-size: none;
+      padding-block: var(--spacing-6);
+    }
+
+    .rail-top {
+      gap: var(--spacing-5);
+    }
+
+    .rail-intro {
+      grid-template-columns: var(--avatar-size) minmax(0, 1fr);
+      inline-size: 100%;
+    }
+
+    .rail-identity {
+      grid-row: 1 / span 4;
+    }
+
+    .rail-avatar {
+      inline-size: var(--avatar-size);
+    }
+
+    .rail-tagline {
+      max-inline-size: none;
+    }
+
+    .rail-tagline,
+    .rail-actions {
+      grid-column: 2;
+    }
+
+  }
+
+  /*
+   * Sticky only when there is BOTH width and height for it. The height
+   * condition is load-bearing: a 1366x640 laptop window or a landscape phone is
+   * wide enough for two columns but too short to hold the rail, and a rail that
+   * does not fit becomes a nested scroll region -- unreachable by keyboard in
+   * Safari, which (unlike Chrome 127+ and Firefox) does not make scroll
+   * containers focusable automatically.
+   *
+   * Content is budgeted to ~660px against the 704px available here, so the
+   * overflow below should never engage. It is a safety valve, not a feature.
+   * If rail content grows past the budget, move something OUT of the rail.
+   */
+	@media (min-width: 64rem) and (min-height: 48rem) {
+    .site-nav ul {
+      flex-direction: column;
+      gap: var(--spacing-2);
+    }
+
+    .site-nav a {
+      display: grid;
+      grid-template-columns: auto auto minmax(var(--spacing-8), 1fr);
+      gap: var(--spacing-3);
+      inline-size: 100%;
+      padding-block: var(--spacing-2);
+      border-block-end: 1px solid var(--border);
+      text-decoration: none;
+    }
+
+    .site-index {
+      display: block;
+      color: var(--accent);
+      font-size: var(--text-xs);
+    }
+
+    .site-indicator {
+      display: block;
+      order: 3;
+      justify-self: end;
+      block-size: 1px;
+      inline-size: 50%;
+      background-color: var(--border-strong);
+      transition:
+        inline-size var(--dur) var(--ease),
+        background-color var(--dur) var(--ease);
+    }
+
+    .site-nav a:hover .site-indicator,
+    .site-nav a:focus-visible .site-indicator,
+    .site-nav a[aria-current] .site-indicator {
+      inline-size: 100%;
+    }
+
+    .site-nav a[aria-current] .site-indicator {
+      background-color: var(--accent);
+    }
+
+    .site-nav a:hover .site-label,
+    .site-nav a:focus-visible .site-label,
+    .site-nav a[aria-current] .site-label {
+      color: var(--fg);
+    }
+
+		.rail-theme {
+			display: block;
+		}
+
+		.rail-nav {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-5);
+      inline-size: 100%;
+    }
+
+    .rail {
+      position: sticky;
+      inset-block-start: 0;
+      justify-content: space-between;
+      gap: var(--spacing-6);
+      max-inline-size: var(--rail-measure);
+      max-block-size: 100vh;
+      max-block-size: 100svh;
+      padding-block: var(--spacing-6);
+      padding-inline-start: var(--gutter);
+      padding-inline-end: var(--spacing-8);
+      border-inline-end: 1px solid var(--border);
+      background-image:
+        linear-gradient(to bottom, transparent 20%, var(--bg) 75%),
+        linear-gradient(
+          to right,
+          color-mix(in oklab, var(--border) 35%, transparent) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          to bottom,
+          color-mix(in oklab, var(--border) 35%, transparent) 1px,
+          transparent 1px
+        );
+      background-size:
+        100% 100%,
+        var(--spacing-4) var(--spacing-4),
+        var(--spacing-4) var(--spacing-4);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+    }
+
+    .rail-top {
+      gap: var(--spacing-4);
+    }
+
+    .rail-intro {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2);
+    }
+
+    .rail-identity {
+      grid-row: auto;
+      margin-block-end: var(--spacing-1);
+    }
+
+    .rail-tagline {
+      max-inline-size: 9ch;
+    }
+
+    .rail-description,
+    .rail-actions {
+      grid-column: auto;
+    }
+  }
+</style>

@@ -1,0 +1,254 @@
+---
+import { Image } from "astro:assets";
+import me from "../../assets/me.png";
+import { SITE } from "../../site";
+import Icon, { type IconName } from "../ui/Icon.astro";
+import ThemeToggle from "../ui/ThemeToggle.astro";
+
+interface Props {
+  items: readonly { id: string; label: string; href?: string }[];
+  label?: string;
+  homeHref?: string;
+  variant?: "floating" | "page";
+}
+
+const { items, label = "Page sections", homeHref, variant = "floating" } = Astro.props;
+const pathname = Astro.url.pathname;
+const icons: Record<string, IconName> = {
+  projects: "folder",
+  experience: "briefcase",
+  activity: "file-text",
+};
+---
+
+<header
+  class="floating-header"
+  data-variant={variant}
+  data-floating-header={variant === "floating" ? "" : undefined}
+  hidden={variant === "floating"}
+>
+  {
+    variant === "page" ? (
+      <a class="floating-home" href={homeHref ?? "/"}>
+        <span class="prompt-mark" aria-hidden="true">&gt;_</span>
+        <span class="floating-name">{SITE.tagline}</span>
+        <span class="sr-only">Home</span>
+      </a>
+    ) : homeHref ? (
+      <a class="floating-home" href={homeHref}>
+        <Image src={me} alt="" width={48} height={48} class="floating-avatar" />
+        <span class="sr-only">Home</span>
+      </a>
+    ) : (
+      <Image src={me} alt="" width={48} height={48} class="floating-avatar" />
+    )
+  }
+  <nav aria-label={label}>
+    <ul role="list">
+      {
+        items.map((item) => (
+          <li>
+            <a
+              href={item.href ?? `#${item.id}`}
+              aria-current={
+                variant === "page" && item.href
+                  ? pathname === item.href
+                    ? "page"
+                    : pathname.startsWith(`${item.href}/`)
+                      ? "location"
+                      : undefined
+                  : undefined
+              }
+            >
+              <Icon name={icons[item.id] ?? "link"} size={20} />
+              <span class="floating-label" aria-hidden="true">{item.label}</span>
+              <span class="sr-only">{item.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+  {variant === "page" && <div class="floating-theme"><ThemeToggle /></div>}
+</header>
+
+<script>
+  const initFloatingHeader = () => {
+    const header = document.querySelector<HTMLElement>("[data-floating-header]");
+    const hero = document.querySelector<HTMLElement>(".rail");
+    const socials = document.querySelector<HTMLElement>("[data-floating-socials]");
+    if (!header || !hero || header.dataset.bound === "true") return;
+
+    header.dataset.bound = "true";
+    new IntersectionObserver(([entry]) => {
+      if (!entry) return;
+      const hidden = entry.boundingClientRect.bottom > 0;
+      header.hidden = hidden;
+      if (socials) socials.hidden = hidden;
+    }).observe(hero);
+  };
+
+  initFloatingHeader();
+  document.addEventListener("astro:page-load", initFloatingHeader);
+</script>
+
+<style>
+  .floating-header {
+    position: fixed;
+    z-index: 10;
+    inset-block-start: 0;
+    inset-inline: 0;
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-1);
+    border-block-end: 1px solid var(--border-strong);
+    background-color: var(--surface-1);
+  }
+
+  .floating-header[hidden] {
+    display: none;
+  }
+
+  .floating-avatar {
+    flex: 0 0 auto;
+    inline-size: var(--spacing-10);
+    aspect-ratio: 1;
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+  }
+
+  .floating-header[data-variant="page"] {
+    position: sticky;
+    gap: var(--spacing-4);
+    padding-inline: var(--gutter);
+  }
+
+  .floating-header[data-variant="page"] .floating-home {
+    display: flex;
+    gap: var(--spacing-2);
+    white-space: nowrap;
+  }
+
+  .prompt-mark,
+  .floating-name {
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .prompt-mark {
+    color: var(--accent);
+    font-size: var(--text-xl);
+  }
+
+  .floating-name {
+    font-size: var(--text-xs);
+  }
+
+  .floating-theme {
+    margin-inline-start: auto;
+  }
+
+  nav {
+    flex: 1;
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    list-style: none;
+  }
+
+  a {
+    display: grid;
+    min-block-size: 44px;
+    place-items: center;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  a:hover,
+  a:focus-visible,
+  nav a[aria-current] {
+    color: var(--accent);
+  }
+
+  nav a[aria-current] {
+    text-decoration: underline;
+    text-underline-offset: var(--spacing-2);
+  }
+
+  .floating-label {
+    display: none;
+  }
+
+  .floating-header[data-variant="page"] nav {
+    position: fixed;
+    z-index: 10;
+    inset-block-end: 0;
+    inset-inline: 0;
+    padding-block-end: env(safe-area-inset-bottom);
+    border-block-start: 1px solid var(--border-strong);
+    background-color: var(--surface-1);
+  }
+
+  .floating-header[data-variant="page"] nav a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    padding-block: var(--spacing-2);
+  }
+
+  .floating-header[data-variant="page"] .floating-label {
+    display: inline;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .floating-header[data-variant="page"] :global(.theme-toggle > span:not(.toggle-track):not(.sr-only)) {
+    display: none;
+  }
+
+  @media (min-width: 30rem) {
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+    }
+
+    .floating-label {
+      display: inline;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .floating-header[data-variant="page"] nav {
+      position: static;
+      padding-block-end: 0;
+      border-block-start: 0;
+      background-color: transparent;
+    }
+
+    .floating-header[data-variant="page"] nav a {
+      flex-direction: row;
+      padding: 0 var(--spacing-4);
+    }
+
+    .floating-header[data-variant="page"] ul {
+      display: flex;
+      justify-content: center;
+    }
+
+    .floating-header[data-variant="page"] :global(.theme-toggle > span:not(.toggle-track):not(.sr-only)) {
+      display: inline;
+    }
+  }
+
+  @media (min-width: 64rem) and (min-height: 48rem) {
+    .floating-header[data-variant="floating"] {
+      display: none;
+    }
+  }
+</style>

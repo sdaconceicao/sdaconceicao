@@ -1,0 +1,12 @@
+---
+import { formatLongDate, formatMonthYear, toISODate } from "../../lib/dates";
+
+interface Props {
+  date: Date;
+  format?: "long" | "month";
+}
+const { date, format = "long" } = Astro.props;
+const label = format === "month" ? formatMonthYear(date) : formatLongDate(date);
+---
+
+<time datetime={toISODate(date)}>{label}</time>

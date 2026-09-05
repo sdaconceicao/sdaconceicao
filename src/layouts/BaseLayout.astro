@@ -1,0 +1,44 @@
+---
+import BaseHead from "../components/seo/BaseHead.astro";
+import SkipLink from "../components/ui/SkipLink.astro";
+import { SITE } from "../site";
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  type?: "website" | "article";
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  noindex?: boolean;
+}
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang={SITE.locale} dir="ltr">
+  <head>
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        let stored = null;
+        try {
+          stored = localStorage.getItem("theme");
+        } catch {}
+        root.dataset.theme =
+          stored === "light" || stored === "dark"
+            ? stored
+            : matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        root.dataset.themeReady = "";
+      })();
+    </script>
+    <BaseHead {...props} />
+  </head>
+  <body>
+    <!-- Must be the first focusable element in the DOM. -->
+    <SkipLink />
+    <slot />
+  </body>
+</html>

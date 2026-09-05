@@ -1,0 +1,9 @@
+---
+description: Astro Standards
+globs: **/*.astro,**/content.config.ts,**/astro.config.mjs
+alwaysApply: false
+---
+
+# Astro Standards
+
+Read and follow '../../rules/ASTRO.md';

@@ -1,0 +1,81 @@
+---
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/600.css";
+import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+import "../../styles/global.css";
+import { SITE } from "../../site";
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  type?: "website" | "article";
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  type = "website",
+  publishedTime,
+  modifiedTime,
+  noindex = false,
+} = Astro.props;
+
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+const fullTitle = title === SITE.name ? title : `${title} · ${SITE.name}`;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalUrl} />
+
+{/* Draft posts must not be indexed. This meta tag is load-bearing, not decoration. */}
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+{/* ?url gives the hashed, cache-busted path. Hardcoding /fonts/... in a preload
+    that does not match the bundled URL is the classic double-download bug. */}
+<link rel="preload" as="font" type="font/woff2" crossorigin href={interLatin} />
+
+<meta property="og:type" content={type} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:locale" content="en_US" />
+{publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+{modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="alternate" type="application/rss+xml" title={SITE.name} href="/rss.xml" />
+<meta name="theme-color" content="#090d0d" />
+<meta name="generator" content={Astro.generator} />
+
+<style>
+  /*
+   * Metric-matched fallback so font-display: swap does not shift layout.
+   * That is CLS and an accessibility problem -- content moving under a reader's
+   * eye. Recompute with fontpie against the exact Inter version before shipping;
+   * these are the commonly-cited Inter->Arial adjustments and are close.
+   */
+  @font-face {
+    font-family: "Inter Fallback";
+    src: local("Helvetica Neue"), local("Arial");
+    size-adjust: 107.4%;
+    ascent-override: 90.2%;
+    descent-override: 22.5%;
+    line-gap-override: 0%;
+  }
+</style>

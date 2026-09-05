@@ -1,0 +1,102 @@
+---
+import { Image } from "astro:assets";
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import FormattedDate from "../../components/content/FormattedDate.astro";
+import Prose from "../../components/content/Prose.astro";
+import TechTagList from "../../components/ui/TechTagList.astro";
+import PageLayout from "../../layouts/PageLayout.astro";
+import { readingTimeMinutes } from "../../lib/dates";
+import { resolveEntryImage } from "../../lib/images";
+
+export async function getStaticPaths() {
+  // Drafts ARE built, so a Decap save produces a previewable URL. They are
+  // excluded from /blog, RSS, and the sitemap, and carry a noindex meta tag.
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const hero = resolveEntryImage(post.filePath, post.data.heroImage);
+const readingTime = readingTimeMinutes(post.body ?? "");
+---
+
+<PageLayout
+  title={post.data.title}
+  description={post.data.description}
+  canonical={post.data.canonicalUrl}
+  type="article"
+  publishedTime={post.data.pubDate}
+  modifiedTime={post.data.updatedDate}
+  noindex={post.data.draft}
+  backHref="/blog"
+  backLabel="All posts"
+>
+  <article>
+    <header class="post-header">
+      {post.data.draft && <p class="draft-badge pill meta">Draft</p>}
+      <h1 class="page-title">{post.data.title}</h1>
+      <p class="post-meta meta">
+        <FormattedDate date={post.data.pubDate} />
+        {readingTime > 0 && (
+          <>
+            <span aria-hidden="true"> · </span>
+            <span>{readingTime} min read</span>
+          </>
+        )}
+        {post.data.updatedDate && (
+          <>
+            <span aria-hidden="true"> · </span>
+            <span>Updated <FormattedDate date={post.data.updatedDate} /></span>
+          </>
+        )}
+      </p>
+      <TechTagList items={post.data.tags} label="Post tags" />
+      {hero && (
+        <Image
+          src={hero}
+          alt={post.data.heroImageAlt}
+          class="post-hero"
+          widths={[400, 800, 1200]}
+          sizes="(min-width: 64rem) 40rem, 100vw"
+          loading="eager"
+        />
+      )}
+    </header>
+
+    <Prose>
+      <Content />
+    </Prose>
+  </article>
+</PageLayout>
+
+<style>
+  .post-header {
+    margin-block-end: var(--spacing-12);
+  }
+
+  /* Accent border AND accent text, overriding .meta's dim: a draft marker is
+     the one piece of metadata here that has to be hard to miss. */
+  .draft-badge {
+    margin-block-end: var(--spacing-3);
+    padding: 0 var(--spacing-2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .post-meta {
+    margin-block-start: var(--spacing-3);
+  }
+
+  .post-hero {
+    margin-block-start: var(--spacing-8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    block-size: auto;
+  }
+</style>

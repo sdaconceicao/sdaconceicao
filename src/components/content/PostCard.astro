@@ -1,0 +1,116 @@
+---
+import Icon from "../ui/Icon.astro";
+import TechTagList from "../ui/TechTagList.astro";
+import FormattedDate from "./FormattedDate.astro";
+
+interface Props {
+  title: string;
+  href: string;
+  pubDate: Date;
+  description: string;
+  tags: readonly string[];
+  readingTime?: number;
+  variant?: "default" | "signal";
+}
+const { title, href, pubDate, description, tags, readingTime, variant = "default" } = Astro.props;
+---
+
+<article class="post-card" data-variant={variant}>
+  <p class="post-meta meta">
+    <FormattedDate date={pubDate} format="month" />
+    {
+      readingTime !== undefined && readingTime > 0 && (
+        <>
+          <span aria-hidden="true"> · </span>
+          <span>{readingTime} min read</span>
+        </>
+      )
+    }
+  </p>
+
+  <div>
+    <h3 class="post-title">
+      <a class="post-link" href={href}>
+        <span>{title}</span>
+        <Icon name="arrow-e" size={16} />
+      </a>
+    </h3>
+    <p class="post-description">{description}</p>
+    <TechTagList items={tags} label={`Tags for ${title}`} />
+  </div>
+</article>
+
+<style>
+  .post-card {
+    position: relative;
+    border-radius: var(--radius-sm);
+  }
+
+  .post-card + .post-card {
+    margin-block-start: var(--spacing-8);
+  }
+
+  .post-card::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: calc(var(--spacing-3) * -1);
+    border: 1px solid var(--border);
+    border-radius: inherit;
+    background-color: var(--surface-1);
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  .post-card:hover::before,
+  .post-card:focus-within::before {
+    opacity: 1;
+  }
+
+  .post-meta {
+    padding-block-start: 0.2em;
+  }
+
+  .post-title {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .post-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .post-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .post-card:hover .post-link,
+  .post-card:focus-within .post-link {
+    color: var(--accent);
+  }
+
+  .post-description {
+    margin-block-start: var(--spacing-2);
+    font-size: var(--text-sm);
+  }
+
+  .post-card[data-variant="signal"] {
+    display: grid;
+    gap: var(--spacing-2);
+  }
+
+  @media (min-width: 48rem) {
+    .post-card[data-variant="default"] {
+      display: grid;
+      grid-template-columns: var(--timeline-col) 1fr;
+      column-gap: var(--spacing-6);
+    }
+  }
+</style>

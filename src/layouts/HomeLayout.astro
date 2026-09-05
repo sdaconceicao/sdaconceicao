@@ -1,0 +1,27 @@
+---
+import FloatingHeader from "../components/layout/FloatingHeader.astro";
+import Rail from "../components/layout/Rail.astro";
+import Shell from "../components/layout/Shell.astro";
+import SiteFooter from "../components/layout/SiteFooter.astro";
+import { SECTIONS } from "../site";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <Shell>
+    <Rail slot="rail" variant="home" />
+    <FloatingHeader slot="floating" items={SECTIONS} />
+    <div slot="main">
+      <main id="main">
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
+  </Shell>
+</BaseLayout>

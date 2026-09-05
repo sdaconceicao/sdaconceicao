@@ -1,0 +1,106 @@
+---
+import { Image } from "astro:assets";
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import ProjectLinks from "../../components/content/ProjectLinks.astro";
+import Prose from "../../components/content/Prose.astro";
+import TechTagList from "../../components/ui/TechTagList.astro";
+import PageLayout from "../../layouts/PageLayout.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, description, status, url, repo, tech, image, imageAlt } = project.data;
+/* A status other than "live" is conveyed as TEXT, not a colour. */
+const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "Archived" : "Live";
+---
+
+<PageLayout
+  title={title}
+  description={description}
+  type="article"
+  backHref="/projects"
+  backLabel="All projects"
+  fullWidthAtWide
+>
+  <article class:list={["project-detail", { "project-detail--with-image": image }]}>
+    <header class="project-header">
+      <h1 class="page-title">{title}</h1>
+      <p class="project-meta meta">{statusLabel}</p>
+      <ProjectLinks title={title} href={url} repo={repo} />
+      <TechTagList items={tech} label={`Technologies used in ${title}`} />
+      {
+        image && (
+          /* Full column width, unlike the 200px thumbnail on the card: this is
+             the one place the work is actually shown. eager because it is above
+             the fold on every viewport. */
+          <Image
+            src={image}
+            alt={imageAlt}
+            class="project-hero"
+            widths={[480, 960, 1200, 1600]}
+            sizes="(min-width: 90rem) 60vw, (min-width: 64rem) 37rem, 100vw"
+            loading="eager"
+          />
+        )
+      }
+    </header>
+
+    <Prose>
+      <Content />
+    </Prose>
+  </article>
+</PageLayout>
+
+<style>
+  .project-header {
+    margin-block-end: var(--spacing-12);
+  }
+
+  .project-meta {
+    margin-block-start: var(--spacing-3);
+  }
+
+  /* Matches the blog hero: same border, same large radius, so a project page and
+     a post page read as the same template. */
+  .project-hero {
+    display: block;
+    inline-size: auto;
+    block-size: auto;
+    max-inline-size: 100%;
+    max-block-size: var(--project-hero-max-block);
+    margin-block-start: var(--spacing-6);
+    margin-inline: 0 auto;
+    object-fit: contain;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  @media (min-width: 90rem) {
+    .project-detail--with-image {
+      position: relative;
+      min-block-size: calc(
+        var(--project-hero-max-block) + var(--spacing-24) + var(--spacing-24)
+      );
+      padding-inline-end: calc(60% + var(--spacing-16));
+    }
+
+    .project-detail--with-image .project-hero {
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline-end: 0;
+      max-inline-size: 60%;
+      max-block-size: calc(
+        var(--project-hero-max-block) + var(--spacing-24) + var(--spacing-24)
+      );
+      margin-block-start: 0;
+    }
+  }
+</style>

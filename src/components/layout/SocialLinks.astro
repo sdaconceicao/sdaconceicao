@@ -1,0 +1,99 @@
+---
+import Icon, { type IconName } from "../ui/Icon.astro";
+
+interface Props {
+  items: readonly { label: string; href: string; icon: string }[];
+  size?: number;
+  showLabels?: boolean;
+}
+const { items, size = 22, showLabels = false } = Astro.props;
+---
+
+<ul class="socials" role="list" data-labels={showLabels}>
+  {
+    items.map((item) => (
+      <li>
+        {/*
+          rel="me" is an identity claim -- "this profile is the same person as
+          this site", which is what Mastodon and IndieAuth verify against. A
+          same-origin file cannot make that claim, so it gets noopener only.
+          noopener stays on both: every link here opens a new tab.
+        */}
+        <a
+          class="social-link"
+          href={item.href}
+          rel={/^https?:/i.test(item.href) ? "me noopener noreferrer" : "noopener noreferrer"}
+          target="_blank"
+		>
+			<Icon name={item.icon as IconName} size={size} />
+          {/*
+            The accessible name comes from visually-hidden TEXT, not aria-label.
+            aria-label is invisible to browser translation and to machine
+            translation pipelines -- which on an i18n specialist's site would
+            mean the nav is monolingual for screen-reader users elsewhere. It is
+            also what "find on page" actually matches.
+          */}
+			<span class="sr-only">{item.label}</span>
+			{showLabels && <span class="social-label" aria-hidden="true">{item.label}</span>}
+		</a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .socials {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+
+  .social-link {
+    display: grid;
+    place-items: center;
+    /* SC 2.5.8's floor is 24x24, but 44 is the right number for a thumb. */
+    min-inline-size: 44px;
+    min-block-size: 44px;
+    border-radius: var(--radius);
+    color: var(--fg-muted);
+    transition: color var(--dur-fast) var(--ease);
+  }
+
+  .social-link:hover,
+  .social-link:focus-visible {
+    color: var(--accent);
+  }
+
+	.socials[data-labels="true"] {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+    inline-size: 100%;
+    padding-block-start: var(--spacing-3);
+    border-block-start: 1px solid var(--border);
+  }
+
+  .socials[data-labels="true"] .social-link {
+    display: flex;
+    gap: var(--spacing-2);
+    justify-content: center;
+    padding-inline: var(--spacing-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-decoration: none;
+  }
+
+	.social-label {
+		min-inline-size: 0;
+		white-space: nowrap;
+	}
+
+	@container rail (max-width: 24.5rem) {
+		.social-label {
+			display: none;
+		}
+
+		.socials[data-labels="true"] .social-link {
+			padding-inline: 0;
+		}
+	}
+</style>

@@ -1,0 +1,214 @@
+/*
+ * Design tokens. Every colour ratio in the comments below is computed with the
+ * WCAG 2.x relative-luminance formula and asserted in src/lib/contrast.test.ts.
+ * If you change a value here, that test tells you what you broke.
+ *
+ * Both themes share semantic tokens, so components never need their own theme
+ * selectors.
+ */
+:root {
+  color-scheme: light;
+
+  /* ── Brand ramp ─────────────────────────────────────────────────────────── */
+  --red-200: #ff8a8a; /* accent hover / visited           8.70:1 AAA */
+  --red-300: #ff5a5a; /* ALL red text, links, active nav  6.45:1 AA  */
+  --red-400: #ff7a7a; /* prefers-contrast: more           7.82:1 AAA */
+  --red-600: #a4161a; /* BRAND. decorative only -- never text, never a fill */
+  --red-900: #2a1416; /* tinted surface (tags, selection, inline code) */
+
+  /* ── Warm neutral ramp ──────────────────────────────────────────────────── */
+  --stone-100: #f5f1f2;
+  --stone-300: #b0a7aa;
+  --stone-500: #8b8285;
+  --stone-700: #6b6265;
+  --stone-950: #2a2426;
+  --stone-975: #1c1719;
+  --stone-985: #141113;
+  --stone-1000: #0c0a0b;
+
+  /* ── Console ramp ──────────────────────────────────────────────────────── */
+  --console-900: #1b2a0d;
+  --console-975: #151b1b;
+  --console-985: #0f1414;
+  --console-1000: #090d0d;
+  --lime-200: #d2ff5c;
+  --lime-300: #b8f500;
+  --lime-400: #c7ff36;
+
+  /* ── Light ramp ────────────────────────────────────────────────────────── */
+  --paper-50: #ffffff;
+  --paper-100: #f7f7f2;
+  --paper-200: #eceee7;
+  --paper-300: #c9cec3;
+  --ink-700: #62685c;
+  --ink-800: #40453d;
+  --ink-950: #151713;
+  --olive-700: #446500;
+  --olive-900: #304900;
+  --olive-100: #e9f6c7;
+
+  /* ── Semantic ──────────────────────────────────────────────────────────── */
+  --bg: var(--paper-100);
+  --surface-1: var(--paper-50);
+  --surface-2: var(--paper-200);
+  --surface-tint: var(--olive-100);
+  --code-bg: var(--console-985);
+
+  --fg: var(--ink-950);
+  --fg-muted: var(--ink-800);
+  --fg-dim: var(--ink-700);
+
+  --accent: var(--olive-700);
+  --accent-hover: var(--olive-900);
+  --accent-fill: var(--olive-700);
+  --accent-on-fill: var(--paper-50);
+
+  --border: var(--paper-300);
+  --border-strong: var(--ink-700);
+
+  /* A single-colour focus ring cannot pass on every surface: #F5F1F2 against
+   * the red fill is 2.73:1. The WCAG 2.2 SC 2.4.13 dual ring is mandatory --
+   * the halo (bg) against that fill is 6.45:1, which carries it. */
+  --focus-ring: var(--ink-950);
+  --focus-halo: var(--bg);
+
+  --selection-bg: #dff5a4;
+  --selection-fg: var(--ink-950);
+
+  /* ── Type ──────────────────────────────────────────────────────────────────
+   * Every fluid step keeps a rem term in the middle clamp() argument so text
+   * still responds to the user's font size. A pure-vw middle is an SC 1.4.4
+   * resize-text failure. */
+  --font-sans:
+    "Inter Variable", "Inter Fallback", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --font-mono:
+    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, "Cascadia Mono", Consolas, monospace;
+
+  --text-xs: clamp(0.75rem, 0.735rem + 0.08vw, 0.8125rem);
+  --text-sm: clamp(0.8125rem, 0.79rem + 0.11vw, 0.875rem);
+  --text-base: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --text-lg: clamp(1.0625rem, 1.02rem + 0.22vw, 1.1875rem);
+  --text-xl: clamp(1.25rem, 1.19rem + 0.3vw, 1.4375rem);
+  --text-2xl: clamp(1.375rem, 1.3rem + 0.36vw, 1.625rem);
+  --text-3xl: clamp(1.75rem, 1.61rem + 0.68vw, 2.25rem);
+  --text-display: clamp(2.25rem, 1.95rem + 1.5vw, 3.25rem);
+  --text-hero: clamp(2.75rem, 2.25rem + 2vw, 3.5rem);
+
+  --leading-tight: 1.1;
+  --leading-snug: 1.35;
+  --leading-body: 1.65;
+  --leading-prose: 1.75;
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.08em;
+  --measure: 68ch;
+  --measure-narrow: 58ch;
+
+  /* ── Space (lago's scale) ──────────────────────────────────────────────── */
+  --spacing: 0.25rem;
+  --spacing-1: var(--spacing);
+  --spacing-2: calc(2 * var(--spacing));
+  --spacing-3: calc(3 * var(--spacing));
+  --spacing-4: calc(4 * var(--spacing));
+  --spacing-5: calc(5 * var(--spacing));
+  --spacing-6: calc(6 * var(--spacing));
+  --spacing-8: calc(8 * var(--spacing));
+  --spacing-10: calc(10 * var(--spacing));
+  --spacing-12: calc(12 * var(--spacing));
+  --spacing-16: calc(16 * var(--spacing));
+  --spacing-20: calc(20 * var(--spacing));
+  --spacing-24: calc(24 * var(--spacing));
+  --spacing-32: calc(32 * var(--spacing));
+
+  /* ── Shape ─────────────────────────────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* ── Layout ────────────────────────────────────────────────────────────── */
+  --layout-max: 96rem;
+  --rail-measure: 30rem;
+  --gutter: clamp(1rem, 3vw, 3rem);
+  --job-date-col: 3.5rem;
+  --timeline-col: 8rem;
+  --timeline-col-mobile: 5.75rem;
+  --avatar-size: clamp(8rem, 15vw, 11rem);
+  --project-hero-max-block: min(42svh, 40rem);
+
+  /* ── Motion ────────────────────────────────────────────────────────────── */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-slow: 320ms;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: var(--console-1000);
+  --surface-1: var(--console-985);
+  --surface-2: var(--console-975);
+  --surface-tint: var(--console-900);
+  --fg: var(--stone-100);
+  --fg-muted: var(--stone-300);
+  --fg-dim: #8f968b;
+  --accent: var(--lime-300);
+  --accent-hover: var(--lime-200);
+  --accent-fill: var(--lime-300);
+  --accent-on-fill: var(--console-1000);
+  --border: #293130;
+  --border-strong: #66736c;
+  --focus-ring: var(--stone-100);
+  --selection-bg: #304b11;
+  --selection-fg: var(--stone-100);
+}
+
+/* Motion is zeroed AT THE TOKEN, so no component transition needs a guard of
+ * its own. The !important sweep in base.css is only a backstop for third-party
+ * CSS that cannot read our tokens (expressive-code). */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur: 1ms;
+    --dur-slow: 1ms;
+  }
+}
+
+/* Takes the whole palette to AAA. Both values verified. */
+@media (prefers-contrast: more) {
+  :root {
+    --fg-dim: var(--ink-800);
+    --accent: var(--olive-900);
+    --border: var(--border-strong);
+  }
+
+  :root[data-theme="dark"] {
+    --fg-dim: var(--stone-100);
+    --accent: var(--lime-200);
+  }
+}
+
+/* All global accessibility adaptation happens by redefining tokens here, never
+ * by restating properties. Components only ever read var(--fg) and friends, so
+ * this wins unconditionally -- no layer fight, no specificity arms race.
+ * Same pattern as lago/src/styles/theme.css. */
+@media (forced-colors: active) {
+  :root,
+  :root[data-theme="dark"] {
+    --bg: Canvas;
+    --surface-1: Canvas;
+    --surface-2: Canvas;
+    --surface-tint: Canvas;
+    --fg: CanvasText;
+    --fg-muted: CanvasText;
+    --fg-dim: CanvasText;
+    --accent: LinkText;
+    --accent-hover: LinkText;
+    --accent-fill: LinkText;
+    --accent-on-fill: Canvas;
+    --border: ButtonBorder;
+    --border-strong: ButtonBorder;
+    --focus-ring: Highlight;
+  }
+}

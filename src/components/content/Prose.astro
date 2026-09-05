@@ -1,0 +1,135 @@
+---
+/**
+ * Blog body styles. Uses :global() inside a SCOPED style rather than
+ * <style is:global>: scoping does not reach slotted content, but :global() on a
+ * descendant of a scoped root gives containment without polluting the document.
+ *
+ * Everything inherits from tokens, so prefers-contrast and a future light theme
+ * come for free.
+ */
+---
+
+<div class="prose"><slot /></div>
+
+<style>
+  .prose {
+    max-inline-size: var(--measure);
+    font-size: var(--text-lg);
+    line-height: var(--leading-prose);
+    color: var(--fg-muted);
+    text-wrap: pretty;
+    hyphens: auto;
+  }
+
+  /* em-based rhythm, not rem, so spacing tracks each element's own size. */
+  .prose > :global(* + *) {
+    margin-block-start: 1.25em;
+  }
+
+  .prose :global(:where(h2, h3, h4)) {
+    margin-block-start: 2em;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    line-height: var(--leading-snug);
+    text-wrap: balance;
+    scroll-margin-block-start: var(--spacing-16);
+  }
+
+  .prose :global(h2) {
+    font-size: var(--text-2xl);
+  }
+
+  .prose :global(h3) {
+    font-size: var(--text-xl);
+  }
+
+  .prose :global(h4) {
+    font-size: var(--text-lg);
+  }
+
+  /*
+   * Prose links inside a paragraph are the case where colour would otherwise be
+   * the sole cue, so they are always underlined (SC 1.4.1).
+   */
+  .prose :global(a) {
+    color: var(--accent);
+    text-decoration-line: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.2em;
+    text-decoration-color: color-mix(in oklab, var(--accent) 45%, transparent);
+    transition: text-decoration-color var(--dur-fast) var(--ease);
+  }
+
+  .prose :global(a:hover) {
+    text-decoration-color: currentColor;
+  }
+
+  .prose :global(blockquote) {
+    padding-inline-start: var(--spacing-5);
+    border-inline-start: 2px solid var(--accent);
+    color: var(--fg-dim);
+    /* Extended italic body text measurably slows reading and is worse for
+       dyslexic readers. The red rule plus the indent carries the semantics. */
+    font-style: normal;
+  }
+
+  .prose :global(:where(ul, ol)) {
+    padding-inline-start: var(--spacing-6);
+  }
+
+  .prose :global(li::marker) {
+    color: var(--accent);
+  }
+
+  .prose :global(li + li) {
+    margin-block-start: 0.5em;
+  }
+
+  .prose :global(img) {
+    border-radius: var(--radius-lg);
+    block-size: auto;
+  }
+
+  /* Wide tables scroll inside their own region rather than the page. */
+  .prose :global(.table-wrapper) {
+    overflow-x: auto;
+  }
+
+  .prose :global(table) {
+    inline-size: 100%;
+    font-size: var(--text-base);
+  }
+
+  .prose :global(:where(th, td)) {
+    padding: var(--spacing-3);
+    border-block-end: 1px solid var(--border);
+    text-align: start;
+  }
+
+  .prose :global(th) {
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .prose :global(hr) {
+    border: 0;
+    border-block-start: 1px solid var(--border);
+  }
+
+  /* Inline code, styled separately from blocks. Mono runs optically large next
+     to Inter, hence the step down. Verified 6.02:1 on the tinted surface. */
+  .prose :global(:not(pre) > code) {
+    padding: 0.15em 0.35em;
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-tint);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+  }
+
+  .prose :global(:target) {
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-tint);
+    box-shadow: 0 0 0 var(--spacing-2) var(--surface-tint);
+  }
+</style>

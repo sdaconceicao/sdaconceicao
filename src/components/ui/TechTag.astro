@@ -1,0 +1,22 @@
+---
+interface Props {
+  label: string;
+  as?: "li" | "span";
+}
+const { label, as: Tag = "span" } = Astro.props;
+---
+
+<Tag class="tech-tag">{label}</Tag>
+
+<style>
+  .tech-tag {
+    padding: 0 var(--spacing-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-2);
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.5;
+  }
+</style>

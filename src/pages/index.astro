@@ -1,0 +1,181 @@
+---
+import { getCollection } from "astro:content";
+import JobCard from "../components/content/JobCard.astro";
+import PostCard from "../components/content/PostCard.astro";
+import ProjectCard from "../components/content/ProjectCard.astro";
+import Section from "../components/content/Section.astro";
+import ArrowLink from "../components/ui/ArrowLink.astro";
+import HomeLayout from "../layouts/HomeLayout.astro";
+import { readingTimeMinutes } from "../lib/dates";
+import { selectHighlights, sortJobs } from "../lib/jobs";
+import { selectLatest } from "../lib/posts";
+import { selectFeatured } from "../lib/projects";
+import { RESUME_HREF, SITE } from "../site";
+
+const jobs = sortJobs(await getCollection("jobs"));
+const featuredProjects = selectFeatured(await getCollection("projects")).slice(0, 3);
+const [leadProject, ...secondaryProjects] = featuredProjects;
+const latestPost = selectLatest(await getCollection("blog"), 1)[0];
+---
+
+<HomeLayout title={SITE.name} description={SITE.description}>
+  <Section id="projects" title="Selected projects" number="01">
+    <ArrowLink slot="action" href="/projects" direction="ne">View all projects</ArrowLink>
+
+    {
+      leadProject && (
+        <ProjectCard
+          title={leadProject.data.title}
+          slug={leadProject.id}
+          description={leadProject.data.description}
+          href={leadProject.data.url}
+          repo={leadProject.data.repo}
+          tech={leadProject.data.tech}
+          image={leadProject.data.image}
+          imageAlt={leadProject.data.imageAlt}
+          status={leadProject.data.status}
+          variant="lead"
+        />
+      )
+    }
+
+    {
+      secondaryProjects.length > 0 && (
+        <div class="project-secondary">
+          {secondaryProjects.map((project) => (
+            <ProjectCard
+              title={project.data.title}
+              slug={project.id}
+              description={project.data.description}
+              href={project.data.url}
+              repo={project.data.repo}
+              tech={project.data.tech}
+              image={project.data.image}
+              imageAlt={project.data.imageAlt}
+              status={project.data.status}
+              variant="tile"
+            />
+          ))}
+        </div>
+      )
+    }
+  </Section>
+
+  <Section id="experience" title="Recent experience" number="02">
+    <ArrowLink slot="action" href={RESUME_HREF} direction="ne" external>
+      Full history in resume
+    </ArrowLink>
+
+    <div class="experience-list">
+      {
+        jobs.map((job) => (
+          <JobCard
+            company={job.data.company}
+            titles={job.data.titles}
+            url={job.data.url}
+            summary={job.data.summary}
+            highlights={selectHighlights(job.data.highlights)}
+            tech={job.data.tech}
+            logo={job.data.logo}
+            logoAlt={job.data.logoAlt}
+          />
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section id="activity" title="Activity" number="03">
+    <div class="activity-grid">
+      <article class="activity-panel" aria-labelledby="latest-writing-title">
+        <header class="activity-heading">
+          <h3 id="latest-writing-title">Latest writing</h3>
+          <ArrowLink href="/blog" direction="ne">All posts</ArrowLink>
+        </header>
+        {
+          latestPost ? (
+            <PostCard
+              title={latestPost.data.title}
+              href={`/blog/${latestPost.id}`}
+              pubDate={latestPost.data.pubDate}
+              description={latestPost.data.description}
+              tags={latestPost.data.tags}
+              readingTime={readingTimeMinutes(latestPost.body ?? "")}
+              variant="signal"
+            />
+          ) : (
+            <p class="activity-empty">Nothing published yet — drafts in progress.</p>
+          )
+        }
+      </article>
+
+      <article class="activity-panel" aria-labelledby="github-activity-title">
+        <header class="activity-heading">
+          <h3 id="github-activity-title">3-month activity</h3>
+          <span class="meta">GitHub</span>
+        </header>
+        <!-- TODO: Replace this placeholder with GitHub contribution data. -->
+        <div class="github-placeholder" aria-hidden="true"></div>
+      </article>
+    </div>
+  </Section>
+</HomeLayout>
+
+<style>
+  .project-secondary {
+    display: grid;
+    gap: var(--spacing-4);
+    margin-block-start: var(--spacing-4);
+  }
+
+  .activity-grid {
+    display: grid;
+    gap: var(--spacing-4);
+  }
+
+  .activity-panel {
+    min-inline-size: 0;
+    padding: var(--spacing-5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-1);
+  }
+
+  .activity-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    margin-block-end: var(--spacing-5);
+    font-family: var(--font-mono);
+  }
+
+  .activity-heading h3 {
+    color: var(--fg);
+    font-size: var(--text-base);
+    font-weight: 600;
+  }
+
+  .activity-empty {
+    color: var(--fg-dim);
+    font-size: var(--text-sm);
+  }
+
+  .github-placeholder {
+    min-block-size: 7rem;
+    border: 1px dashed var(--border-strong);
+    background:
+      repeating-linear-gradient(
+        90deg,
+        transparent 0 var(--spacing-3),
+        color-mix(in oklab, var(--accent) 8%, transparent) var(--spacing-3) var(--spacing-4)
+      ),
+      var(--surface-2);
+  }
+
+  @media (min-width: 48rem) {
+    .project-secondary,
+    .activity-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

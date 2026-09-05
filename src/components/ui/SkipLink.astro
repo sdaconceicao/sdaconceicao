@@ -1,0 +1,36 @@
+---
+interface Props {
+  targetId?: string;
+  label?: string;
+}
+const { targetId = "main", label = "Skip to main content" } = Astro.props;
+---
+
+<a class="skip-link" href={`#${targetId}`}>{label}</a>
+
+<style>
+  /*
+   * Translated out of view rather than clip-hidden: it stays in the accessible
+   * tree and the reveal is a transform. Never display: none -- that removes it
+   * from the tree entirely. Must be the first focusable element in the DOM.
+   */
+  .skip-link {
+    position: absolute;
+    z-index: 100;
+    inset-block-start: var(--spacing-2);
+    inset-inline-start: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background-color: var(--surface-1);
+    color: var(--fg);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    translate: 0 -250%;
+    transition: translate var(--dur) var(--ease);
+  }
+
+  .skip-link:focus-visible {
+    translate: 0;
+  }
+</style>

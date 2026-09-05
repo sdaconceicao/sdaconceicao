@@ -1,0 +1,9 @@
+---
+description: Styling Standards
+globs: **/*.css,**/*.astro
+alwaysApply: false
+---
+
+# Styling Standards
+
+Read and follow '../../rules/STYLING.md';

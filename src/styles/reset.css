@@ -1,0 +1,73 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-block-size: 100svh;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-inline-size: 100%;
+}
+
+img,
+video {
+  block-size: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* Removing the markers strips list semantics in Safari/VoiceOver. The authoring
+ * rule that pairs with this: if you remove the markers, you add role="list". */
+:where(ul, ol)[class] {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+:where(a) {
+  color: inherit;
+}
+
+:where(button) {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+:where(table) {
+  border-collapse: collapse;
+}

@@ -1,33 +1,51 @@
 {
   "name": "stephenandrewdesigns",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "The online portfolio of Stephen da Conceicao",
-  "main": "index.html",
-  "scripts": {
-    "start": "webpack-dev-server --config config/webpack.dev.config.js",
-    "build": "webpack --config config/webpack.prod.config.js"
-  },
+  "type": "module",
+  "private": true,
   "author": "Stephen da Conceicao",
+  "license": "MIT",
+  "packageManager": "pnpm@10.12.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro build && node scripts/serve-static.mjs",
+    "astro": "astro",
+    "cms:dev": "decap-server",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "astro check && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:setup": "playwright install --with-deps chromium",
+    "serve": "node scripts/serve-static.mjs"
+  },
   "dependencies": {
-    "font-awesome": "^4.7.0",
-    "font-awesome-svg-png": "^1.2.2",
-    "normalize.css": "^7.0.0"
+    "@astrojs/mdx": "^7.0.7",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/vercel": "^11.0.7",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "astro": "^7.2.4",
+    "astro-expressive-code": "^0.44.1",
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.0",
-    "@babel/preset-env": "^7.16.11",
-    "babel-loader": "^8.2.3",
-    "copy-webpack-plugin": "^10.2.3",
-    "css-loader": "^6.5.1",
-    "file-loader": "^6.2.0",
-    "html-webpack-plugin": "^5.5.0",
-    "mini-css-extract-plugin": "^2.5.3",
-    "node-sass": "^7.0.1",
-    "optimize-css-assets-webpack-plugin": "^6.0.1",
-    "sass-loader": "^12.4.0",
-    "terser-webpack-plugin": "^5.3.0",
-    "webpack": "^5.67.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.7.3"
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
+    "@biomejs/biome": "^2.5.9",
+    "@playwright/test": "^1.62.1",
+    "@vitest/coverage-v8": "^4.1.11",
+    "decap-server": "^3.10.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
   }
 }

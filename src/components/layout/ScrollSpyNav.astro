@@ -1,0 +1,185 @@
+---
+interface Props {
+  items: readonly { id: string; label: string }[];
+  label?: string;
+}
+const { items, label = "On this page" } = Astro.props;
+---
+
+<nav aria-label={label}>
+  <ul class="spy-list" role="list">
+    {
+      items.map((item, index) => (
+        <li>
+          <a class="spy-link" href={`#${item.id}`} data-spy-link>
+            <span class="spy-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            <span class="spy-indicator" aria-hidden="true" />
+            <span class="spy-label meta">{item.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  import { hrefToId, pickActiveSection } from "../../scripts/scroll-spy";
+
+  const init = () => {
+    const links = [...document.querySelectorAll<HTMLAnchorElement>("[data-spy-link]")];
+    const ids = links.map((link) => hrefToId(link.getAttribute("href"))).filter(Boolean) as string[];
+    const sections = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    if (!sections.length || !("IntersectionObserver" in window)) return;
+
+    const orderedIds = sections.map((section) => section.id);
+    const visible = new Set<string>();
+
+    const setActive = (activeId: string) => {
+      for (const link of links) {
+        // "location" = the current position within a flow. NOT "page", which
+        // would tell a screen-reader user they had navigated somewhere.
+        if (hrefToId(link.getAttribute("href")) === activeId) {
+          link.setAttribute("aria-current", "location");
+        } else {
+          link.removeAttribute("aria-current");
+        }
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target.id);
+          else visible.delete(entry.target.id);
+        }
+        const active = pickActiveSection(orderedIds, visible);
+        if (active) setActive(active);
+      },
+      // Activation band: roughly the middle 5% of the viewport.
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 },
+    );
+
+    for (const section of sections) observer.observe(section);
+
+    const fromHash = location.hash ? location.hash.slice(1) : undefined;
+    setActive(fromHash && orderedIds.includes(fromHash) ? fromHash : orderedIds[0]);
+  };
+
+  init();
+  // Idempotent and re-bound, so a future <ClientRouter /> costs nothing.
+  document.addEventListener("astro:page-load", init);
+</script>
+
+<style>
+  .spy-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3) var(--spacing-5);
+  }
+
+  .spy-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding-block: var(--spacing-2);
+    text-decoration: none;
+  }
+
+  .spy-index {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  /*
+   * The active state is a LENGTH change as well as a colour change, so it does
+   * not depend on colour perception (SC 1.4.1).
+   */
+  .spy-indicator {
+    display: block;
+    block-size: 1px;
+    inline-size: var(--spacing-8);
+    background-color: var(--border-strong);
+    transition:
+      inline-size var(--dur) var(--ease),
+      background-color var(--dur) var(--ease);
+  }
+
+  .spy-label {
+    transition: color var(--dur) var(--ease);
+  }
+
+  .spy-link:hover .spy-indicator,
+  .spy-link:focus-visible .spy-indicator {
+    inline-size: var(--spacing-16);
+    background-color: var(--fg-muted);
+  }
+
+  .spy-link:hover .spy-label,
+  .spy-link:focus-visible .spy-label {
+    color: var(--fg);
+  }
+
+  .spy-link[aria-current] .spy-indicator {
+    inline-size: var(--spacing-16);
+    background-color: var(--accent);
+  }
+
+  /* Deliberately NOT a font-weight change: on a variable font that alters
+     advance widths and shifts the label sideways on every scroll. */
+  .spy-link[aria-current] .spy-label {
+    color: var(--fg);
+  }
+
+  @media (min-width: 48rem) {
+    .spy-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--spacing-3);
+    }
+
+    .spy-link {
+      display: grid;
+      grid-template-columns: auto auto minmax(var(--spacing-8), 1fr);
+      inline-size: 100%;
+    }
+
+    .spy-indicator {
+      order: 3;
+      justify-self: end;
+      inline-size: 50%;
+    }
+
+    .spy-link:hover .spy-indicator,
+    .spy-link:focus-visible .spy-indicator,
+    .spy-link[aria-current] .spy-indicator {
+      inline-size: 100%;
+    }
+  }
+
+  @media (min-width: 64rem) and (min-height: 48rem) {
+    nav {
+      inline-size: 100%;
+    }
+
+    .spy-list {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--spacing-2);
+    }
+
+    .spy-link {
+      border-block-end: 1px solid var(--border);
+    }
+  }
+
+  @media (pointer: coarse) {
+    .spy-link {
+      min-block-size: 44px;
+    }
+  }
+</style>

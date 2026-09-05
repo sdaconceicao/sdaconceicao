@@ -1,0 +1,188 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import Icon from "../ui/Icon.astro";
+import TechTagList from "../ui/TechTagList.astro";
+import ProjectLinks from "./ProjectLinks.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  href?: string;
+  repo?: string;
+  tech: readonly string[];
+  image?: ImageMetadata;
+  imageAlt?: string;
+  status: "live" | "archived" | "wip";
+  variant?: "default" | "lead" | "tile";
+}
+
+const {
+  title,
+  description,
+  slug,
+  href,
+  repo,
+  tech,
+  image,
+  imageAlt,
+  status,
+  variant = "default",
+} = Astro.props;
+const detailHref = `/projects/${slug}`;
+const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "Archived" : "Live";
+---
+
+<article class="project" data-variant={variant}>
+  {
+    image && (
+      <Image
+        src={image}
+        alt={imageAlt ?? ""}
+        widths={[480, 800, 1200]}
+        sizes={variant === "lead" ? "(min-width: 64rem) 40rem, 100vw" : "(min-width: 64rem) 20rem, 100vw"}
+        class="project-image"
+        loading={variant === "lead" ? "eager" : "lazy"}
+      />
+    )
+  }
+
+  <div class="project-body">
+    <div class="project-heading">
+      <h3 class="project-title">
+        <a class="project-link" href={detailHref}>
+          <span>{title}</span>
+          <Icon name="arrow-e" size={16} />
+        </a>
+      </h3>
+      <span class="project-status meta">{statusLabel}</span>
+    </div>
+
+    <p class="project-description">{description}</p>
+    <ProjectLinks title={title} href={href} repo={repo} />
+    <TechTagList items={tech} label={`Technologies used in ${title}`} />
+  </div>
+</article>
+
+<style>
+  .project {
+    position: relative;
+    overflow: hidden;
+    block-size: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-1);
+    transition: border-color var(--dur) var(--ease);
+  }
+
+  .project::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: var(--spacing-1);
+    background-color: var(--accent);
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease);
+  }
+
+  .project:hover,
+  .project:focus-within {
+    border-color: var(--border-strong);
+  }
+
+  .project:hover::before,
+  .project:focus-within::before {
+    opacity: 1;
+  }
+
+  .project-image {
+    inline-size: 100%;
+    aspect-ratio: 16 / 9;
+    border-block-end: 1px solid var(--border);
+    object-fit: cover;
+  }
+
+  .project[data-variant="lead"] .project-image {
+    aspect-ratio: 16 / 8;
+  }
+
+  .project-body {
+    padding: var(--spacing-5);
+  }
+
+  .project-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--spacing-2) var(--spacing-4);
+  }
+
+  .project-title {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .project-status {
+    color: var(--accent);
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .project-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .project :global(a:not(.project-link)),
+  .project :global(button) {
+    position: relative;
+    z-index: 3;
+  }
+
+  .project:hover .project-link,
+  .project:focus-within .project-link {
+    color: var(--accent);
+  }
+
+  .project-link :global(.icon) {
+    transition: translate var(--dur-fast) var(--ease);
+  }
+
+  .project:hover .project-link :global(.icon),
+  .project:focus-within .project-link :global(.icon) {
+    translate: 0.2em 0;
+  }
+
+  .project-description {
+    margin-block-start: var(--spacing-2);
+    font-size: var(--text-sm);
+  }
+
+  @media (min-width: 48rem) {
+    .project[data-variant="default"] {
+      display: grid;
+      grid-template-columns: minmax(10rem, 34%) 1fr;
+    }
+
+    .project[data-variant="default"] .project-image {
+      block-size: 100%;
+      border-block-end: 0;
+      border-inline-end: 1px solid var(--border);
+    }
+
+    .project[data-variant="default"]:not(:has(.project-image)) .project-body {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

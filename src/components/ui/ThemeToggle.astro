@@ -1,0 +1,94 @@
+<button class="theme-toggle" type="button" data-theme-toggle>
+  <span aria-hidden="true">Light</span>
+  <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+  <span aria-hidden="true">Dark</span>
+  <span class="sr-only" data-theme-action>Switch to dark theme</span>
+</button>
+
+<script>
+  import { isTheme, nextTheme, themeToggleLabel } from "../../scripts/theme";
+
+  const initThemeToggle = () => {
+    const root = document.documentElement;
+    const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+    const action = toggle?.querySelector<HTMLElement>("[data-theme-action]");
+    if (!toggle || !action) return;
+
+    const update = () => {
+      const current = root.dataset.theme ?? null;
+      const theme = isTheme(current) ? current : "light";
+      action.textContent = themeToggleLabel(theme);
+      toggle.setAttribute("aria-pressed", String(theme === "dark"));
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute("content", theme === "dark" ? "#090d0d" : "#f7f7f2");
+    };
+
+    if (toggle.dataset.themeBound === "true") {
+      update();
+      return;
+    }
+    toggle.dataset.themeBound = "true";
+
+    toggle.addEventListener("click", () => {
+      const theme = nextTheme(root.dataset.theme ?? null);
+      root.dataset.theme = theme;
+      try {
+        localStorage.setItem("theme", theme);
+      } catch {
+        // The theme still applies when storage is unavailable.
+      }
+      update();
+    });
+
+    update();
+  };
+
+  initThemeToggle();
+  document.addEventListener("astro:page-load", initThemeToggle);
+</script>
+
+<style>
+  .theme-toggle {
+    display: none;
+    align-items: center;
+    gap: var(--spacing-2);
+    min-block-size: 44px;
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  :global(html[data-theme-ready]) .theme-toggle {
+    display: inline-flex;
+  }
+
+  .theme-toggle:hover,
+  .theme-toggle:focus-visible {
+    color: var(--fg);
+  }
+
+  .toggle-track {
+    position: relative;
+    inline-size: var(--spacing-10);
+    block-size: var(--spacing-5);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    background-color: var(--surface-2);
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    inset-block-start: var(--spacing-1);
+    inset-inline-start: var(--spacing-1);
+    inline-size: var(--spacing-3);
+    block-size: var(--spacing-3);
+    border-radius: var(--radius-pill);
+    background-color: var(--accent);
+    transition: translate var(--dur-fast) var(--ease);
+  }
+
+  :global(html[data-theme="dark"]) .toggle-thumb {
+    translate: var(--spacing-5) 0;
+  }
+</style>
