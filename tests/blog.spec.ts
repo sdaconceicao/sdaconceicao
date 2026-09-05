@@ -92,6 +92,9 @@ test.describe("blog", () => {
     await page.goto("/blog/local-storage-options");
 
     const header = page.locator('.floating-header[data-variant="page"]');
+    await expect(
+      page.getByRole("navigation", { name: "Social links", includeHidden: true }),
+    ).toHaveCount(0);
     const primary = page.getByRole("navigation", { name: "Primary" });
     await expect(header).toBeVisible();
     await expect(header.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");

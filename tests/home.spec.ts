@@ -111,14 +111,27 @@ test.describe("homepage", () => {
     expect(projectsHeading?.y).toBeLessThan(800);
   });
 
-  test("shows the icon nav after the one-column hero scrolls away", async ({ page }) => {
+  test("shows the header and social bar after the phone hero scrolls away", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Page sections" });
+    const socials = page.getByRole("navigation", { name: "Social links" });
     await expect(nav).toBeHidden();
+    await expect(socials).toBeHidden();
     await page.locator("#experience").scrollIntoViewIfNeeded();
     await expect(nav).toBeVisible();
+    await expect(socials).toBeInViewport();
     await expect(nav.getByRole("link")).toHaveCount(3);
+    await expect(socials.getByRole("link")).toHaveCount(4);
+    for (const name of ["GitHub", "LinkedIn", "NPM", "Resume"]) {
+      await expect(socials.getByRole("link", { name, exact: true })).toBeVisible();
+    }
+    const bounds = await socials.boundingBox();
+    expect((bounds?.y ?? 0) + (bounds?.height ?? 0)).toBeCloseTo(800, 0);
+
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await expect(nav).toBeHidden();
+    await expect(socials).toBeHidden();
   });
 
   test("removes the timeline gutter from one-column job cards", async ({ page }) => {

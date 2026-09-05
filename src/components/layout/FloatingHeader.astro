@@ -76,11 +76,15 @@ const icons: Record<string, IconName> = {
   const initFloatingHeader = () => {
     const header = document.querySelector<HTMLElement>("[data-floating-header]");
     const hero = document.querySelector<HTMLElement>(".rail");
+    const socials = document.querySelector<HTMLElement>("[data-floating-socials]");
     if (!header || !hero || header.dataset.bound === "true") return;
 
     header.dataset.bound = "true";
     new IntersectionObserver(([entry]) => {
-      if (entry) header.hidden = entry.boundingClientRect.bottom > 0;
+      if (!entry) return;
+      const hidden = entry.boundingClientRect.bottom > 0;
+      header.hidden = hidden;
+      if (socials) socials.hidden = hidden;
     }).observe(hero);
   };
 

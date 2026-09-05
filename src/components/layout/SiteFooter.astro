@@ -1,10 +1,19 @@
 ---
-import { SITE } from "../../site";
+import { SITE, SOCIALS } from "../../site";
+import SocialLinks from "./SocialLinks.astro";
 
 const year = new Date().getFullYear();
+const isHome = Astro.url.pathname === "/";
 ---
 
 <footer class="site-footer">
+  {
+    isHome && (
+      <nav class="footer-socials" aria-label="Social links" data-floating-socials hidden>
+        <SocialLinks items={SOCIALS} />
+      </nav>
+    )
+  }
   <p>
     Designed and built by {SITE.author}. &copy; {year} {SITE.name}.
   </p>
@@ -15,7 +24,7 @@ const year = new Date().getFullYear();
 
 <style>
   .site-footer {
-    padding-block: var(--spacing-12) var(--spacing-16);
+    padding-block: var(--spacing-12) calc(var(--spacing-16) + env(safe-area-inset-bottom));
     color: var(--fg-dim);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -31,5 +40,27 @@ const year = new Date().getFullYear();
 
   .footer-meta a:hover {
     text-decoration-color: currentColor;
+  }
+
+  .footer-socials {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    z-index: 10;
+    inset-block-end: 0;
+    inset-inline: 0;
+    padding-block: var(--spacing-1) calc(var(--spacing-1) + env(safe-area-inset-bottom));
+    border-block-start: 1px solid var(--border-strong);
+    background-color: var(--surface-1);
+  }
+
+  .footer-socials[hidden] {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .footer-socials {
+      display: none;
+    }
   }
 </style>
