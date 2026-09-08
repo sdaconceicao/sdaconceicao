@@ -100,13 +100,9 @@ const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "
 
   .project-image {
     inline-size: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 3 / 2;
     border-block-end: 1px solid var(--border);
-    object-fit: cover;
-  }
-
-  .project[data-variant="lead"] .project-image {
-    aspect-ratio: 16 / 8;
+    object-fit: contain;
   }
 
   .project-body {

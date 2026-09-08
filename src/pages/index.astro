@@ -178,4 +178,25 @@ const latestPost = selectLatest(await getCollection("blog"), 1)[0];
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
+
+  @media (min-width: 120rem) {
+    :global(#projects) {
+      display: grid;
+      grid-template-columns:
+        minmax(0, 3fr)
+        minmax(calc(2 * var(--spacing-32) + var(--spacing-16)), 1fr);
+      column-gap: var(--spacing-4);
+    }
+
+    :global(#projects > .section-heading) {
+      grid-column: 1 / -1;
+    }
+
+    .project-secondary {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      min-block-size: 0;
+      margin-block-start: 0;
+    }
+  }
 </style>

@@ -31,4 +31,10 @@
       padding-inline-start: 0;
     }
   }
+
+  @media (min-width: 90rem) {
+    .shell {
+      grid-template-columns: minmax(0, var(--rail-measure)) minmax(0, 1fr);
+    }
+  }
 </style>
