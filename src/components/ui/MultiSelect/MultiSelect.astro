@@ -1,0 +1,74 @@
+---
+import styles from "./MultiSelect.module.css";
+
+interface Option {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  options: readonly (string | Option)[];
+  placeholder: string;
+  description: string;
+}
+
+const { id, name, label, options, placeholder, description } = Astro.props;
+const normalizedOptions = options.map((option) =>
+  typeof option === "string" ? { label: option, value: option } : option,
+);
+---
+
+<div class={styles.root} data-multi-select data-placeholder={placeholder}>
+  <p id={`${id}-label`} class={styles.fieldLabel}>{label}</p>
+  <button
+    class={styles.trigger}
+    type="button"
+    popovertarget={`${id}-options`}
+    aria-labelledby={`${id}-label ${id}-value`}
+    aria-describedby={`${id}-hint`}
+    data-select-trigger
+  >
+    <span id={`${id}-value`} data-selection-summary>{placeholder}</span>
+    <span aria-hidden="true">⌄</span>
+  </button>
+  <p id={`${id}-hint`} class={styles.hint}>{description}</p>
+
+  <div
+    id={`${id}-options`}
+    class={styles.popover}
+    popover
+    role="group"
+    aria-labelledby={`${id}-label`}
+  >
+    <div class={styles.optionSearch}>
+      <label for={`${id}-search`}>Search {label.toLowerCase()}</label>
+      <input id={`${id}-search`} type="search" autocomplete="off" data-option-search />
+    </div>
+    <fieldset class={styles.optionList}>
+      <legend class="sr-only">{label}</legend>
+      {normalizedOptions.map((option) => (
+        <label class={styles.option} data-option-label={option.label}>
+          <input type="checkbox" name={name} value={option.value} />
+          <span>{option.label}</span>
+        </label>
+      ))}
+    </fieldset>
+    <p class={styles.hint} data-no-options aria-live="polite" hidden>
+      No matching options.
+    </p>
+    <div class={styles.optionActions}>
+      <button type="button" data-clear-options>Clear {label.toLowerCase()}</button>
+      <button type="button" popovertarget={`${id}-options`} popovertargetaction="hide">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initMultiSelects } from "./MultiSelect";
+
+  initMultiSelects();
+  document.addEventListener("astro:page-load", initMultiSelects);
+</script>

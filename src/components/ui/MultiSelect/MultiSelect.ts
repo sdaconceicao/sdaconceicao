@@ -1,0 +1,148 @@
+export const matchesOption = (option: string, query: string): boolean =>
+  option.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
+
+export const selectionSummary = (count: number, placeholder: string): string =>
+  count === 0 ? placeholder : `${count} selected`;
+
+interface TriggerBounds {
+  top: number;
+  bottom: number;
+  left: number;
+  width: number;
+}
+
+/** Fit the popup to the viewport on the side with more available space. */
+export const multiSelectPlacement = (
+  trigger: TriggerBounds,
+  viewport: { width: number; height: number },
+  gap: number,
+) => {
+  const below = Math.max(0, viewport.height - trigger.bottom - gap * 2);
+  const above = Math.max(0, trigger.top - gap * 2);
+  const opensAbove = above > below;
+  const width = Math.min(trigger.width, Math.max(0, viewport.width - gap * 2));
+  return {
+    width,
+    left: Math.max(gap, Math.min(trigger.left, viewport.width - width - gap)),
+    edge: opensAbove ? viewport.height - trigger.top + gap : trigger.bottom + gap,
+    maxHeight: opensAbove ? above : below,
+    opensAbove,
+  };
+};
+
+const bindMultiSelect = (root: HTMLElement) => {
+  if (root.dataset.bound === "true") return;
+
+  const trigger = root.querySelector<HTMLButtonElement>("[data-select-trigger]");
+  const popover = root.querySelector<HTMLElement>("[popover]");
+  const search = root.querySelector<HTMLInputElement>("[data-option-search]");
+  const summary = root.querySelector<HTMLElement>("[data-selection-summary]");
+  const empty = root.querySelector<HTMLElement>("[data-no-options]");
+  const clear = root.querySelector<HTMLButtonElement>("[data-clear-options]");
+  if (!trigger || !popover || !search || !summary || !empty || !clear) return;
+
+  const options = Array.from(root.querySelectorAll<HTMLElement>("[data-option-label]"));
+  const checkboxes = Array.from(root.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
+  const controller = new AbortController();
+  const listenerOptions = { signal: controller.signal };
+  let resetTimer: number | undefined;
+
+  const update = () => {
+    let visible = 0;
+    for (const option of options) {
+      option.hidden = !matchesOption(option.dataset.optionLabel ?? "", search.value);
+      if (!option.hidden) visible += 1;
+    }
+    empty.hidden = visible > 0;
+    summary.textContent = selectionSummary(
+      checkboxes.filter((checkbox) => checkbox.checked).length,
+      root.dataset.placeholder ?? "",
+    );
+  };
+
+  const close = () => {
+    if (popover.matches(":popover-open")) popover.hidePopover();
+  };
+
+  popover.addEventListener(
+    "beforetoggle",
+    (event) => {
+      if ((event as ToggleEvent).newState !== "open") return;
+      search.value = "";
+      update();
+      const gap = Number.parseFloat(getComputedStyle(popover).paddingBlockStart) || 0;
+      const placement = multiSelectPlacement(
+        trigger.getBoundingClientRect(),
+        { width: document.documentElement.clientWidth, height: window.innerHeight },
+        gap,
+      );
+      const rtl = getComputedStyle(root).direction === "rtl";
+      const inlineStart = rtl
+        ? document.documentElement.clientWidth - placement.left - placement.width
+        : placement.left;
+      popover.style.insetInlineStart = `${inlineStart}px`;
+      popover.style.inlineSize = `${placement.width}px`;
+      popover.style.insetBlockStart = placement.opensAbove ? "auto" : `${placement.edge}px`;
+      popover.style.insetBlockEnd = placement.opensAbove ? `${placement.edge}px` : "auto";
+      popover.style.maxBlockSize = `${placement.maxHeight}px`;
+    },
+    listenerOptions,
+  );
+  popover.addEventListener(
+    "toggle",
+    () => {
+      if (popover.matches(":popover-open")) search.focus();
+    },
+    listenerOptions,
+  );
+  popover.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+      trigger.focus();
+    },
+    listenerOptions,
+  );
+  root.addEventListener("input", update, listenerOptions);
+  clear.addEventListener(
+    "click",
+    () => {
+      for (const checkbox of checkboxes) checkbox.checked = false;
+      root.dispatchEvent(new Event("input", { bubbles: true }));
+    },
+    listenerOptions,
+  );
+
+  const form = root.closest("form");
+  form?.addEventListener(
+    "reset",
+    () => {
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        search.value = "";
+        update();
+      });
+    },
+    listenerOptions,
+  );
+  window.addEventListener("resize", close, listenerOptions);
+  document.addEventListener(
+    "astro:before-swap",
+    () => {
+      close();
+      window.clearTimeout(resetTimer);
+      controller.abort();
+    },
+    { once: true },
+  );
+
+  root.dataset.bound = "true";
+  update();
+};
+
+export const initMultiSelects = () => {
+  document.querySelectorAll<HTMLElement>("[data-multi-select]").forEach(bindMultiSelect);
+};
