@@ -3,7 +3,12 @@ import { expect, test } from "@playwright/test";
 test.describe("homepage", () => {
   test("renders every section as a named landmark region", async ({ page }) => {
     await page.goto("/");
-    for (const name of ["About", "Selected projects", "Recent experience", "Activity"]) {
+    for (const name of [
+      "About",
+      "Selected projects",
+      "Recent experience",
+      "Writing & updates",
+    ]) {
       await expect(page.getByRole("region", { name })).toBeVisible();
     }
   });
@@ -169,6 +174,26 @@ test.describe("homepage", () => {
     expect(first?.width).toBeCloseTo(second?.width ?? 0, 0);
   });
 
+  test("promotes writing as space becomes available", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const twoLaneSections = await Promise.all(
+      ["#projects", "#activity", "#experience"].map((selector) =>
+        page.locator(selector).boundingBox(),
+      ),
+    );
+    expect(twoLaneSections[0]?.y).toBeCloseTo(twoLaneSections[1]?.y ?? 0, 0);
+    expect(twoLaneSections[2]?.y).toBeGreaterThan(twoLaneSections[0]?.y ?? 0);
+
+    await page.setViewportSize({ width: 2400, height: 1000 });
+    const threeLaneTops = await Promise.all(
+      ["#projects", "#activity", "#experience"].map(async (selector) =>
+        (await page.locator(selector).boundingBox())?.y ?? 0,
+      ),
+    );
+    expect(Math.max(...threeLaneTops) - Math.min(...threeLaneTops)).toBeLessThan(2);
+  });
+
   test("only shows navigation labels and the theme control when they fit", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 800 });
     await page.goto("/");
@@ -189,12 +214,6 @@ test.describe("homepage", () => {
     // can remain too narrow once scrollbar space and padding are reserved.
     await page.setViewportSize({ width: 800, height: 900 });
     await expect(page.locator(".social-label").first()).toBeVisible();
-  });
-
-  test("keeps GitHub activity as an empty implementation placeholder", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("article", { name: "3-month activity" })).toBeVisible();
-    await expect(page.locator(".github-placeholder")).toBeEmpty();
   });
 
   test("never scrolls horizontally, even at 400% zoom equivalent", async ({ page }) => {

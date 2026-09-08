@@ -74,38 +74,39 @@ const IntroTag = variant === "home" ? "section" : "div";
       }
     </IntroTag>
 
-    {
-      variant === "home" ? (
-        <div class="rail-nav">
-          <ScrollSpyNav items={SECTIONS} />
-        </div>
-      ) : (
-        <nav class="site-nav" aria-label="Primary">
-          <ul role="list">
-            {PAGE_LINKS.map((item, index) => (
-              <li>
-                <a
-                  href={item.href}
-                  aria-current={
-                    pathname === item.href
-                      ? "page"
-                      : pathname.startsWith(`${item.href}/`)
-                        ? "location"
-                        : undefined
-                  }
-                >
-                  <span class="site-index" aria-hidden="true">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span class="site-indicator" aria-hidden="true" />
-                  <span class="site-label meta">{item.label}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )
-    }
+    {variant === "home" && (
+      <div class="rail-nav">
+        <ScrollSpyNav items={SECTIONS} />
+      </div>
+    )}
+
+    <nav
+      class:list={["site-nav", { "site-nav-home": variant === "home" }]}
+      aria-label="Primary"
+    >
+      <ul role="list">
+        {PAGE_LINKS.map((item, index) => (
+          <li>
+            <a
+              href={item.href}
+              aria-current={
+                pathname === item.href
+                  ? "page"
+                  : pathname.startsWith(`${item.href}/`)
+                    ? "location"
+                    : undefined
+              }
+            >
+              <span class="site-index" aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span class="site-indicator" aria-hidden="true" />
+              <span class="site-label meta">{item.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   </div>
 
   <SocialLinks items={SOCIALS} showLabels={variant === "home"} />
@@ -242,6 +243,10 @@ const IntroTag = variant === "home" ? "section" : "div";
     inline-size: 100%;
   }
 
+  .site-nav-home {
+    display: none;
+  }
+
   .site-nav ul {
     display: flex;
     flex-wrap: wrap;
@@ -366,7 +371,7 @@ const IntroTag = variant === "home" ? "section" : "div";
    * overflow below should never engage. It is a safety valve, not a feature.
    * If rail content grows past the budget, move something OUT of the rail.
    */
-	@media (min-width: 64rem) and (min-height: 48rem) {
+  @media (min-width: 64rem) and (min-height: 48rem) {
     .site-nav ul {
       flex-direction: column;
       gap: var(--spacing-2);
@@ -482,6 +487,17 @@ const IntroTag = variant === "home" ? "section" : "div";
     .rail-description,
     .rail-actions {
       grid-column: auto;
+    }
+  }
+
+  @media (min-width: 120rem) and (min-height: 48rem) {
+    .rail-actions,
+    .rail-nav {
+      display: none;
+    }
+
+    .site-nav-home {
+      display: block;
     }
   }
 </style>
