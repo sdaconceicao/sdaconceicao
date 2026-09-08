@@ -61,30 +61,7 @@ const latestPost = selectLatest(await getCollection("blog"), 1)[0];
     }
   </Section>
 
-  <Section id="experience" title="Recent experience" number="02">
-    <ArrowLink slot="action" href={RESUME_HREF} direction="ne" external>
-      Full history in resume
-    </ArrowLink>
-
-    <div class="experience-list">
-      {
-        jobs.map((job) => (
-          <JobCard
-            company={job.data.company}
-            titles={job.data.titles}
-            url={job.data.url}
-            summary={job.data.summary}
-            highlights={selectHighlights(job.data.highlights)}
-            tech={job.data.tech}
-            logo={job.data.logo}
-            logoAlt={job.data.logoAlt}
-          />
-        ))
-      }
-    </div>
-  </Section>
-
-  <Section id="activity" title="Activity" number="03">
+  <Section id="activity" title="Writing & updates" number="02">
     <div class="activity-grid">
       <article class="activity-panel" aria-labelledby="latest-writing-title">
         <header class="activity-heading">
@@ -107,15 +84,29 @@ const latestPost = selectLatest(await getCollection("blog"), 1)[0];
           )
         }
       </article>
+    </div>
+  </Section>
 
-      <article class="activity-panel" aria-labelledby="github-activity-title">
-        <header class="activity-heading">
-          <h3 id="github-activity-title">3-month activity</h3>
-          <span class="meta">GitHub</span>
-        </header>
-        <!-- TODO: Replace this placeholder with GitHub contribution data. -->
-        <div class="github-placeholder" aria-hidden="true"></div>
-      </article>
+  <Section id="experience" title="Recent experience" number="03">
+    <ArrowLink slot="action" href={RESUME_HREF} direction="ne" external>
+      Full history in resume
+    </ArrowLink>
+
+    <div class="experience-list">
+      {
+        jobs.map((job) => (
+          <JobCard
+            company={job.data.company}
+            titles={job.data.titles}
+            url={job.data.url}
+            summary={job.data.summary}
+            highlights={selectHighlights(job.data.highlights)}
+            tech={job.data.tech}
+            logo={job.data.logo}
+            logoAlt={job.data.logoAlt}
+          />
+        ))
+      }
     </div>
   </Section>
 </HomeLayout>
@@ -160,21 +151,8 @@ const latestPost = selectLatest(await getCollection("blog"), 1)[0];
     font-size: var(--text-sm);
   }
 
-  .github-placeholder {
-    min-block-size: 7rem;
-    border: 1px dashed var(--border-strong);
-    background:
-      repeating-linear-gradient(
-        90deg,
-        transparent 0 var(--spacing-3),
-        color-mix(in oklab, var(--accent) 8%, transparent) var(--spacing-3) var(--spacing-4)
-      ),
-      var(--surface-2);
-  }
-
   @media (min-width: 48rem) {
-    .project-secondary,
-    .activity-grid {
+    .project-secondary {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }

@@ -13,8 +13,8 @@ export const SITE = {
 
 export const SECTIONS = [
   { id: "projects", label: "Projects" },
-  { id: "experience", label: "Experience" },
   { id: "activity", label: "Writing" },
+  { id: "experience", label: "Experience" },
 ] as const;
 
 /** Lives in /public, so the path is the URL. Referenced by the rail and by the
@@ -23,8 +23,8 @@ export const RESUME_HREF = "/Resume.pdf";
 
 export const PAGE_LINKS = [
   { id: "projects", href: "/projects", label: "Projects" },
-  { id: "experience", href: RESUME_HREF, label: "Experience" },
   { id: "activity", href: "/blog", label: "Writing" },
+  { id: "experience", href: RESUME_HREF, label: "Experience" },
 ] as const;
 
 export const SOCIALS = [

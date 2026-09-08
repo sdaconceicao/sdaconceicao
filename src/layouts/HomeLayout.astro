@@ -18,10 +18,52 @@ const { title, description } = Astro.props;
     <Rail slot="rail" variant="home" />
     <FloatingHeader slot="floating" items={SECTIONS} />
     <div slot="main">
-      <main id="main">
+      <main id="main" class="home-main">
         <slot />
       </main>
       <SiteFooter />
     </div>
   </Shell>
 </BaseLayout>
+
+<style>
+  @media (min-width: 90rem) and (min-height: 48rem) {
+    .home-main {
+      display: grid;
+      grid-template-columns:
+        minmax(calc(4 * var(--spacing-32)), 55%)
+        minmax(0, 1fr);
+      grid-template-areas:
+        "projects activity"
+        "experience experience";
+      column-gap: var(--spacing-6);
+      align-items: start;
+    }
+
+    .home-main > :global(section) {
+      min-inline-size: 0;
+      padding-block-start: var(--spacing-6);
+    }
+
+    .home-main > :global(#projects) {
+      grid-area: projects;
+    }
+
+    .home-main > :global(#experience) {
+      grid-area: experience;
+    }
+
+    .home-main > :global(#activity) {
+      grid-area: activity;
+    }
+  }
+
+  @media (min-width: 150rem) and (min-height: 48rem) {
+    .home-main {
+      grid-template-columns:
+        minmax(calc(4 * var(--spacing-32)), 35%)
+        repeat(2, minmax(0, 1fr));
+      grid-template-areas: "projects activity experience";
+    }
+  }
+</style>
