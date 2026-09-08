@@ -90,6 +90,24 @@ const bindMultiSelect = (root: HTMLElement) => {
     if (popover.matches(":popover-open")) popover.hidePopover();
   };
 
+  const placePopover = () => {
+    const gap = Number.parseFloat(getComputedStyle(popover).paddingBlockStart) || 0;
+    const placement = multiSelectPlacement(
+      trigger.getBoundingClientRect(),
+      { width: document.documentElement.clientWidth, height: window.innerHeight },
+      gap,
+    );
+    const rtl = getComputedStyle(root).direction === "rtl";
+    const inlineStart = rtl
+      ? document.documentElement.clientWidth - placement.left - placement.width
+      : placement.left;
+    popover.style.insetInlineStart = `${inlineStart}px`;
+    popover.style.inlineSize = `${placement.width}px`;
+    popover.style.insetBlockStart = placement.opensAbove ? "auto" : `${placement.edge}px`;
+    popover.style.insetBlockEnd = placement.opensAbove ? `${placement.edge}px` : "auto";
+    popover.style.maxBlockSize = `${placement.maxHeight}px`;
+  };
+
   const visibleCheckboxes = () =>
     checkboxes.filter((checkbox) => !checkbox.closest<HTMLElement>("[data-option-label]")?.hidden);
 
@@ -129,21 +147,7 @@ const bindMultiSelect = (root: HTMLElement) => {
       if ((event as ToggleEvent).newState !== "open") return;
       if (search) search.value = "";
       update();
-      const gap = Number.parseFloat(getComputedStyle(popover).paddingBlockStart) || 0;
-      const placement = multiSelectPlacement(
-        trigger.getBoundingClientRect(),
-        { width: document.documentElement.clientWidth, height: window.innerHeight },
-        gap,
-      );
-      const rtl = getComputedStyle(root).direction === "rtl";
-      const inlineStart = rtl
-        ? document.documentElement.clientWidth - placement.left - placement.width
-        : placement.left;
-      popover.style.insetInlineStart = `${inlineStart}px`;
-      popover.style.inlineSize = `${placement.width}px`;
-      popover.style.insetBlockStart = placement.opensAbove ? "auto" : `${placement.edge}px`;
-      popover.style.insetBlockEnd = placement.opensAbove ? `${placement.edge}px` : "auto";
-      popover.style.maxBlockSize = `${placement.maxHeight}px`;
+      placePopover();
     },
     listenerOptions,
   );
@@ -205,6 +209,18 @@ const bindMultiSelect = (root: HTMLElement) => {
     listenerOptions,
   );
   window.addEventListener("resize", close, listenerOptions);
+  document.addEventListener(
+    "scroll",
+    (event) => {
+      if (
+        popover.matches(":popover-open") &&
+        (!(event.target instanceof Node) || !popover.contains(event.target))
+      ) {
+        placePopover();
+      }
+    },
+    { capture: true, signal: controller.signal },
+  );
   document.addEventListener(
     "astro:before-swap",
     () => {

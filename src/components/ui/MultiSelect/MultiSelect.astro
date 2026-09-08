@@ -62,15 +62,17 @@ const normalizedOptions = options.map((option) =>
       {filter && "Start typing from an option to return to search."}
       Press Tab to leave the list.
     </p>
-    <fieldset class={styles.optionList} aria-describedby={`${id}-instructions`}>
-      <legend class="sr-only">{label}</legend>
-      {normalizedOptions.map((option) => (
-        <label class={styles.option} data-option-label={option.label}>
-          <input type="checkbox" name={name} value={option.value} />
-          <span>{option.label}</span>
-        </label>
-      ))}
-    </fieldset>
+    <div class={styles.optionScroller}>
+      <fieldset class={styles.optionList} aria-describedby={`${id}-instructions`}>
+        <legend class="sr-only">{label}</legend>
+        {normalizedOptions.map((option) => (
+          <label class={styles.option} data-option-label={option.label}>
+            <input type="checkbox" name={name} value={option.value} />
+            <span>{option.label}</span>
+          </label>
+        ))}
+      </fieldset>
+    </div>
     {filter && (
       <p class={styles.hint} data-no-options aria-live="polite" hidden>
         No matching options.
