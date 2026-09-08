@@ -3,12 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("homepage", () => {
   test("renders every section as a named landmark region", async ({ page }) => {
     await page.goto("/");
-    for (const name of [
-      "About",
-      "Selected projects",
-      "Recent experience",
-      "Writing & updates",
-    ]) {
+    for (const name of ["About", "Selected projects", "Recent experience", "Writing & updates"]) {
       await expect(page.getByRole("region", { name })).toBeVisible();
     }
   });
@@ -187,8 +182,8 @@ test.describe("homepage", () => {
 
     await page.setViewportSize({ width: 2400, height: 1000 });
     const threeLaneTops = await Promise.all(
-      ["#projects", "#activity", "#experience"].map(async (selector) =>
-        (await page.locator(selector).boundingBox())?.y ?? 0,
+      ["#projects", "#activity", "#experience"].map(
+        async (selector) => (await page.locator(selector).boundingBox())?.y ?? 0,
       ),
     );
     expect(Math.max(...threeLaneTops) - Math.min(...threeLaneTops)).toBeLessThan(2);
