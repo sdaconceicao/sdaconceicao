@@ -197,6 +197,53 @@ test("searching skills preserves selections, handles no matches, and clears skil
   await expect(search).not.toBeVisible();
 });
 
+test("keeps skills options clear of controls and anchored during outer scroll", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1070, height: 884 });
+  await page.goto("/projects");
+  const trigger = page.getByRole("button", { name: /^Skills / });
+  await trigger.click();
+
+  const popover = page
+    .getByRole("group", { name: "Skills" })
+    .filter({ has: page.getByRole("button", { name: "Done", exact: true }) });
+  const finalOption = page.getByRole("checkbox", { name: "Vite", exact: true });
+  const done = popover.getByRole("button", { name: "Done", exact: true });
+  await finalOption.focus();
+
+  const finalOptionBox = await finalOption.boundingBox();
+  const doneBox = await done.boundingBox();
+  expect(finalOptionBox).not.toBeNull();
+  expect(doneBox).not.toBeNull();
+  if (finalOptionBox && doneBox) {
+    expect(finalOptionBox.y + finalOptionBox.height).toBeLessThanOrEqual(doneBox.y);
+  }
+
+  await finalOption.check();
+  const initialTriggerBox = await trigger.boundingBox();
+  const initialPopoverBox = await popover.boundingBox();
+  expect(initialTriggerBox).not.toBeNull();
+  expect(initialPopoverBox).not.toBeNull();
+  const initialGap =
+    initialTriggerBox && initialPopoverBox
+      ? initialPopoverBox.y - (initialTriggerBox.y + initialTriggerBox.height)
+      : 0;
+
+  await page.evaluate(() => window.scrollBy(0, 300));
+  await expect(popover).toBeVisible();
+  await expect(finalOption).toBeChecked();
+
+  const scrolledTriggerBox = await trigger.boundingBox();
+  const scrolledPopoverBox = await popover.boundingBox();
+  expect(scrolledTriggerBox).not.toBeNull();
+  expect(scrolledPopoverBox).not.toBeNull();
+  if (scrolledTriggerBox && scrolledPopoverBox) {
+    const scrolledGap = scrolledPopoverBox.y - (scrolledTriggerBox.y + scrolledTriggerBox.height);
+    expect(Math.abs(scrolledGap - initialGap)).toBeLessThanOrEqual(1);
+  }
+});
+
 for (const width of [320, 1440]) {
   test(`filters reflow and pass accessibility checks at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
