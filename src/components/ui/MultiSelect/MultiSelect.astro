@@ -13,9 +13,10 @@ interface Props {
   options: readonly (string | Option)[];
   placeholder: string;
   description: string;
+  filter?: boolean;
 }
 
-const { id, name, label, options, placeholder, description } = Astro.props;
+const { id, name, label, options, placeholder, description, filter = false } = Astro.props;
 const normalizedOptions = options.map((option) =>
   typeof option === "string" ? { label: option, value: option } : option,
 );
@@ -43,10 +44,12 @@ const normalizedOptions = options.map((option) =>
     role="group"
     aria-labelledby={`${id}-label`}
   >
-    <div class={styles.optionSearch}>
-      <label for={`${id}-search`}>Search {label.toLowerCase()}</label>
-      <input id={`${id}-search`} type="search" autocomplete="off" data-option-search />
-    </div>
+    {filter && (
+      <div class={styles.optionSearch}>
+        <label for={`${id}-search`}>Search {label.toLowerCase()}</label>
+        <input id={`${id}-search`} type="search" autocomplete="off" data-option-search />
+      </div>
+    )}
     <fieldset class={styles.optionList}>
       <legend class="sr-only">{label}</legend>
       {normalizedOptions.map((option) => (
@@ -56,9 +59,11 @@ const normalizedOptions = options.map((option) =>
         </label>
       ))}
     </fieldset>
-    <p class={styles.hint} data-no-options aria-live="polite" hidden>
-      No matching options.
-    </p>
+    {filter && (
+      <p class={styles.hint} data-no-options aria-live="polite" hidden>
+        No matching options.
+      </p>
+    )}
     <div class={styles.optionActions}>
       <button type="button" data-clear-options>Clear {label.toLowerCase()}</button>
       <button type="button" popovertarget={`${id}-options`} popovertargetaction="hide">Done</button>

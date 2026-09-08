@@ -1,16 +1,27 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
 
-const toggleMultiSelectOption = async (page: Page, label: string, option: string) => {
+const toggleMultiSelectOption = async (
+  page: Page,
+  label: string,
+  option: string,
+  filter = false,
+) => {
   await page.getByRole("button", { name: new RegExp(`^${label} `) }).click();
-  const search = page.getByRole("searchbox", { name: `Search ${label.toLowerCase()}` });
-  await search.fill(option);
-  await page.getByRole("checkbox", { name: option, exact: true }).click();
-  await search.press("Escape");
-  await expect(search).not.toBeVisible();
+  if (filter) {
+    await page.getByRole("searchbox", { name: `Search ${label.toLowerCase()}` }).fill(option);
+  }
+  const checkbox = page.getByRole("checkbox", { name: option, exact: true });
+  await checkbox.click();
+  await checkbox.press("Escape");
+  const popover = page
+    .getByRole("group", { name: label })
+    .filter({ has: page.getByRole("button", { name: "Done" }) });
+  await expect(popover).not.toBeVisible();
 };
 
-const toggleSkill = (page: Page, skill: string) => toggleMultiSelectOption(page, "Skills", skill);
+const toggleSkill = (page: Page, skill: string) =>
+  toggleMultiSelectOption(page, "Skills", skill, true);
 
 const toggleStatus = (page: Page, status: string) =>
   toggleMultiSelectOption(page, "Status", status);
@@ -101,6 +112,34 @@ test("supports keyboard filtering and keeps focus in the control", async ({ page
   await option.press("Escape");
   await expect(skills).toBeFocused();
   await expect(page.getByRole("status")).toHaveText("1 of 4 projects");
+});
+
+test("omits search by default and keeps the unfiltered popover aligned", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/projects");
+  const trigger = page.getByRole("button", { name: /^Status / });
+  const triggerBox = await trigger.boundingBox();
+  await trigger.click();
+
+  const popover = page
+    .getByRole("group", { name: "Status" })
+    .filter({ has: page.getByRole("button", { name: "Done" }) });
+  const live = page.getByRole("checkbox", { name: "Live", exact: true });
+  await expect(popover).toBeVisible();
+  await expect(page.getByRole("searchbox", { name: "Search status" })).toHaveCount(0);
+  await expect(live).toBeFocused();
+
+  const popoverBox = await popover.boundingBox();
+  expect(triggerBox).not.toBeNull();
+  expect(popoverBox).not.toBeNull();
+  if (triggerBox && popoverBox) {
+    expect(Math.abs(popoverBox.x - triggerBox.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs(popoverBox.width - triggerBox.width)).toBeLessThanOrEqual(1);
+    expect(popoverBox.x + popoverBox.width).toBeLessThanOrEqual(1440);
+  }
+
+  await live.check();
+  await expect(trigger).toHaveAccessibleName("Status 1 selected");
 });
 
 test("searching skills preserves selections, handles no matches, and clears skills independently", async ({

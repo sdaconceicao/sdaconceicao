@@ -39,7 +39,7 @@ const bindMultiSelect = (root: HTMLElement) => {
   const summary = root.querySelector<HTMLElement>("[data-selection-summary]");
   const empty = root.querySelector<HTMLElement>("[data-no-options]");
   const clear = root.querySelector<HTMLButtonElement>("[data-clear-options]");
-  if (!trigger || !popover || !search || !summary || !empty || !clear) return;
+  if (!trigger || !popover || !summary || !clear) return;
 
   const options = Array.from(root.querySelectorAll<HTMLElement>("[data-option-label]"));
   const checkboxes = Array.from(root.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
@@ -50,10 +50,12 @@ const bindMultiSelect = (root: HTMLElement) => {
   const update = () => {
     let visible = 0;
     for (const option of options) {
-      option.hidden = !matchesOption(option.dataset.optionLabel ?? "", search.value);
+      option.hidden = search
+        ? !matchesOption(option.dataset.optionLabel ?? "", search.value)
+        : false;
       if (!option.hidden) visible += 1;
     }
-    empty.hidden = visible > 0;
+    if (empty) empty.hidden = visible > 0;
     summary.textContent = selectionSummary(
       checkboxes.filter((checkbox) => checkbox.checked).length,
       root.dataset.placeholder ?? "",
@@ -68,7 +70,7 @@ const bindMultiSelect = (root: HTMLElement) => {
     "beforetoggle",
     (event) => {
       if ((event as ToggleEvent).newState !== "open") return;
-      search.value = "";
+      if (search) search.value = "";
       update();
       const gap = Number.parseFloat(getComputedStyle(popover).paddingBlockStart) || 0;
       const placement = multiSelectPlacement(
@@ -91,7 +93,8 @@ const bindMultiSelect = (root: HTMLElement) => {
   popover.addEventListener(
     "toggle",
     () => {
-      if (popover.matches(":popover-open")) search.focus();
+      if (!popover.matches(":popover-open")) return;
+      (search ?? checkboxes[0])?.focus();
     },
     listenerOptions,
   );
@@ -122,7 +125,7 @@ const bindMultiSelect = (root: HTMLElement) => {
     () => {
       window.clearTimeout(resetTimer);
       resetTimer = window.setTimeout(() => {
-        search.value = "";
+        if (search) search.value = "";
         update();
       });
     },
