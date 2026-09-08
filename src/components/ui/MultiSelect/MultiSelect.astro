@@ -1,4 +1,5 @@
 ---
+import Icon from "../Icon.astro";
 import styles from "./MultiSelect.module.css";
 
 interface Option {
@@ -33,7 +34,7 @@ const normalizedOptions = options.map((option) =>
     data-select-trigger
   >
     <span id={`${id}-value`} data-selection-summary>{placeholder}</span>
-    <span aria-hidden="true">⌄</span>
+    <Icon name="chevron-down" size={16} class={styles.chevron} />
   </button>
   <p id={`${id}-hint`} class={styles.hint}>{description}</p>
 
@@ -47,10 +48,21 @@ const normalizedOptions = options.map((option) =>
     {filter && (
       <div class={styles.optionSearch}>
         <label for={`${id}-search`}>Search {label.toLowerCase()}</label>
-        <input id={`${id}-search`} type="search" autocomplete="off" data-option-search />
+        <input
+          id={`${id}-search`}
+          type="search"
+          autocomplete="off"
+          aria-describedby={`${id}-instructions`}
+          data-option-search
+        />
       </div>
     )}
-    <fieldset class={styles.optionList}>
+    <p id={`${id}-instructions`} class="sr-only">
+      Use the Up and Down Arrow keys to move between options. Press Space to toggle an option.
+      {filter && "Start typing from an option to return to search."}
+      Press Tab to leave the list.
+    </p>
+    <fieldset class={styles.optionList} aria-describedby={`${id}-instructions`}>
       <legend class="sr-only">{label}</legend>
       {normalizedOptions.map((option) => (
         <label class={styles.option} data-option-label={option.label}>

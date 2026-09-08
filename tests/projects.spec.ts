@@ -104,13 +104,20 @@ test("supports keyboard filtering and keeps focus in the control", async ({ page
   const optionSearch = page.getByRole("searchbox", { name: "Search skills" });
   await expect(optionSearch).toBeFocused();
   await optionSearch.fill("Graph");
-  await optionSearch.press("Tab");
+  await optionSearch.press("ArrowDown");
   const option = page.getByRole("checkbox", { name: "GraphQl", exact: true });
+  await expect(option).toBeFocused();
+  await option.press("v");
+  await expect(optionSearch).toBeFocused();
+  await expect(optionSearch).toHaveValue("Graphv");
+  await optionSearch.fill("Graph");
+  await optionSearch.press("ArrowDown");
   await expect(option).toBeFocused();
   await option.press("Space");
   await expect(option).toBeChecked();
-  await option.press("Escape");
-  await expect(skills).toBeFocused();
+  await option.press("Tab");
+  await expect(page.getByRole("button", { name: /^Status / })).toBeFocused();
+  await expect(optionSearch).not.toBeVisible();
   await expect(page.getByRole("status")).toHaveText("1 of 4 projects");
 });
 
@@ -119,18 +126,27 @@ test("omits search by default and keeps the unfiltered popover aligned", async (
   await page.goto("/projects");
   const trigger = page.getByRole("button", { name: /^Status / });
   const triggerBox = await trigger.boundingBox();
+  const chevronBox = await trigger.locator("svg").boundingBox();
+  expect(triggerBox).not.toBeNull();
+  expect(chevronBox).not.toBeNull();
+  if (triggerBox && chevronBox) {
+    const triggerCenter = triggerBox.y + triggerBox.height / 2;
+    const chevronCenter = chevronBox.y + chevronBox.height / 2;
+    expect(Math.abs(chevronCenter - triggerCenter)).toBeLessThanOrEqual(1);
+  }
   await trigger.click();
 
   const popover = page
     .getByRole("group", { name: "Status" })
     .filter({ has: page.getByRole("button", { name: "Done" }) });
   const live = page.getByRole("checkbox", { name: "Live", exact: true });
+  const inProgress = page.getByRole("checkbox", { name: "In progress", exact: true });
+  const archived = page.getByRole("checkbox", { name: "Archived", exact: true });
   await expect(popover).toBeVisible();
   await expect(page.getByRole("searchbox", { name: "Search status" })).toHaveCount(0);
   await expect(live).toBeFocused();
 
   const popoverBox = await popover.boundingBox();
-  expect(triggerBox).not.toBeNull();
   expect(popoverBox).not.toBeNull();
   if (triggerBox && popoverBox) {
     expect(Math.abs(popoverBox.x - triggerBox.x)).toBeLessThanOrEqual(1);
@@ -138,8 +154,17 @@ test("omits search by default and keeps the unfiltered popover aligned", async (
     expect(popoverBox.x + popoverBox.width).toBeLessThanOrEqual(1440);
   }
 
-  await live.check();
+  await live.press("ArrowDown");
+  await expect(inProgress).toBeFocused();
+  await inProgress.press("ArrowDown");
+  await expect(archived).toBeFocused();
+  await archived.press("ArrowUp");
+  await expect(inProgress).toBeFocused();
+  await inProgress.press("Space");
   await expect(trigger).toHaveAccessibleName("Status 1 selected");
+  await inProgress.press("Tab");
+  await expect(page.getByRole("button", { name: "Clear filters" })).toBeFocused();
+  await expect(popover).not.toBeVisible();
 });
 
 test("searching skills preserves selections, handles no matches, and clears skills independently", async ({

@@ -30,6 +30,30 @@ export const multiSelectPlacement = (
   };
 };
 
+const focusableSelector = [
+  "a[href]",
+  "button:not([disabled])",
+  'input:not([disabled]):not([type="hidden"])',
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
+const isVisible = (element: HTMLElement): boolean =>
+  element.getClientRects().length > 0 && getComputedStyle(element).visibility !== "hidden";
+
+const adjacentControl = (
+  root: HTMLElement,
+  trigger: HTMLButtonElement,
+  backwards: boolean,
+): HTMLElement | undefined => {
+  const controls = Array.from(document.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+    (element) => isVisible(element) && (!root.contains(element) || element === trigger),
+  );
+  const triggerIndex = controls.indexOf(trigger);
+  return controls[triggerIndex + (backwards ? -1 : 1)];
+};
+
 const bindMultiSelect = (root: HTMLElement) => {
   if (root.dataset.bound === "true") return;
 
@@ -64,6 +88,39 @@ const bindMultiSelect = (root: HTMLElement) => {
 
   const close = () => {
     if (popover.matches(":popover-open")) popover.hidePopover();
+  };
+
+  const visibleCheckboxes = () =>
+    checkboxes.filter((checkbox) => !checkbox.closest<HTMLElement>("[data-option-label]")?.hidden);
+
+  const moveOptionFocus = (backwards: boolean) => {
+    const visible = visibleCheckboxes();
+    if (visible.length === 0) return;
+    const currentIndex = visible.indexOf(document.activeElement as HTMLInputElement);
+    const nextIndex =
+      currentIndex === -1
+        ? backwards
+          ? visible.length - 1
+          : 0
+        : (currentIndex + (backwards ? -1 : 1) + visible.length) % visible.length;
+    visible[nextIndex]?.focus();
+  };
+
+  const returnToSearch = (event: KeyboardEvent): boolean => {
+    const isTyping =
+      event.key.length === 1 &&
+      event.key !== " " &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey;
+    if (!search || event.target === search || !isTyping) return false;
+
+    event.preventDefault();
+    search.focus();
+    const insertionPoint = search.value.length;
+    search.setRangeText(event.key, insertionPoint, insertionPoint, "end");
+    search.dispatchEvent(new Event("input", { bubbles: true }));
+    return true;
   };
 
   popover.addEventListener(
@@ -101,11 +158,27 @@ const bindMultiSelect = (root: HTMLElement) => {
   popover.addEventListener(
     "keydown",
     (event) => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      event.stopPropagation();
-      close();
-      trigger.focus();
+      if (returnToSearch(event)) return;
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        moveOptionFocus(event.key === "ArrowUp");
+        return;
+      }
+      if (event.key === "Tab") {
+        const next = adjacentControl(root, trigger, event.shiftKey);
+        close();
+        if (next) {
+          event.preventDefault();
+          next.focus();
+        }
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        close();
+        trigger.focus();
+      }
     },
     listenerOptions,
   );

@@ -18,6 +18,11 @@
   background-color: var(--bg);
 }
 
+.chevron {
+  display: block;
+  align-self: center;
+}
+
 .root button,
 .optionSearch input {
   min-block-size: 44px;
