@@ -1,0 +1,116 @@
+.root {
+  min-inline-size: 0;
+  font-size: var(--text-sm);
+}
+
+.fieldLabel,
+.optionSearch label {
+  color: var(--fg);
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  inline-size: 100%;
+  margin-block-start: var(--spacing-2);
+  background-color: var(--bg);
+}
+
+.chevron {
+  display: block;
+  align-self: center;
+}
+
+.root button,
+.optionSearch input {
+  min-block-size: 44px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+}
+
+.root button:hover,
+.root button:focus-visible {
+  background-color: var(--surface-2);
+}
+
+.hint {
+  margin-block-start: var(--spacing-2);
+  color: var(--fg-dim);
+  font-size: var(--text-sm);
+}
+
+.popover {
+  position: fixed;
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--spacing-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-1);
+  color: var(--fg-muted);
+  font-size: var(--text-sm);
+}
+
+.popover:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.optionSearch {
+  display: grid;
+  flex-shrink: 0;
+  gap: var(--spacing-2);
+}
+
+.optionSearch input {
+  min-inline-size: 0;
+  inline-size: 100%;
+  background-color: var(--bg);
+}
+
+.optionList {
+  min-block-size: 0;
+  min-inline-size: 0;
+  padding: var(--spacing-1);
+  border: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.option:not([hidden]) {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-block-size: 44px;
+  padding: var(--spacing-2);
+  border-radius: var(--radius-sm);
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.option:hover,
+.option:focus-within {
+  background-color: var(--surface-2);
+}
+
+.option:has(:checked) {
+  background-color: var(--surface-tint);
+  color: var(--accent);
+}
+
+.option input {
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+.optionActions {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}

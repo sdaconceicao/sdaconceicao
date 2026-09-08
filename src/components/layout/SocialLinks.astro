@@ -13,12 +13,6 @@ const { items, size = 22, showLabels = false } = Astro.props;
   {
     items.map((item) => (
       <li>
-        {/*
-          rel="me" is an identity claim -- "this profile is the same person as
-          this site", which is what Mastodon and IndieAuth verify against. A
-          same-origin file cannot make that claim, so it gets noopener only.
-          noopener stays on both: every link here opens a new tab.
-        */}
         <a
           class="social-link"
           href={item.href}
@@ -26,13 +20,6 @@ const { items, size = 22, showLabels = false } = Astro.props;
           target="_blank"
 		>
 			<Icon name={item.icon as IconName} size={size} />
-          {/*
-            The accessible name comes from visually-hidden TEXT, not aria-label.
-            aria-label is invisible to browser translation and to machine
-            translation pipelines -- which on an i18n specialist's site would
-            mean the nav is monolingual for screen-reader users elsewhere. It is
-            also what "find on page" actually matches.
-          */}
 			<span class="sr-only">{item.label}</span>
 			{showLabels && <span class="social-label" aria-hidden="true">{item.label}</span>}
 		</a>
