@@ -1,85 +1,120 @@
 # Deploying stephenandrewdesigns.com
 
-The site is a static Astro build on Vercel, plus exactly two serverless
-functions (`/api/auth`, `/api/callback`) that exist only to back the Decap CMS
-GitHub login.
+The public site is a static Astro build served by GitHub Pages. Vercel serves
+only the two Decap CMS OAuth endpoints:
+
+| Responsibility | Host |
+| --- | --- |
+| Site, blog, assets, and `/admin/` | `https://stephenandrewdesigns.com` (GitHub Pages) |
+| `/api/auth` and `/api/callback` | `https://auth.stephenandrewdesigns.com` (Vercel) |
+
+Both deployments track `main`. A CMS save commits to `main`; CI validates
+the content and deploys the new static build to GitHub Pages. Vercel publishes
+only the project rooted under `oauth/`.
 
 ## One-time setup
 
-### 1. GitHub OAuth App
+### 1. Vercel OAuth project
 
-GitHub → Settings → Developer settings → **OAuth Apps** → New OAuth App.
-Not a GitHub App — Decap speaks the OAuth App flow.
+Import `sdaconceicao/sdaconceicao` into Vercel with these project settings:
+
+| Setting | Value |
+| --- | --- |
+| Project name | `stephenandrewdesigns-cms-auth` |
+| Framework Preset | Other |
+| Root Directory | `oauth` |
+| Production Branch | `main` |
+| Build Command | Leave unset |
+| Output Directory | Leave unset |
+| Install Command | Leave unset |
+
+The root directory is load-bearing. It keeps Vercel from building or serving a
+second copy of the portfolio; the project contains only the two functions and
+their shared OAuth code.
+
+In Vercel → Project → Settings → Domains, add
+`auth.stephenandrewdesigns.com`, then add this record at GoDaddy:
+
+| Type | Name | Value |
+| --- | --- | --- |
+| CNAME | `auth` | `749eb4bc98f44858.vercel-dns-017.com` |
+
+This is the project-specific value Vercel currently requires. Do not change the
+apex or `www` records used by GitHub Pages. Wait for Vercel to report **Valid
+Configuration** and issue the certificate before testing OAuth.
+
+### 2. GitHub OAuth App
+
+GitHub → Settings → Developer settings → **OAuth Apps** → New OAuth App. Use an
+OAuth App, not a GitHub App; Decap speaks the OAuth App flow.
 
 | Field | Value |
 | --- | --- |
 | Application name | `stephenandrewdesigns.com CMS` |
 | Homepage URL | `https://stephenandrewdesigns.com` |
-| Authorization callback URL | `https://stephenandrewdesigns.com/api/callback` |
+| Application description | Leave blank |
+| Redirect URI | `https://auth.stephenandrewdesigns.com/api/callback` |
 
-The callback URL is a **single exact value**. This is why `/admin/` login works
-only on production and never on a `*.vercel.app` preview or on localhost. That
-is correct, not a bug — see "Editing content locally" below.
+Set the options below the redirect URI as follows:
 
-### 2. Vercel environment variables
+| Option | Setting |
+| --- | --- |
+| Allow wildcard matching | Off |
+| Enable Device Flow | Off |
+| Expire user access tokens | Off |
 
-Set both, **Production only**:
+Register the app, then generate a client secret. Copy the client ID and secret
+before leaving the page; GitHub shows the secret only once.
+
+Leave token expiration off. The callback passes Decap the access token but does
+not implement GitHub's refresh-token flow, so an expiring token would eventually
+break an otherwise valid CMS session.
+
+### 3. Vercel environment variables
+
+Add both values in Vercel → Project → Settings → Environment Variables and
+scope them to **Production only**:
 
 ```
 GITHUB_OAUTH_CLIENT_ID
 GITHUB_OAUTH_CLIENT_SECRET
 ```
 
-Do not add them to Preview. Preview deploys get random hostnames that can never
-match the OAuth App's callback URL, so leaving OAuth unconfigured there is the
-correct fail-closed state.
+Redeploy the production deployment after adding them. Do not add them to
+Preview or Development: those hosts are not registered OAuth callbacks and do
+not need credentials with repository write access.
 
-## DNS cutover from GitHub Pages — order matters
+### 4. GitHub Pages
 
-The domain currently points at GitHub Pages (apex A records, `www` CNAME →
-`sdaconceicao.github.io`, TTL 600, registrar GoDaddy). GoDaddy has no apex ALIAS
-support, so the apex must use Vercel's A record.
+The workflow in `.github/workflows/ci.yml` builds `dist/`, uploads it as the
+Pages artifact, and deploys only after lint, typecheck, unit, build, and
+Playwright checks pass on `main`.
 
-1. Push the branch and import the repo into Vercel. Verify the `*.vercel.app`
-   deployment: `/`, `/blog`, a post, `/rss.xml`, `/sitemap-index.xml`, and
-   `/admin/` (200, shell renders). **`/admin/` login will fail here — expected.**
-2. Vercel → Settings → Domains: add both `stephenandrewdesigns.com` and
-   `www.stephenandrewdesigns.com`. Apex primary, `www` as a 308 redirect to it.
-   Vercel will show "Invalid Configuration" until step 3 — expected.
-3. GoDaddy DNS. **Read the exact values off the Vercel Domains page.** Do not
-   copy them from a blog post: the `www` CNAME target is now project-specific
-   (e.g. `…vercel-dns-017.com`), not the old `cname.vercel-dns.com`.
-   - Delete the four GitHub Pages A records on `@`
-   - Add the A record Vercel shows for `@`
-   - Repoint the `www` CNAME to the target Vercel shows
-4. Wait for the domain to go green and the certificate to issue. At TTL 600 this
-   is usually under 5 minutes. Confirm:
-   ```bash
-   dig +short stephenandrewdesigns.com
-   curl -sI https://stephenandrewdesigns.com | head -1
-   ```
-5. **Only now:** GitHub → repo Settings → Pages → Source: **None**. This releases
-   GitHub's claim on the custom domain and stops Pages serving stale content.
-6. **Only now:** delete `docs/` and commit. Doing this before step 5 takes the
-   live site down for the DNS TTL window.
-7. Add HSTS to `vercel.json` once HTTPS is confirmed working:
-   ```json
-   { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" }
-   ```
-   Leave `preload` **off** — it is effectively irreversible.
-8. Submit `https://stephenandrewdesigns.com/sitemap-index.xml` in Search Console.
+In GitHub → repository Settings → Pages:
 
-No redirects are needed. The old site was a single `index.html`, and the
-`/storybook` link it advertised never existed.
+1. Set **Source** to **GitHub Actions**.
+2. Set the custom domain to `stephenandrewdesigns.com`.
+3. Keep **Enforce HTTPS** enabled.
+
+The existing apex and `www` DNS records must continue to point to GitHub Pages.
+`public/CNAME` places the custom domain in every built artifact.
+
+After the first Actions deployment succeeds, verify `/`, `/blog`, a post,
+`/rss.xml`, `/sitemap-index.xml`, and `/admin/`. Then delete the stale `docs/`
+directory in a separate commit; it is no longer a Pages source once GitHub
+Actions is selected.
+
+Submit `https://stephenandrewdesigns.com/sitemap-index.xml` in Search Console.
 
 ## Editing content
 
 ### In the browser (production)
 
-Go to `/admin/`, sign in with GitHub. Saves commit **directly to `master`** and
-trigger a production deploy — editorial workflow is deliberately off. New posts
-default to `draft: true`, which builds a previewable, `noindex`ed URL while
-staying off `/blog`, the RSS feed, and the sitemap.
+Go to `https://stephenandrewdesigns.com/admin/` and sign in with GitHub. Saves
+commit directly to `main` and trigger the GitHub Pages workflow. Editorial
+workflow is deliberately off. New posts default to `draft: true`, which builds
+a previewable, `noindex`ed URL while staying off `/blog`, the RSS feed, and the
+sitemap.
 
 ### Locally (no GitHub app needed)
 
@@ -94,12 +129,20 @@ is safe to ship because Decap gates it to `localhost`/`127.0.0.1`.
 
 ## If `/admin/` login hangs with no error
 
-This is nearly always `base_url` in `public/admin/config.yml`. Decap compares
-`event.origin === this.base_url` with a strict `===`, and a mismatch produces no
-console error and no failed request — the popup just spins forever.
+Check all three origins; each has a different role:
 
-Open the live `/admin/`, type `window.location.origin` in the console, and paste
-that exact string. No `www.`, no `http:`, no trailing slash, no path.
+| Location | Required value |
+| --- | --- |
+| `public/admin/config.yml` `base_url` | `https://auth.stephenandrewdesigns.com` |
+| GitHub OAuth redirect URI | `https://auth.stephenandrewdesigns.com/api/callback` |
+| `PUBLIC_SITE_ORIGIN` in `oauth/lib/oauth.ts` | `https://stephenandrewdesigns.com` |
+
+Decap strictly compares the popup's origin with `base_url`. The callback also
+accepts handshake messages only from the public-site origin. A mismatch can
+leave the popup spinning without a useful browser error.
+
+Also confirm that both Vercel environment variables exist in Production and
+that the deployment was rebuilt after they were added.
 
 ## Bumping Decap
 

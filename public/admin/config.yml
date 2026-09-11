@@ -1,13 +1,13 @@
 backend:
   name: github
   repo: sdaconceicao/sdaconceicao
-  branch: master
-  # MUST be the exact origin -- no path, no trailing slash, no www.
+  branch: main
+  # MUST be the exact Vercel auth origin -- no path or trailing slash.
   # Decap compares `event.origin === this.base_url` with ===. A mismatch makes
   # the popup complete successfully and then hang forever, with NO console error
   # and NO failed request. To verify: open the live /admin/, type
-  # window.location.origin in the console, and paste that exact string here.
-  base_url: https://stephenandrewdesigns.com
+  # The public site remains on GitHub Pages; only OAuth is served here.
+  base_url: https://auth.stephenandrewdesigns.com
   auth_endpoint: api/auth
   # public_repo is sufficient for a public repo. The default (`repo`) would grant
   # full read/write on every private repo the account owns.

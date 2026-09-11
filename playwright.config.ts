@@ -19,8 +19,8 @@ export default defineConfig({
   use: { baseURL: `http://localhost:${PORT}`, trace: "on-first-retry" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    // astro preview is unavailable once an adapter is configured, so the suite
-    // runs against the real built output via a tiny static server.
+    // Serve the generated GitHub Pages artifact, including the build-only
+    // sitemap, rather than testing against Astro's development server.
     // CI builds in the preceding step; local runs still build fresh output.
     command: process.env.CI ? "pnpm serve" : "pnpm build && pnpm serve",
     url: `http://localhost:${PORT}`,

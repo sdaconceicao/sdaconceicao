@@ -10,6 +10,8 @@
 export const OAUTH_PROVIDER = "github" as const;
 export const OAUTH_STATE_COOKIE = "decap_oauth_state";
 export const OAUTH_COOKIE_PATH = "/api";
+export const PUBLIC_SITE_ORIGIN = "https://stephenandrewdesigns.com";
+export const OAUTH_CALLBACK_URL = "https://auth.stephenandrewdesigns.com/api/callback";
 
 /** The readiness ping the popup sends, and the echo it waits for. */
 export const OAUTH_HANDSHAKE_MESSAGE = `authorizing:${OAUTH_PROVIDER}` as const;
@@ -41,6 +43,13 @@ export const constantTimeEqual = (a: string, b: string): boolean => {
   for (let i = 0; i < a.length; i += 1) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return diff === 0;
 };
+
+export const readCookie = (header: string | null, name: string): string | undefined =>
+  header
+    ?.split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`))
+    ?.slice(name.length + 1);
 
 export const buildAuthorizeUrl = (input: {
   clientId: string;

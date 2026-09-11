@@ -6,6 +6,7 @@ import {
   constantTimeEqual,
   escapeForScript,
   OAUTH_HANDSHAKE_MESSAGE,
+  readCookie,
   renderHandshakeHtml,
 } from "./oauth";
 
@@ -103,6 +104,22 @@ describe("buildAuthorizeUrl", () => {
     expect(params.get("scope")).toBe("public_repo");
     expect(params.get("state")).toBe("st");
     expect(params.get("allow_signup")).toBe("false");
+  });
+});
+
+describe("readCookie", () => {
+  it("reads an exact cookie name", () => {
+    expect(readCookie("other=1; decap_oauth_state=abc123; last=2", "decap_oauth_state")).toBe(
+      "abc123",
+    );
+  });
+
+  it("does not confuse a cookie-name suffix for the requested cookie", () => {
+    expect(readCookie("not_decap_oauth_state=wrong", "decap_oauth_state")).toBeUndefined();
+  });
+
+  it("returns undefined for a missing cookie header", () => {
+    expect(readCookie(null, "decap_oauth_state")).toBeUndefined();
   });
 });
 
