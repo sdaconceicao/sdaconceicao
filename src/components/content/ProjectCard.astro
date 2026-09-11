@@ -165,16 +165,22 @@ const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "
     font-size: var(--text-sm);
   }
 
-  @media (min-width: 48rem) {
+  @media (min-width: 80.625rem) {
     .project[data-variant="default"] {
       display: grid;
-      grid-template-columns: minmax(10rem, 34%) 1fr;
+      grid-template-columns:
+        minmax(10rem, min(34%, var(--project-card-image-max-inline)))
+        minmax(0, 1fr);
     }
 
     .project[data-variant="default"] .project-image {
-      block-size: 100%;
+      align-self: start;
+      block-size: auto;
+      max-block-size: var(--project-card-image-max-block);
       border-block-end: 0;
       border-inline-end: 1px solid var(--border);
+      object-fit: contain;
+      object-position: center top;
     }
 
     .project[data-variant="default"]:not(:has(.project-image)) .project-body {

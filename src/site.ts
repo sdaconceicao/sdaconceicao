@@ -12,8 +12,8 @@ export const SITE = {
 } as const;
 
 export const SECTIONS = [
-  { id: "projects", label: "Projects" },
   { id: "activity", label: "Writing" },
+  { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },
 ] as const;
 
@@ -22,9 +22,8 @@ export const SECTIONS = [
 export const RESUME_HREF = "/Resume.pdf";
 
 export const PAGE_LINKS = [
-  { id: "projects", href: "/projects", label: "Projects" },
   { id: "activity", href: "/blog", label: "Writing" },
-  { id: "experience", href: RESUME_HREF, label: "Experience" },
+  { id: "projects", href: "/projects", label: "Projects" },
 ] as const;
 
 export const SOCIALS = [

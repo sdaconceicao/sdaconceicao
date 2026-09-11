@@ -77,6 +77,25 @@ test.describe("homepage", () => {
     expect(display).toBe("grid");
   });
 
+  test("keeps the profile rail fixed while the main column grows", async ({ page }) => {
+    const railWidths: number[] = [];
+    const mainWidths: number[] = [];
+    for (const width of [1024, 1440, 1800]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+      const [rail, main] = await Promise.all([
+        page.locator(".rail").boundingBox(),
+        page.getByRole("main").boundingBox(),
+      ]);
+      railWidths.push(rail?.width ?? 0);
+      mainWidths.push(main?.width ?? 0);
+    }
+
+    expect(railWidths).toEqual([480, 480, 480]);
+    expect(mainWidths[1]).toBeGreaterThan(mainWidths[0] ?? 0);
+    expect(mainWidths[2]).toBeGreaterThan(mainWidths[1] ?? 0);
+  });
+
   test("aligns the first home section with the desktop rail", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
@@ -85,7 +104,7 @@ test.describe("homepage", () => {
         const style = getComputedStyle(element);
         return element.getBoundingClientRect().top + Number.parseFloat(style.paddingBlockStart);
       });
-    expect(await contentTop("#projects")).toBe(await contentTop(".rail"));
+    expect(await contentTop("#activity")).toBe(await contentTop(".rail"));
   });
 
   test("uses the full row for the profile at the tablet breakpoint", async ({ page }) => {
@@ -98,17 +117,17 @@ test.describe("homepage", () => {
     expect(rail?.width).toBeGreaterThan((shell?.width ?? 0) * 0.9);
     await expect(page.getByRole("navigation", { name: "On this page" })).toBeHidden();
     expect(
-      (await page.getByRole("heading", { name: "Selected projects" }).boundingBox())?.y,
+      (await page.getByRole("heading", { name: "Writing & updates" }).boundingBox())?.y,
     ).toBeLessThan(700);
   });
 
-  test("brings selected work into the first phone viewport", async ({ page }) => {
+  test("brings writing into the first phone viewport", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
     await page.goto("/");
-    const projectsHeading = await page
-      .getByRole("heading", { name: "Selected projects" })
+    const writingHeading = await page
+      .getByRole("heading", { name: "Writing & updates" })
       .boundingBox();
-    expect(projectsHeading?.y).toBeLessThan(800);
+    expect(writingHeading?.y).toBeLessThan(800);
   });
 
   test("shows the header and social bar after the phone hero scrolls away", async ({ page }) => {
@@ -169,24 +188,33 @@ test.describe("homepage", () => {
     expect(first?.width).toBeCloseTo(second?.width ?? 0, 0);
   });
 
-  test("promotes writing as space becomes available", async ({ page }) => {
+  test("keeps projects capped while writing grows in the two-column layout", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
-    const twoLaneSections = await Promise.all(
-      ["#projects", "#activity", "#experience"].map((selector) =>
-        page.locator(selector).boundingBox(),
-      ),
-    );
-    expect(twoLaneSections[0]?.y).toBeCloseTo(twoLaneSections[1]?.y ?? 0, 0);
-    expect(twoLaneSections[2]?.y).toBeGreaterThan(twoLaneSections[0]?.y ?? 0);
+    await expect(page.locator("main > section")).toHaveCount(3);
+    expect(
+      await page.locator("main > section").evaluateAll((sections) => sections.map(({ id }) => id)),
+    ).toEqual(["activity", "projects", "experience"]);
 
-    await page.setViewportSize({ width: 2400, height: 1000 });
-    const threeLaneTops = await Promise.all(
-      ["#projects", "#activity", "#experience"].map(
-        async (selector) => (await page.locator(selector).boundingBox())?.y ?? 0,
-      ),
-    );
-    expect(Math.max(...threeLaneTops) - Math.min(...threeLaneTops)).toBeLessThan(2);
+    const writingWidths: number[] = [];
+    const projectWidths: number[] = [];
+    for (const width of [1440, 1800, 2400]) {
+      await page.setViewportSize({ width, height: 1000 });
+      const [writing, projects, experience] = await Promise.all(
+        ["#activity", "#projects", "#experience"].map((selector) =>
+          page.locator(selector).boundingBox(),
+        ),
+      );
+      expect(writing?.x).toBeLessThan(projects?.x ?? 0);
+      expect(writing?.y).toBeCloseTo(projects?.y ?? 0, 0);
+      expect(experience?.y).toBeGreaterThan(writing?.y ?? 0);
+      writingWidths.push(writing?.width ?? 0);
+      projectWidths.push(projects?.width ?? 0);
+    }
+
+    expect(projectWidths).toEqual([512, 512, 512]);
+    expect(writingWidths[1]).toBeGreaterThan(writingWidths[0] ?? 0);
+    expect(writingWidths[2]).toBeGreaterThan(writingWidths[1] ?? 0);
   });
 
   test("only shows navigation labels and the theme control when they fit", async ({ page }) => {
@@ -202,11 +230,10 @@ test.describe("homepage", () => {
 
     await page.setViewportSize({ width: 1045, height: 900 });
     await page.goto("/");
-    await expect(page.locator(".social-label").first()).toBeHidden();
+    await expect(page.locator(".social-label").first()).toBeVisible();
     await expect(page.getByRole("button", { name: /Switch to .* theme/ })).toBeVisible();
 
-    // The stacked tablet rail has room for labels; the capped desktop rail
-    // can remain too narrow once scrollbar space and padding are reserved.
+    // The stacked tablet rail also has room for labels.
     await page.setViewportSize({ width: 800, height: 900 });
     await expect(page.locator(".social-label").first()).toBeVisible();
   });

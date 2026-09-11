@@ -25,16 +25,10 @@
     .shell {
       display: grid;
       max-inline-size: none;
-      grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
+      grid-template-columns: var(--rail-measure) minmax(0, 1fr);
       gap: var(--spacing-10);
       align-items: start;
       padding-inline-start: 0;
-    }
-  }
-
-  @media (min-width: 90rem) {
-    .shell {
-      grid-template-columns: minmax(0, var(--rail-measure)) minmax(0, 1fr);
     }
   }
 </style>

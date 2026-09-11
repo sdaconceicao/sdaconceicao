@@ -2,6 +2,8 @@
 import "@fontsource-variable/inter/wght.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/600.css";
+import ibmPlexMonoLatin400 from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url";
+import ibmPlexMonoLatin600 from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2?url";
 import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import "../../styles/global.css";
 import { SITE } from "../../site";
@@ -42,6 +44,8 @@ const fullTitle = title === SITE.name ? title : `${title} · ${SITE.name}`;
 {/* ?url gives the hashed, cache-busted path. Hardcoding /fonts/... in a preload
     that does not match the bundled URL is the classic double-download bug. */}
 <link rel="preload" as="font" type="font/woff2" crossorigin href={interLatin} />
+<link rel="preload" as="font" type="font/woff2" crossorigin href={ibmPlexMonoLatin400} />
+<link rel="preload" as="font" type="font/woff2" crossorigin href={ibmPlexMonoLatin600} />
 
 <meta property="og:type" content={type} />
 <meta property="og:title" content={fullTitle} />

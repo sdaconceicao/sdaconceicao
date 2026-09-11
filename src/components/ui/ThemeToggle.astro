@@ -1,7 +1,28 @@
-<button class="theme-toggle" type="button" data-theme-toggle>
-  <span aria-hidden="true">Light</span>
-  <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
-  <span aria-hidden="true">Dark</span>
+---
+import Icon from "./Icon.astro";
+
+interface Props {
+  variant?: "default" | "icon";
+}
+
+const { variant = "default" } = Astro.props;
+---
+
+<button class="theme-toggle" type="button" data-theme-toggle data-variant={variant}>
+  {
+    variant === "icon" ? (
+      <>
+        <span class="theme-icon theme-icon-to-dark" aria-hidden="true"><Icon name="moon" /></span>
+        <span class="theme-icon theme-icon-to-light" aria-hidden="true"><Icon name="sun" /></span>
+      </>
+    ) : (
+      <>
+        <span aria-hidden="true">Light</span>
+        <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb" /></span>
+        <span aria-hidden="true">Dark</span>
+      </>
+    )
+  }
   <span class="sr-only" data-theme-action>Switch to dark theme</span>
 </button>
 
@@ -68,6 +89,25 @@
     color: var(--fg);
   }
 
+  .theme-toggle[data-variant="icon"] {
+    position: relative;
+    justify-content: center;
+    min-inline-size: 44px;
+    padding: 0;
+  }
+
+  .theme-icon-to-light {
+    display: none;
+  }
+
+  :global(html[data-theme="dark"]) .theme-icon-to-dark {
+    display: none;
+  }
+
+  :global(html[data-theme="dark"]) .theme-icon-to-light {
+    display: inline-flex;
+  }
+
   .toggle-track {
     position: relative;
     inline-size: var(--spacing-10);
@@ -91,4 +131,5 @@
   :global(html[data-theme="dark"]) .toggle-thumb {
     translate: var(--spacing-5) 0;
   }
+
 </style>

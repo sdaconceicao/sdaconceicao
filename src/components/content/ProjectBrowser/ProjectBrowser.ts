@@ -61,7 +61,7 @@ const bindProjectBrowser = (browser: HTMLElement) => {
 
   const controller = new AbortController();
   const listenerOptions = { signal: controller.signal };
-  const desktop = window.matchMedia("(min-width: 64rem)");
+  const inlineFilters = window.matchMedia("(min-width: 26.25rem)");
   let resetTimer: number | undefined;
 
   const placeFilters = () => {
@@ -70,10 +70,10 @@ const bindProjectBrowser = (browser: HTMLElement) => {
       popover.hidePopover();
     });
     if (drawer.open) drawer.close();
-    sidebar.hidden = !desktop.matches;
-    opener.hidden = desktop.matches;
-    (desktop.matches ? sidebar : drawer).append(panel);
-    if (hadFocus) (desktop.matches ? search : opener).focus();
+    sidebar.hidden = !inlineFilters.matches;
+    opener.hidden = inlineFilters.matches;
+    (inlineFilters.matches ? sidebar : drawer).append(panel);
+    if (hadFocus) (inlineFilters.matches ? search : opener).focus();
   };
 
   opener.addEventListener("click", () => drawer.showModal(), listenerOptions);
@@ -83,7 +83,7 @@ const bindProjectBrowser = (browser: HTMLElement) => {
   drawer.addEventListener(
     "close",
     () => {
-      if (!desktop.matches) opener.focus();
+      if (!inlineFilters.matches) opener.focus();
     },
     listenerOptions,
   );
@@ -101,7 +101,7 @@ const bindProjectBrowser = (browser: HTMLElement) => {
     },
     listenerOptions,
   );
-  desktop.addEventListener("change", placeFilters, listenerOptions);
+  inlineFilters.addEventListener("change", placeFilters, listenerOptions);
 
   const cards = Array.from(
     browser.querySelectorAll<HTMLElement>("[data-project-card]"),
