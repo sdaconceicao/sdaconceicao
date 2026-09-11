@@ -39,6 +39,17 @@ test.describe("blog", () => {
     ).toBe(true);
   });
 
+  test("the post body fills the available detail width", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/blog/local-storage-options");
+    const [main, prose] = await Promise.all([
+      page.getByRole("main").boundingBox(),
+      page.locator(".prose").boundingBox(),
+    ]);
+
+    expect(prose?.width).toBeGreaterThan((main?.width ?? 0) * 0.95);
+  });
+
   test("rss.xml is well-formed and includes published posts", async ({ request }) => {
     const response = await request.get("/rss.xml");
     expect(response.status()).toBe(200);
