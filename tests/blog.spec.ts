@@ -28,9 +28,15 @@ test.describe("blog", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   });
 
-  test("code blocks render through expressive-code", async ({ page }) => {
+  test("all code blocks use JavaScript syntax highlighting", async ({ page }) => {
     await page.goto("/blog/local-storage-options");
-    await expect(page.locator("figure.frame").first()).toBeVisible();
+    const codeBlocks = page.locator("figure.frame pre");
+    await expect(codeBlocks.first()).toBeVisible();
+    expect(
+      await codeBlocks.evaluateAll((blocks) =>
+        blocks.every((block) => block.getAttribute("data-language") === "javascript"),
+      ),
+    ).toBe(true);
   });
 
   test("rss.xml is well-formed and includes published posts", async ({ request }) => {
