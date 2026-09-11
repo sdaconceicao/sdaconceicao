@@ -1,29 +1,26 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("blog", () => {
-  test("the index omits drafts", async ({ page }) => {
+  test("the index lists published posts", async ({ page }) => {
     await page.goto("/blog");
-    // The only seeded post is a draft, so it must not be listed here...
-    await expect(page.getByRole("link", { name: /Local Storage Options/ })).toHaveCount(0);
-    await expect(page.getByText("No published posts yet.")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Local Storage Options" })).toBeVisible();
+    await expect(page.getByText("No published posts yet.")).toHaveCount(0);
   });
 
-  test("a draft post still builds to a previewable URL", async ({ page }) => {
-    // ...but it IS reachable, so a Decap save produces something to look at.
+  test("a published post builds to a stable URL", async ({ page }) => {
     const response = await page.goto("/blog/local-storage-options");
     expect(response?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Local Storage Options");
   });
 
-  test("a draft post is noindexed", async ({ page }) => {
+  test("a published post is indexable", async ({ page }) => {
     await page.goto("/blog/local-storage-options");
-    const robots = page.locator('meta[name="robots"]');
-    await expect(robots).toHaveAttribute("content", /noindex/);
+    await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
   });
 
-  test("a draft post is visibly badged as a draft", async ({ page }) => {
+  test("a published post has no draft badge", async ({ page }) => {
     await page.goto("/blog/local-storage-options");
-    await expect(page.getByText("Draft", { exact: true })).toBeVisible();
+    await expect(page.getByText("Draft", { exact: true })).toHaveCount(0);
   });
 
   test("a post page has exactly one h1", async ({ page }) => {
@@ -36,14 +33,14 @@ test.describe("blog", () => {
     await expect(page.locator("figure.frame").first()).toBeVisible();
   });
 
-  test("rss.xml is well-formed and excludes drafts", async ({ request }) => {
+  test("rss.xml is well-formed and includes published posts", async ({ request }) => {
     const response = await request.get("/rss.xml");
     expect(response.status()).toBe(200);
     expect(response.headers()["content-type"]).toContain("xml");
     const body = await response.text();
     expect(body).toContain("<rss");
     expect(body).toContain("<channel>");
-    expect(body).not.toContain("Local Storage Options");
+    expect(body).toContain("Local Storage Options");
   });
 
   test("detail pages expose global and contextual navigation", async ({ page }) => {
