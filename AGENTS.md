@@ -20,7 +20,7 @@ src/
   site.ts          identity, nav, socials — single source of truth
 public/admin/      Decap CMS shell + config
 oauth/             standalone Vercel OAuth service (api/ + pure helpers)
-tests/             Playwright specs
+tests/             Playwright specs + Vercel OAuth unit tests
 rules/             coding standards — read these
 ```
 

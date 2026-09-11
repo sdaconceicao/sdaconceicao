@@ -29,8 +29,8 @@ Import `sdaconceicao/sdaconceicao` into Vercel with these project settings:
 | Install Command | Leave unset |
 
 The root directory is load-bearing. It keeps Vercel from building or serving a
-second copy of the portfolio; the project contains only the two functions and
-their shared OAuth code.
+second copy of the portfolio; the project contains only the two functions,
+their shared OAuth code, and a small status page at `/`.
 
 In Vercel → Project → Settings → Domains, add
 `auth.stephenandrewdesigns.com`, then add this record at GoDaddy:
