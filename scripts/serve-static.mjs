@@ -1,21 +1,18 @@
 /**
  * Minimal static file server for the Playwright suite.
  *
- * Why this exists: `astro preview` is not supported once an adapter is
- * configured, and @astrojs/vercel provides no preview server. Running the tests
- * against `astro dev` instead would work for most assertions but would lose
- * /sitemap-index.xml, which only exists after a build -- so the SEO spec would
- * silently test nothing. Serving dist/client tests the real built artifact.
+ * Running the tests against `astro dev` would work for most assertions but
+ * would lose /sitemap-index.xml, which only exists after a build. Serving dist/
+ * tests the same artifact that GitHub Pages publishes.
  *
- * The /api/* OAuth routes are serverless and NOT served here. Their wire format
- * is pinned by unit tests in src/lib/oauth.test.ts instead, which is the part
- * that actually breaks silently.
+ * The OAuth service is a separate Vercel project rooted at oauth/. Its wire
+ * format is pinned by unit tests in oauth/lib/oauth.test.ts.
  */
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 
-const ROOT = resolve(process.argv[2] ?? "dist/client");
+const ROOT = resolve(process.argv[2] ?? "dist");
 const PORT = Number(process.env.PORT ?? 4321);
 
 const TYPES = {
@@ -64,11 +61,6 @@ createServer((req, res) => {
   }
 
   const headers = { "content-type": TYPES[extname(file)] ?? "application/octet-stream" };
-  // Mirror the /admin/* headers from vercel.json so the SEO spec is meaningful.
-  if (pathname.startsWith("/admin")) {
-    headers["x-robots-tag"] = "noindex, nofollow";
-    headers["cache-control"] = "no-store";
-  }
   res.writeHead(200, headers);
   createReadStream(file).pipe(res);
 }).listen(PORT, () => {

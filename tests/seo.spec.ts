@@ -37,12 +37,11 @@ test.describe("seo and metadata", () => {
     expect(body).not.toContain("/admin");
   });
 
-  test("robots.txt disallows the CMS and the oauth routes", async ({ request }) => {
+  test("robots.txt disallows the CMS", async ({ request }) => {
     const response = await request.get("/robots.txt");
     expect(response.status()).toBe(200);
     const body = await response.text();
     expect(body).toContain("Disallow: /admin/");
-    expect(body).toContain("Disallow: /api/");
   });
 
   test("the CMS shell is served and pinned with an SRI hash", async ({ request }) => {
@@ -60,8 +59,9 @@ test.describe("seo and metadata", () => {
     const response = await request.get("/admin/config.yml");
     expect(response.status()).toBe(200);
     const body = await response.text();
-    // No www, no trailing slash, no path. Decap compares this with ===.
-    expect(body).toContain("base_url: https://stephenandrewdesigns.com\n");
+    // No trailing slash or path. Decap compares this with ===.
+    expect(body).toContain("branch: main\n");
+    expect(body).toContain("base_url: https://auth.stephenandrewdesigns.com\n");
     expect(body).toContain("auth_endpoint: api/auth");
   });
 

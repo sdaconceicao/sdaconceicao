@@ -6,13 +6,11 @@ import {
   constantTimeEqual,
   escapeForScript,
   OAUTH_HANDSHAKE_MESSAGE,
+  readCookie,
   renderHandshakeHtml,
-} from "./oauth";
+} from "../../../oauth/lib/oauth";
 
 describe("buildSuccessMessage", () => {
-  // The single most important assertion in this repo. Decap matches
-  // /^authorization:github:success:(.+)$/ and JSON.parses group 1. One wrong
-  // character here means the login popup hangs forever with no error anywhere.
   it("matches Decap's expected wire format exactly", () => {
     expect(buildSuccessMessage("github", "abc")).toBe(
       'authorization:github:success:{"token":"abc","provider":"github"}',
@@ -106,12 +104,27 @@ describe("buildAuthorizeUrl", () => {
   });
 });
 
+describe("readCookie", () => {
+  it("reads an exact cookie name", () => {
+    expect(readCookie("other=1; decap_oauth_state=abc123; last=2", "decap_oauth_state")).toBe(
+      "abc123",
+    );
+  });
+
+  it("does not confuse a cookie-name suffix for the requested cookie", () => {
+    expect(readCookie("not_decap_oauth_state=wrong", "decap_oauth_state")).toBeUndefined();
+  });
+
+  it("returns undefined for a missing cookie header", () => {
+    expect(readCookie(null, "decap_oauth_state")).toBeUndefined();
+  });
+});
+
 describe("renderHandshakeHtml", () => {
   const html = renderHandshakeHtml(buildSuccessMessage("github", "tok"), "https://example.com");
 
   it("posts the readiness ping to '*' but never the token", () => {
     expect(html).toContain(`postMessage("${OAUTH_HANDSHAKE_MESSAGE}", "*")`);
-    // The token is only ever posted to e.origin, after an origin check.
     expect(html).toContain("window.opener.postMessage(message, e.origin)");
     expect(html).not.toMatch(/postMessage\(message,\s*"\*"\)/);
   });
