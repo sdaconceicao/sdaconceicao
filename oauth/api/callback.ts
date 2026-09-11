@@ -9,7 +9,7 @@ import {
   PUBLIC_SITE_ORIGIN,
   readCookie,
   renderHandshakeHtml,
-} from "../lib/oauth";
+} from "../lib/oauth.js";
 
 const htmlResponse = (body: string, secure: boolean): Response =>
   new Response(body, {

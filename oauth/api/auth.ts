@@ -4,7 +4,7 @@ import {
   OAUTH_COOKIE_PATH,
   OAUTH_PROVIDER,
   OAUTH_STATE_COOKIE,
-} from "../lib/oauth";
+} from "../lib/oauth.js";
 
 const noStoreHeaders = {
   "cache-control": "no-store",
