@@ -39,10 +39,10 @@ test.describe("homepage", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
 
-    const projectsLink = page.locator('[data-spy-link][href="#projects"]');
-    await page.locator("#projects").scrollIntoViewIfNeeded();
+    const experienceLink = page.locator('[data-spy-link][href="#experience"]');
+    await page.locator("#experience").scrollIntoViewIfNeeded();
     // "location", never "page" -- these are in-page fragments, not navigation.
-    await expect(projectsLink).toHaveAttribute("aria-current", "location", { timeout: 5000 });
+    await expect(experienceLink).toHaveAttribute("aria-current", "location", { timeout: 5000 });
     await expect(page.locator('[data-spy-link][aria-current="location"]')).toHaveCount(1);
   });
 
