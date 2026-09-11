@@ -17,4 +17,4 @@ status: live
 order: 2
 ---
 
-An
+I was interested in learning more about GraphQl, and found the tutorial projects not all that interesting. I really wanted to try building something with complex data relationships, and found that Pokémon was a great candidate for this.
