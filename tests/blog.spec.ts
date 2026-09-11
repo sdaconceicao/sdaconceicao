@@ -55,14 +55,17 @@ test.describe("blog", () => {
       "href",
       "/projects",
     );
-    await expect(primary.getByRole("link", { name: "Experience" })).toHaveAttribute(
-      "href",
-      "/Resume.pdf",
-    );
     await expect(primary.getByRole("link", { name: "Writing" })).toHaveAttribute(
       "aria-current",
       "location",
     );
+    await expect(primary.getByRole("link")).toHaveCount(2);
+
+    const social = page.getByRole("navigation", { name: "Social links" });
+    await expect(social.getByRole("link")).toHaveCount(4);
+    for (const name of ["GitHub", "LinkedIn", "NPM", "Resume"]) {
+      await expect(social.getByRole("link", { name, exact: true })).toBeVisible();
+    }
 
     const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
     await expect(breadcrumb.getByRole("link", { name: "All posts" })).toBeVisible();
@@ -77,32 +80,64 @@ test.describe("blog", () => {
     expect(breadcrumbX).toBe(titleX);
   });
 
-  test("uses the full-width single-column page shell", async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    for (const path of ["/blog", "/blog/local-storage-options"]) {
-      await page.goto(path);
-      await expect(page.locator(".rail")).toHaveCount(0);
-      const shell = await page.locator(".page-shell").boundingBox();
-      expect(shell?.width).toBeGreaterThan(1440 * 0.9);
+  test("keeps the sidebar fixed while list pages fill the remaining width", async ({ page }) => {
+    for (const width of [1024, 1440, 1800]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const path of ["/blog", "/projects"]) {
+        await page.goto(path);
+        const [sidebar, shell] = await Promise.all([
+          page.getByRole("banner").boundingBox(),
+          page.locator(".page-shell").boundingBox(),
+        ]);
+        expect(sidebar?.width).toBe(64);
+        expect(shell?.x).toBe(64);
+        expect(shell?.width).toBe(width - 64);
+      }
     }
   });
 
-  test("uses a desktop masthead and fixed mobile navigation dock", async ({ page }) => {
+  test("uses a mobile masthead and a left-aligned desktop sidebar", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
     await page.goto("/blog/local-storage-options");
 
     const header = page.locator('.floating-header[data-variant="page"]');
-    await expect(
-      page.getByRole("navigation", { name: "Social links", includeHidden: true }),
-    ).toHaveCount(0);
+    const social = page.getByRole("navigation", { name: "Social links", includeHidden: true });
     const primary = page.getByRole("navigation", { name: "Primary" });
     await expect(header).toBeVisible();
     await expect(header.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+    await expect(social).toBeHidden();
     expect(await primary.evaluate((element) => getComputedStyle(element).position)).toBe("fixed");
     await expect(primary.getByRole("link", { name: "Writing" })).toBeVisible();
+    await expect(primary.getByRole("link")).toHaveCount(2);
 
-    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.setViewportSize({ width: 1800, height: 900 });
     expect(await primary.evaluate((element) => getComputedStyle(element).position)).toBe("static");
-    await expect(primary.locator("svg")).toHaveCount(3);
+    await expect(social).toBeVisible();
+    await expect(primary.locator("svg")).toHaveCount(2);
+    await expect(social.locator("svg")).toHaveCount(4);
+    await expect(page.getByRole("button", { name: /Switch to .* theme/ })).toBeVisible();
+
+    const [headerBox, shellBox] = await Promise.all([
+      header.boundingBox(),
+      page.locator(".page-shell").boundingBox(),
+    ]);
+    expect(headerBox?.width).toBeLessThan(80);
+    expect(headerBox?.height).toBe(900);
+    expect(shellBox?.x).toBeCloseTo((headerBox?.x ?? 0) + (headerBox?.width ?? 0), 0);
+    await expect(social.locator("ul")).toHaveCSS("list-style-type", "none");
+    await expect(social.locator("ul")).toHaveCSS("padding-inline-start", "0px");
+    for (const link of await header.getByRole("link").all()) {
+      const linkBox = await link.boundingBox();
+      expect(linkBox?.x).toBeGreaterThanOrEqual(headerBox?.x ?? 0);
+      expect((linkBox?.x ?? 0) + (linkBox?.width ?? 0)).toBeLessThanOrEqual(
+        (headerBox?.x ?? 0) + (headerBox?.width ?? 0),
+      );
+    }
+
+    const writing = primary.getByRole("link", { name: "Writing" });
+    await writing.hover();
+    await expect(writing.locator(".floating-tooltip")).toBeVisible();
+    await writing.focus();
+    await expect(writing.locator(".floating-tooltip")).toBeVisible();
   });
 });

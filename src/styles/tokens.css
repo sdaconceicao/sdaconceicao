@@ -129,11 +129,14 @@
   /* ── Layout ────────────────────────────────────────────────────────────── */
   --layout-max: 96rem;
   --rail-measure: 30rem;
+  --project-filter-rail-measure: 16rem;
   --gutter: clamp(1rem, 3vw, 3rem);
   --job-date-col: 3.5rem;
   --timeline-col: 8rem;
   --timeline-col-mobile: 5.75rem;
   --avatar-size: clamp(8rem, 15vw, 11rem);
+  --project-card-image-max-block: 250px;
+  --project-card-image-max-inline: 375px;
   --project-hero-max-block: min(42svh, 40rem);
 
   /* ── Motion ────────────────────────────────────────────────────────────── */
@@ -142,6 +145,22 @@
   --dur-fast: 120ms;
   --dur: 200ms;
   --dur-slow: 320ms;
+}
+
+/* Desktop width belongs to the content area, not the type scale. Resolving the
+ * fluid steps here prevents text reflow while a wide viewport is resized. */
+@media (min-width: 64rem) {
+  :root {
+    --text-xs: 0.8125rem;
+    --text-sm: 0.875rem;
+    --text-base: 1.0625rem;
+    --text-lg: 1.1875rem;
+    --text-xl: 1.4375rem;
+    --text-2xl: 1.625rem;
+    --text-3xl: 2.25rem;
+    --text-display: 3.25rem;
+    --text-hero: 3.5rem;
+  }
 }
 
 :root[data-theme="dark"] {

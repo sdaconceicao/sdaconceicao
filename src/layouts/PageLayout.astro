@@ -14,29 +14,30 @@ interface Props {
   noindex?: boolean;
   backHref?: string;
   backLabel?: string;
-  fullWidthAtWide?: boolean;
 }
-const { backHref = "/", backLabel = "Back home", fullWidthAtWide = false, ...head } = Astro.props;
+const { backHref = "/", backLabel = "Back home", ...head } = Astro.props;
 const isDetailPage = Astro.url.pathname.split("/").filter(Boolean).length > 1;
 ---
 
 <BaseLayout {...head}>
-  <FloatingHeader variant="page" items={PAGE_LINKS} label="Primary" homeHref="/" />
-  <div class="page-shell" data-width={fullWidthAtWide ? "full" : "bounded"}>
-    <main id="main" class="page-main" data-detail={isDetailPage}>
-      {
-        isDetailPage && (
-          <nav class="breadcrumb" aria-label="Breadcrumb">
-            <ol class="breadcrumb-list" role="list">
-              <li><a href={backHref}>{backLabel}</a></li>
-              <li aria-current="page">{Astro.props.title}</li>
-            </ol>
-          </nav>
-        )
-      }
-      <slot />
-    </main>
-    <SiteFooter />
+  <div class="page-layout">
+    <FloatingHeader variant="page" items={PAGE_LINKS} label="Primary" homeHref="/" />
+    <div class="page-shell">
+      <main id="main" class="page-main" data-detail={isDetailPage}>
+        {
+          isDetailPage && (
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <ol class="breadcrumb-list" role="list">
+                <li><a href={backHref}>{backLabel}</a></li>
+                <li aria-current="page">{Astro.props.title}</li>
+              </ol>
+            </nav>
+          )
+        }
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
   </div>
 </BaseLayout>
 
@@ -79,8 +80,18 @@ const isDetailPage = Astro.url.pathname.split("/").filter(Boolean).length > 1;
     padding-block-start: var(--spacing-6);
   }
 
-  @media (min-width: 64rem) and (min-height: 48rem) {
+  @media (min-width: 26.25rem) {
+    .page-layout {
+      display: grid;
+      grid-template-columns: var(--spacing-16) minmax(0, 1fr);
+      align-items: start;
+    }
+
     .page-shell {
+      inline-size: 100%;
+      max-inline-size: none;
+      margin-inline: 0;
+      padding-inline: var(--spacing-6);
       padding-block-end: 0;
     }
 
@@ -90,9 +101,10 @@ const isDetailPage = Astro.url.pathname.split("/").filter(Boolean).length > 1;
     }
   }
 
-  @media (min-width: 90rem) {
-    .page-shell[data-width="full"] {
-      max-inline-size: none;
+  @media (min-width: 80.625rem) {
+    .page-shell {
+      padding-inline: var(--spacing-12);
     }
   }
+
 </style>

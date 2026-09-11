@@ -292,6 +292,114 @@ for (const width of [320, 1440]) {
   });
 }
 
+test("keeps the filter rail fixed while project results grow", async ({ page }) => {
+  const filterWidths: number[] = [];
+  const filterPositions: number[] = [];
+  const resultWidths: number[] = [];
+  const fontSizes: string[][] = [];
+  const thumbnailLayouts: {
+    topOffset: number;
+    ratio: number;
+    objectFit: string;
+  }[] = [];
+  for (const width of [1024, 1440, 1599, 1600, 1601, 1800]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/projects");
+    await page.evaluate(() => document.fonts.ready);
+    const [filters, results] = await Promise.all([
+      page.getByRole("complementary", { name: "Filter projects" }).boundingBox(),
+      page.getByRole("region", { name: "Project results" }).boundingBox(),
+    ]);
+    filterWidths.push(filters?.width ?? 0);
+    filterPositions.push(filters?.x ?? 0);
+    resultWidths.push(results?.width ?? 0);
+    fontSizes.push(
+      await page
+        .locator("body, h1, aside h2, [data-result-count]")
+        .evaluateAll((elements) => elements.map((element) => getComputedStyle(element).fontSize)),
+    );
+    thumbnailLayouts.push(
+      await page
+        .locator("article:has(img)")
+        .first()
+        .evaluate((article) => {
+          const image = article.querySelector("img");
+          if (!image) throw new Error("Expected project thumbnail");
+          const cardRect = article.getBoundingClientRect();
+          const imageRect = image.getBoundingClientRect();
+          const style = getComputedStyle(image);
+          return {
+            topOffset: imageRect.top - cardRect.top,
+            ratio: imageRect.width / imageRect.height,
+            objectFit: style.objectFit,
+          };
+        }),
+    );
+  }
+
+  expect(filterWidths).toEqual([256, 256, 256, 256, 256, 256]);
+  expect(filterPositions).toEqual([88, 112, 112, 112, 112, 112]);
+  expect(resultWidths[1]).toBeGreaterThan(resultWidths[0] ?? 0);
+  expect(resultWidths[5]).toBeGreaterThan(resultWidths[1] ?? 0);
+  expect(fontSizes.every((sizes) => sizes.join() === fontSizes[0]?.join())).toBe(true);
+  expect(
+    thumbnailLayouts.every(
+      ({ topOffset, ratio, objectFit }) =>
+        Math.abs(topOffset - 1) <= 1 && Math.abs(ratio - 1.5) <= 0.01 && objectFit === "contain",
+    ),
+  ).toBe(true);
+});
+
+test("uses compact project cards through the middle viewport range", async ({ page }) => {
+  for (const [width, sameRow] of [
+    [390, false],
+    [420, false],
+    [767, false],
+    [768, true],
+    [1023, true],
+    [1024, true],
+    [1289, true],
+    [1290, false],
+  ] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/projects");
+    const cards = page.getByRole("article");
+    const filters = page.getByRole("complementary", { name: "Filter projects" });
+    const results = page.getByRole("region", { name: "Project results" });
+    const [header, firstCard, secondCard, image, resultsBox] = await Promise.all([
+      page.locator("header").boundingBox(),
+      cards.nth(0).boundingBox(),
+      cards.nth(1).boundingBox(),
+      cards.nth(0).locator("img").boundingBox(),
+      results.boundingBox(),
+    ]);
+    const filtersBox = width >= 420 ? await filters.boundingBox() : null;
+    expect(header).not.toBeNull();
+    expect(firstCard).not.toBeNull();
+    expect(secondCard).not.toBeNull();
+    expect(image).not.toBeNull();
+    if (header && firstCard && secondCard && image) {
+      expect(Math.round(header.width)).toBe(width < 420 ? width : 64);
+      expect(Math.abs(firstCard.y - secondCard.y) <= 1).toBe(sameRow);
+      expect(Math.abs(image.width / image.height - 1.5)).toBeLessThanOrEqual(0.01);
+    }
+    if (width < 420) {
+      await expect(filters).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "Filters", exact: true })).toBeVisible();
+    } else {
+      await expect(filters).toBeVisible();
+      await expect(page.getByRole("button", { name: "Filters", exact: true })).toBeHidden();
+      expect(filtersBox).not.toBeNull();
+      expect(resultsBox).not.toBeNull();
+      if (filtersBox && resultsBox && width < 1024) {
+        expect(Math.abs(filtersBox.x - resultsBox.x)).toBeLessThanOrEqual(1);
+        expect(Math.abs(filtersBox.width - resultsBox.width)).toBeLessThanOrEqual(1);
+        expect(resultsBox.y).toBeGreaterThan(filtersBox.y + filtersBox.height);
+      }
+    }
+  }
+});
+
 test("mobile drawer traps focus, applies filters, and restores focus on dismissal", async ({
   page,
 }) => {
@@ -373,12 +481,18 @@ test("switching between drawer and sidebar preserves filters and releases the mo
   await expect(drawer.getByRole("searchbox")).toHaveValue("lago");
 });
 
-test("keeps all project links available without JavaScript", async ({ browser }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false });
+test("keeps the desktop result track and project links stable without JavaScript", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 1600, height: 900 },
+  });
   const page = await context.newPage();
   await page.goto("/projects");
   await expect(page.getByRole("article")).toHaveCount(4);
   await expect(page.getByRole("link", { name: "Poképendium", exact: true })).toBeVisible();
   await expect(page.getByRole("searchbox")).toHaveCount(0);
+  expect((await page.getByRole("region", { name: "Project results" }).boundingBox())?.x).toBe(400);
   await context.close();
 });
