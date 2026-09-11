@@ -1,17 +1,16 @@
 ---
 title: Local Storage Options
-description: There are many different ways to deal with local data in the browser, and the tradeoffs are not obvious.
-pubDate: 2026-08-20
-draft: true
+description: There are many different ways to deal with local data in the
+  browser, and the tradeoffs are not obvious.
+pubDate: 2021-01-04
+draft: false
 tags:
-  - JavaScript
-  - Browser
+  - localstorage
+  - web
 ---
-
 ## Cookies
 
-A cookie is a string stored on the user's computer by the web browser while
-browsing a website.
+A cookie is a string stored on the user's computer by the web browser while browsing a website.
 
 ### Comparison
 
@@ -24,43 +23,279 @@ browsing a website.
 
 To view your current cookies:
 
-- Go to the Application tab in the Chrome dev console
-- Under Storage, go to the Cookies item
-- Click the current URL you're on
+* Go to the Application tab in the Chrome dev console
+* Under Storage, go to the Cookies item
+* Click the current URL you're on
 
-### Reading and writing
+### Code
 
-Cookies are stored as one long string that has to be split and iterated over to
-find a single value.
+#### Get Time
 
-```js
-const storeTime = (value) => {
-  document.cookie = `time=${value.toString()}`;
-};
+Cookies are stored as one long string that has to be split and iterated over to find a single value.
 
-const getTime = () =>
-  document.cookie
-    .split(";")
-    .map((cookie) => cookie.split("="))
-    .find(([name]) => name.trim() === "time")?.[1];
-
-storeTime(new Date());
+```javascript
+const getTime = () => (
+    document.cookie.split(';').map(cookie => {
+      const [name, value] = cookie.split('=');
+      if (name === 'time'){
+        return value;
+      }
+    })
+  );
 ```
 
-Note the `.find()` rather than a `.map()` that returns `undefined` for every
-non-matching entry — the naive version leaves holes in the array and forces the
-caller to filter them out.
+#### Store Time
 
-{/* TODO: this post still owes the reader the sections its title promises. */}
+```
+const storeTime = (value) => {
+  document.cookie = "time=" + value.toString();
+}
+```
 
-## localStorage
+Note the `.find()` rather than a `.map()` that returns `undefined` for every non matching entry the native version leaves holes in the array and forces the caller to filter them out.
 
-TODO
+## LocalStorage
 
-## sessionStorage
+LocalStorage is an object stored by the browser containing a list of key/value pairs.
 
-TODO
+### Comparison
 
-## IndexedDB
+| Pros                                          | Cons                                  |
+| --------------------------------------------- | ------------------------------------- |
+| Native support without any library usage      | Only supports storing strings         |
+| Simple key/value pairs are easy to understand | Limited space per browser (2mb– 10mb) |
+| More storage allowed then Cookies             |                                       |
 
-TODO
+### Debugging
+
+To view your current localstorage:
+
+* Go to the Application tab in the Chrome Dev console
+* Under storage, go to the Local Storage item
+* Click the current url you're on
+
+### Code
+
+#### Get Time
+
+Retrieving data is simple, by retriving a name value pair.
+
+```
+document.cookie.split(';').map(cookie => {
+const [name, value] = cookie.split('=');
+if (name === 'time') {
+    return value;
+}
+}));
+```
+
+#### Store Time
+
+Like cookies, all stored data must be serialized.
+
+```
+document.cookie = "time=" + value.toString();
+```
+
+## IndexDB
+
+IndexedDB is a low-level API for client-side storage of significant amounts of structured data, including files/blobs.
+
+* Transactional database system
+* Data is stored as JSON
+
+### Comparison
+
+| Pros                                                       | Cons                                            |
+| ---------------------------------------------------------- | ----------------------------------------------- |
+| Native support without any library usage for most browsers | Very Complex API                                |
+| More storage and types supported                           | Storage limits are inconsistent across browsers |
+|                                                            | \* IE 250mb                                     |
+|                                                            | \* Chrome 6% of Free space                      |
+|                                                            | \* Firefox 10% of Free space                    |
+
+### Debugging
+
+To view your IndexDB:
+
+* Go to the Application tab in the Chrome Dev console
+* Under storage, go to the IndexDB item
+* Click the name of the db you're looking at, in our case it timeIndexDB
+
+### Code
+
+#### Setup
+
+Unlike previous options, we have to do a significant amount of setup before we can begin storing or retrieivng data. This is database living within your browser.
+
+```
+request.onupgradeneeded = (event) => {
+    db = event.target.result;
+    let objectStore;
+    if (!db.objectStoreNames.contains('time')) {
+        objectStore = db.createObjectStore('time', {
+            keyPath: 'id'
+        });
+    }
+}
+
+```
+
+#### Get Time
+
+IndexDB methods to get and set data are comparable to what you would see in a typical server database.
+
+```
+request.onerror = (event) => {
+    console.log('Transaction failed');
+};
+request.onsuccess = function(event) {
+    if (request.result) {
+        setTime(request.result.value);
+    } else {
+        console.log('No data record');
+    }
+};
+}
+```
+
+#### Store Time
+
+Unlike the previous options, we can store any type of data, like a time object. The actual api to store is much more complex.
+
+```
+let db;
+const request = window.indexedDB.open('timeIndexDB'); 
+  request.onerror = function (event) {
+    console.log('The database is opened failed');
+  };
+  
+  request.onsuccess = (event) => {
+    db = request.result;
+    console.log('The database is opened successfully');
+    setTime(getTime());
+  };
+  
+  request.onupgradeneeded = (event) => {
+    db = event.target.result;
+    let objectStore;
+    if (!db.objectStoreNames.contains('time')) {
+      objectStore = db.createObjectStore('time', { keyPath: 'id' });
+    }
+  }
+```
+
+
+
+## LocalForage
+
+LocalForage is a library built on IndexDB(with fallbacks to LocalStorage on older browsers) that tries to match the simplicity of localStorage while bringing with it the ability to store more complex data.
+
+### Comparison
+
+| Pros                                                                 | Cons                                   |
+| -------------------------------------------------------------------- | -------------------------------------- |
+| Simple API very similar to localstorage                              | Requires installing a small dependency |
+| Can store any js types natively                                      |                                        |
+| Built on top of IndexDB so access to more storage space              |                                        |
+| Fallbacks to localstorage option if browser does not support IndexDB |                                        |
+
+### Debugging
+
+To view your LocalForage DB:
+
+* Go to the Application tab in the Chrome Dev console
+* Under storage, go to the IndexDB item
+* Click on localforage
+
+### Code
+
+#### Get Time
+
+The call to retrieve data is very similiar to localStorage. Unlike localStorage though, the get method here is promise based.
+
+```
+const getTime = () => (
+  localForage.getItem('time', (err, value)=>{
+    if (!err) setTime(value);
+  })
+);
+```
+
+#### Store Time
+
+Storing data is nearly identical to the localStorage api.
+
+```
+const storeTime = (value) => {
+  localForage.setItem('time', value)
+}
+
+```
+
+## PouchDB
+
+PouchDB is an open-source JavaScript database inspired by Apache CouchDB that is designed to run well within the browser.
+
+* Built to work in offline scenarios where a client won't always have internet access
+* Ideal for syncing with other backend servers like CouchDB
+* Interface is very rest like, using rest verbs for interactions (put, post, get etc)
+* Other similiar alternativesLokiJSMongoDBHoodieSQLite
+
+### Comparison
+
+| Pros                            | Cons                  |
+| ------------------------------- | --------------------- |
+| Built in syncing to CouchDB     | Complex setup and api |
+| Can store any js types natively |                       |
+
+### Debugging
+
+To view your PouchDB:
+
+* Go to the Application tab in the Chrome Dev console
+* Under storage, go to the IndexDB item
+* Click the name of the db you're looking at, in our case it _pouch_timeDB
+
+### Code
+
+#### Setup
+
+PouchDB does alot of the database setup we had to do manually with IndexDB.
+
+```
+  db = new PouchDB('timeDB');
+
+```
+
+#### Get Time
+
+Retriving data is promise based, like localForage.
+
+```
+const getTime = () => {
+    db.get('time').then(doc=>{
+      setTime(new Date(doc.value));
+    })
+  }
+```
+
+### Store Time
+
+Storing data is fairly complex, as we have to take revisions into consideration with PouchDB. We have to retrieve the existing record's id if it exists, and if so update that data, otherwise we will create a new record.
+
+```
+const storeTime = (value) => {
+    db.get('time').then(
+    doc=>{
+      doc.value = value;
+      db.post(doc);
+    },
+    err=>{
+      db.put({
+        "_id": 'time',
+        value
+      });
+    });
+  }
+```
