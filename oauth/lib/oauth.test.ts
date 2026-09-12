@@ -8,7 +8,7 @@ import {
   OAUTH_HANDSHAKE_MESSAGE,
   readCookie,
   renderHandshakeHtml,
-} from "../../../oauth/lib/oauth";
+} from "./oauth";
 
 describe("buildSuccessMessage", () => {
   it("matches Decap's expected wire format exactly", () => {

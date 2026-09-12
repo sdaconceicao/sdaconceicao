@@ -6,14 +6,13 @@ import { getViteConfig } from "astro/config";
  *   Tier 1  src/lib/**, src/scripts/**, oauth/lib/** -- 100% enforced. Pure logic.
  *   Tier 2  components, layouts, pages  -- no unit tests, EXCLUDED from coverage
  *                                          so the threshold is not a lie.
- *   Tier 3  tests/*.spec.ts             -- Playwright.
+ *   Tier 3  tests/e2e/*.spec.ts         -- Playwright.
  *
- * `astro build` is the real content gate: it runs zod over every entry.
  */
 export default getViteConfig({
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "tests/unit/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "oauth/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
