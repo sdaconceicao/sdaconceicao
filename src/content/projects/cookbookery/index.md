@@ -2,7 +2,7 @@
 title: Cookbookery
 description: An online recipe tracking app.
 # TODO: add the live url and/or repo -- the schema requires at least one.
-repo: https://github.com/sdaconceicao
+repo: https://github.com/cookbookery
 tech:
   - React
   - Node.js
@@ -16,6 +16,4 @@ status: archived
 order: 4
 ---
 
-A recipe tracker built to scratch a personal itch: keeping the recipes I
-actually cook in one place, with the scaling and unit conversion I always end up
-doing by hand.
+An online recipe tracking app.

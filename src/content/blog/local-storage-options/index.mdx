@@ -46,7 +46,7 @@ const getTime = () => (
 
 #### Store Time
 
-```
+```javascript
 const storeTime = (value) => {
   document.cookie = "time=" + value.toString();
 }
@@ -80,7 +80,7 @@ To view your current localstorage:
 
 Retrieving data is simple, by retriving a name value pair.
 
-```
+```javascript
 document.cookie.split(';').map(cookie => {
 const [name, value] = cookie.split('=');
 if (name === 'time') {
@@ -93,7 +93,7 @@ if (name === 'time') {
 
 Like cookies, all stored data must be serialized.
 
-```
+```javascript
 document.cookie = "time=" + value.toString();
 ```
 
@@ -128,7 +128,7 @@ To view your IndexDB:
 
 Unlike previous options, we have to do a significant amount of setup before we can begin storing or retrieivng data. This is database living within your browser.
 
-```
+```javascript
 request.onupgradeneeded = (event) => {
     db = event.target.result;
     let objectStore;
@@ -145,7 +145,7 @@ request.onupgradeneeded = (event) => {
 
 IndexDB methods to get and set data are comparable to what you would see in a typical server database.
 
-```
+```javascript
 request.onerror = (event) => {
     console.log('Transaction failed');
 };
@@ -163,7 +163,7 @@ request.onsuccess = function(event) {
 
 Unlike the previous options, we can store any type of data, like a time object. The actual api to store is much more complex.
 
-```
+```javascript
 let db;
 const request = window.indexedDB.open('timeIndexDB'); 
   request.onerror = function (event) {
@@ -214,7 +214,7 @@ To view your LocalForage DB:
 
 The call to retrieve data is very similiar to localStorage. Unlike localStorage though, the get method here is promise based.
 
-```
+```javascript
 const getTime = () => (
   localForage.getItem('time', (err, value)=>{
     if (!err) setTime(value);
@@ -226,7 +226,7 @@ const getTime = () => (
 
 Storing data is nearly identical to the localStorage api.
 
-```
+```javascript
 const storeTime = (value) => {
   localForage.setItem('time', value)
 }
@@ -263,7 +263,7 @@ To view your PouchDB:
 
 PouchDB does alot of the database setup we had to do manually with IndexDB.
 
-```
+```javascript
   db = new PouchDB('timeDB');
 
 ```
@@ -272,7 +272,7 @@ PouchDB does alot of the database setup we had to do manually with IndexDB.
 
 Retriving data is promise based, like localForage.
 
-```
+```javascript
 const getTime = () => {
     db.get('time').then(doc=>{
       setTime(new Date(doc.value));
@@ -284,7 +284,7 @@ const getTime = () => {
 
 Storing data is fairly complex, as we have to take revisions into consideration with PouchDB. We have to retrieve the existing record's id if it exists, and if so update that data, otherwise we will create a new record.
 
-```
+```javascript
 const storeTime = (value) => {
     db.get('time').then(
     doc=>{
