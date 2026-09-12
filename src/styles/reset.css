@@ -50,8 +50,6 @@ h6 {
   overflow-wrap: break-word;
 }
 
-/* Removing the markers strips list semantics in Safari/VoiceOver. The authoring
- * rule that pairs with this: if you remove the markers, you add role="list". */
 :where(ul, ol)[class] {
   list-style: none;
   padding-inline-start: 0;

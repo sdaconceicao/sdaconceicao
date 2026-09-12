@@ -12,5 +12,3 @@ Before making changes:
 Two things here are easy to break and expensive to notice:
 
 - **`README.md` is the GitHub profile README**, not project documentation.
-- **`docs/` is stale GitHub Pages build output**, not docs. Read `DEPLOY.md`
-  before touching it.

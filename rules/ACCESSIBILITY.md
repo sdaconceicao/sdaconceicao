@@ -14,7 +14,7 @@ This rule works with:
    broken landmark is a broken feature
 2. **Prefer native semantics over ARIA** - A correct element beats a correct
    attribute
-3. **Never let colour be the only signal** - Pair it with shape, length, text,
+3. **Never let color be the only signal** - Pair it with shape, length, text,
    or an icon
 4. **Every interactive affordance must work by keyboard** - Not just by pointer
 5. **Assert it in a test** - Automated scans catch the class of regression no
@@ -50,8 +50,8 @@ const NameTag = variant === "home" ? "h1" : "p";
 ```
 
 Where a component's tag varies, **set its visual properties explicitly** — a
-`<p>` will not inherit the heading colour a global `h1, h2, h3` rule provides,
-and the element silently renders in the wrong colour.
+`<p>` will not inherit the heading color a global `h1, h2, h3` rule provides,
+and the element silently renders in the wrong color.
 
 ## Keyboard
 
@@ -67,7 +67,7 @@ it passes every automated check:
 ```
 
 - **`outline: none` is never acceptable.** If a ring looks wrong, restyle it.
-- **A single-colour focus ring cannot pass on every surface.** Use the WCAG 2.2
+- **A single-color focus ring cannot pass on every surface.** Use the WCAG 2.2
   SC 2.4.13 dual ring — an inner halo in the page background filling the outline
   offset, then the outline itself. Whichever surface sits underneath, one of the
   pair contrasts. Verify against your accent fill specifically; that is where a
@@ -99,13 +99,13 @@ screen-reader users in every other locale. Visually-hidden text is also what
 Hide `.sr-only` with `clip-path`, never `display: none`. A skip link should be
 translated out of view so it stays in the accessible tree.
 
-## Colour Independence (SC 1.4.1)
+## color Independence (SC 1.4.1)
 
-Colour may reinforce a state; it may never be the only thing carrying it.
+color may reinforce a state; it may never be the only thing carrying it.
 
-| Signal | Non-colour channel |
+| Signal | Non-color channel |
 | --- | --- |
-| Active nav item | Indicator changes **length**, not just colour |
+| Active nav item | Indicator changes **length**, not just color |
 | Link in body copy | Underline, always |
 | External link | Icon plus "(opens in a new tab)" |
 | Status / badge | A text label |
@@ -174,14 +174,14 @@ Handle these by remapping tokens at `:root` (see Styling Standards), plus:
 - `aria-label` as the only accessible name on an icon-only control
 - `aria-current="page"` for an in-page fragment
 - `list-style: none` without `role="list"`
-- State signalled by colour alone, or by `font-weight`
+- State signalled by color alone, or by `font-weight`
 - An unlabelled `<nav>` when more than one exists
 - A contrast claim with no test behind it
 
 ## Remember
 
 > "Prefer the correct element over the correct attribute. Every hover affordance
-> needs a focus counterpart. Colour is never the only signal. Landmarks and
+> needs a focus counterpart. color is never the only signal. Landmarks and
 > heading counts break silently, so assert them in a test."
 
 ## Related Rules

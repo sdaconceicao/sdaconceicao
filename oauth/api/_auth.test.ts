@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { GET } from "../../../oauth/api/auth";
+import { GET } from "./auth";
 
 afterEach(() => vi.unstubAllEnvs());
 

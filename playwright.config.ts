@@ -11,7 +11,7 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = 4322;
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./tests/e2e",
   testMatch: "**/*.spec.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

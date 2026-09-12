@@ -51,8 +51,6 @@ jobs:
         run: pnpm test:coverage
 
       - name: Build production site
-        # The most valuable check here: this runs zod across every content entry,
-        # so a malformed CMS commit fails before GitHub Pages can serve it.
         run: pnpm build
 
       - name: Install Playwright browser
