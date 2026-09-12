@@ -2,10 +2,6 @@ import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
-/**
- * The highest-value spec in the suite: this site's pitch is that its author is
- * an accessibility specialist, so a violation here is a credibility problem.
- */
 
 const scan = (page: Page) =>
   new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]);

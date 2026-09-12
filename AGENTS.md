@@ -19,8 +19,8 @@ src/
   content.config.ts   collection schemas
   site.ts          identity, nav, socials — single source of truth
 public/admin/      Decap CMS shell + config
-oauth/             standalone Vercel OAuth service (api/ + pure helpers)
-tests/             Playwright specs + Vercel OAuth unit tests
+oauth/             standalone Vercel OAuth service (api/ + pure helpers + unit tests)
+tests/             Playwright specs
 rules/             coding standards — read these
 ```
 
@@ -56,16 +56,13 @@ pnpm test:e2e       # playwright
 
 pnpm only — `packageManager` is pinned and CI uses `--frozen-lockfile`.
 
-## Repo-specific facts
+## Repo specific facts
 
 Things that are true of *this repository* and are not inferable from the code:
 
 - **`README.md` is the GitHub profile README.** This repo is named after the
   account, so that file renders on the profile page. Never rewrite it as project
   documentation. CI asserts it is non-empty.
-- **`docs/` is stale GitHub Pages build output**, not documentation and not a
-  source directory. It stays until the Actions-based Pages deployment is live,
-  then it is deleted. See `DEPLOY.md`.
 - **`main` is the production branch** for the Decap `branch:` target, the
   GitHub Pages workflow, and the Vercel OAuth service. Renaming it is a
   three-place change; do it deliberately and on its own.
@@ -77,5 +74,3 @@ Things that are true of *this repository* and are not inferable from the code:
 - **`base_url` in `public/admin/config.yml` must be the exact Vercel auth
   origin.** Decap compares it with `===`, and a mismatch hangs CMS login with no
   error at all.
-
-Deployment, DNS, CMS setup, and the Decap failure modes are in `DEPLOY.md`.
