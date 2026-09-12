@@ -14,7 +14,7 @@ preprocessor, no utility framework, no CSS-in-JS.
 
 ## Core Principles
 
-1. **Tokens are the only source of colour, space, type, and motion** - Never a
+1. **Tokens are the only source of color, space, type, and motion** - Never a
    literal value in a component
 2. **Global adaptation happens by redefining tokens, never by restating
    properties** - One override point, no specificity fights
@@ -40,7 +40,7 @@ cascade and the next person reaches for `!important`.
 
 ## Tokens
 
-Every colour, space, radius, duration, and type step is a custom property
+Every color, space, radius, duration, and type step is a custom property
 defined once at `:root`. Components read `var(--fg)`, never `#f5f1f2`.
 
 This is not tidiness. It is the mechanism that makes global accessibility
@@ -66,7 +66,7 @@ future theme.
 The same mechanism covers `prefers-contrast: more` (raise the AA-only tokens to
 AAA) and a future light theme (redefine the semantic tokens; touch nothing else).
 
-### Colour tokens carry a contrast contract
+### Color tokens carry a contrast contract
 
 A token's name states where it may be used, and a test enforces it:
 
@@ -83,9 +83,9 @@ redesign. See `src/lib/contrast.test.ts`.
 
 Two traps worth naming, because both are counterintuitive and both are measured:
 
-- A colour that passes on the page background can **fail** on a card surface. A
+- A color that passes on the page background can **fail** on a card surface. A
   token that is only conditionally legible is not a token.
-- The text colour on a saturated fill is often the **near-black**, not white.
+- The text color on a saturated fill is often the **near-black**, not white.
   Check it rather than assuming.
 
 ## Motion
@@ -135,7 +135,7 @@ the focus halo.
 
 ## Anti-Patterns
 
-- A literal colour, duration, or spacing value inside a component
+- A literal color, duration, or spacing value inside a component
 - `@layer` around a component's own `<style>` block
 - `outline: none` anywhere, for any reason
 - A per-component `prefers-reduced-motion` block
@@ -185,7 +185,7 @@ the focus halo.
 
 ## Remember
 
-> "Colour, space, and motion come from tokens — always. Global accessibility
+> "color, space, and motion come from tokens — always. Global accessibility
 > adaptation is a token remap, never a property restatement. Component styles
 > are scoped and unlayered so they win without `!important`. Prove contrast in a
 > test, not in a comment."

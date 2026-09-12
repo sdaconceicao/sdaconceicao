@@ -1,5 +1,5 @@
 /*
- * Design tokens. Every colour ratio in the comments below is computed with the
+ * Design tokens. Every color ratio in the comments below is computed with the
  * WCAG 2.x relative-luminance formula and asserted in src/lib/contrast.test.ts.
  * If you change a value here, that test tells you what you broke.
  *
@@ -66,7 +66,7 @@
   --border: var(--paper-300);
   --border-strong: var(--ink-700);
 
-  /* A single-colour focus ring cannot pass on every surface: #F5F1F2 against
+  /* A single-color focus ring cannot pass on every surface: #F5F1F2 against
    * the red fill is 2.73:1. The WCAG 2.2 SC 2.4.13 dual ring is mandatory --
    * the halo (bg) against that fill is 6.45:1, which carries it. */
   --focus-ring: var(--ink-950);
@@ -210,8 +210,7 @@
 
 /* All global accessibility adaptation happens by redefining tokens here, never
  * by restating properties. Components only ever read var(--fg) and friends, so
- * this wins unconditionally -- no layer fight, no specificity arms race.
- * Same pattern as lago/src/styles/theme.css. */
+ * this wins unconditionally -- no layer fight, no specificity arms race. */
 @media (forced-colors: active) {
   :root,
   :root[data-theme="dark"] {

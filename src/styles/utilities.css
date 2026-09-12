@@ -4,7 +4,7 @@
  * presentation from its unlayered <style> block without escalating a selector.
  *
  * Each recipe carries only the declarations that EVERY call site agreed on.
- * Padding, colour treatment, and spacing stay at the call site, because those
+ * Padding, color treatment, and spacing stay at the call site, because those
  * are the parts that legitimately differ -- pulling them in here would mean
  * writing modifier classes, and this repo has no utility framework.
  */

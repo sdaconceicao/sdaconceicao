@@ -38,7 +38,7 @@ h4 {
   scroll-margin-block-start: var(--spacing-16);
 }
 
-/* The dual ring is not decoration. A single colour cannot pass on every
+/* The dual ring is not decoration. A single color cannot pass on every
  * surface -- the ring alone against the red fill is 2.73:1. The inner halo is
  * the page background, and against that same fill it is 6.45:1. Whichever
  * surface sits underneath, one of the pair contrasts.

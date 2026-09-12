@@ -18,7 +18,7 @@ interface Props {
 const { project } = Astro.props;
 const { Content } = await render(project);
 const { title, description, status, url, repo, tech, image, imageAlt } = project.data;
-/* A status other than "live" is conveyed as TEXT, not a colour. */
+/* A status other than "live" is conveyed as TEXT, not a color. */
 const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "Archived" : "Live";
 ---
 

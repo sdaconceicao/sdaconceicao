@@ -12,8 +12,8 @@ Applies to files under `.github/workflows/*.yml`.
 
 ## Required Practices
 
-- Use `actions/checkout@v4` and pin major versions for official actions (v4, v3, etc.).
-- Use `actions/setup-node@v4` (or relevant setup actions) with explicit versions.
+- Use `actions/checkout@v5` and pin major versions for official actions (v4, v3, etc.).
+- Use `actions/setup-node@v5` (or relevant setup actions) with explicit versions.
 - Keep steps atomic and idempotent.
 - Prefer `pnpm install --frozen-lockfile` over `pnpm install` in CI.
 - Add `permissions` least-privilege per job.

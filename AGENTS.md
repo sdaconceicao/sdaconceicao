@@ -33,7 +33,7 @@ a thin pointer in `.cursor/rules/` with the globs it applies to.
 | --- | --- |
 | `rules/INTERACTION_STANDARDS.md` | How to communicate: be curt, challenge assumptions, offer alternatives |
 | `rules/STYLING.md` | Tokens, cascade layers, motion, logical properties, contrast contracts |
-| `rules/ACCESSIBILITY.md` | Landmarks, headings, keyboard, accessible names, colour independence |
+| `rules/ACCESSIBILITY.md` | Landmarks, headings, keyboard, accessible names, color independence |
 | `rules/ASTRO.md` | Content collections, component and script patterns, whitespace, toolchain |
 | `rules/PURE_FUNCTIONS.md` | Extracting logic out of components |
 | `rules/TESTING_UNIT_STANDARDS.md` | Vitest — note the tiered **Coverage Scope** |
