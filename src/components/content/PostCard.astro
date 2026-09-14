@@ -10,10 +10,11 @@ interface Props {
   pubDate: Date;
   description: string;
   readingTime?: number;
+  dateFormat?: "long" | "month";
   image?: ImageMetadata;
   imageAlt?: string;
   showThumbnail?: boolean;
-  variant?: "default" | "featured" | "signal";
+  variant?: "default" | "featured" | "home-featured" | "signal";
 }
 const {
   title,
@@ -21,12 +22,13 @@ const {
   pubDate,
   description,
   readingTime,
+  dateFormat = "long",
   image,
   imageAlt = "",
   showThumbnail = true,
   variant = "default",
 } = Astro.props;
-const Heading = variant === "signal" ? "h3" : "h2";
+const Heading = variant === "signal" || variant === "home-featured" ? "h3" : "h2";
 ---
 
 <article class="post-card" data-variant={variant}>
@@ -36,8 +38,16 @@ const Heading = variant === "signal" ? "h3" : "h2";
         src={image}
         alt={imageAlt}
         class="post-thumbnail"
-        widths={variant === "featured" ? [320, 480, 640, 960] : [96, 192, 320, 480]}
-        sizes={variant === "featured" ? "(min-width: 48rem) 34vw, 100vw" : "96px"}
+        widths={
+          variant === "featured" || variant === "home-featured"
+            ? [320, 480, 640, 960]
+            : [96, 192, 320, 480]
+        }
+        sizes={
+          variant === "featured" || variant === "home-featured"
+            ? "(min-width: 48rem) 34vw, 100vw"
+            : "96px"
+        }
         fit="contain"
         loading="lazy"
       />
@@ -50,12 +60,20 @@ const Heading = variant === "signal" ? "h3" : "h2";
         </a>
       </Heading>
       <p class="post-meta meta">
-        <FormattedDate date={pubDate} />
+        <FormattedDate date={pubDate} format={dateFormat} />
         {
           readingTime !== undefined && readingTime > 0 && (
             <>
-              <span aria-hidden="true"> - </span>
-              <span>{readingTime} min read</span>
+              <span aria-hidden="true">{variant === "signal" ? " · " : " - "}</span>
+              {variant === "signal" ? (
+                <span
+                  aria-label={`${readingTime} minute${readingTime === 1 ? "" : "s"} read`}
+                >
+                  {readingTime} min
+                </span>
+              ) : (
+                <span>{readingTime} min read</span>
+              )}
             </>
           )
         }
@@ -113,18 +131,20 @@ const Heading = variant === "signal" ? "h3" : "h2";
     padding-inline-start: 0;
   }
 
-  .post-card[data-variant="featured"] .post-layout:has(.post-thumbnail) {
+  .post-card:is([data-variant="featured"], [data-variant="home-featured"])
+    .post-layout:has(.post-thumbnail) {
     display: block;
   }
 
-  .post-card[data-variant="featured"] .post-thumbnail {
-    inline-size: calc(100% - 2 * var(--spacing-4));
+  .post-card:is([data-variant="featured"], [data-variant="home-featured"]) .post-thumbnail {
+    inline-size: 100%;
     max-inline-size: none;
     max-block-size: none;
+    margin: 0;
   }
 
-  .post-card[data-variant="featured"] .post-content {
-    padding-block-start: 0;
+  .post-card:is([data-variant="featured"], [data-variant="home-featured"]) .post-content {
+    padding: var(--spacing-5);
   }
 
   .post-meta {
@@ -180,8 +200,8 @@ const Heading = variant === "signal" ? "h3" : "h2";
     font-size: var(--text-sm);
   }
 
-  @media (min-width: 48rem) {
-    .post-card:not([data-variant="featured"]) {
+  @media (max-width: 47.999rem) {
+    .post-card:is([data-variant="signal"], [data-variant="home-featured"]) {
       overflow: visible;
       border: 0;
       border-block-end: 1px solid var(--border);
@@ -189,7 +209,38 @@ const Heading = variant === "signal" ? "h3" : "h2";
       background-color: transparent;
     }
 
-    .post-card:not([data-variant="featured"])::before {
+    .post-card:is([data-variant="signal"], [data-variant="home-featured"])::before {
+      content: none;
+    }
+
+    .post-card[data-variant="home-featured"] .post-layout:has(.post-thumbnail) {
+      display: grid;
+      grid-template-columns: calc(var(--spacing-24) + 2 * var(--spacing-4)) minmax(0, 1fr);
+    }
+
+    .post-card[data-variant="home-featured"] .post-thumbnail {
+      inline-size: auto;
+      max-inline-size: var(--spacing-24);
+      max-block-size: var(--spacing-24);
+      margin: var(--spacing-4);
+    }
+
+    .post-card[data-variant="home-featured"] .post-content {
+      padding: var(--spacing-4);
+      padding-inline-start: 0;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .post-card:is([data-variant="default"], [data-variant="signal"]) {
+      overflow: visible;
+      border: 0;
+      border-block-end: 1px solid var(--border);
+      border-radius: 0;
+      background-color: transparent;
+    }
+
+    .post-card:is([data-variant="default"], [data-variant="signal"])::before {
       content: none;
     }
 
@@ -208,13 +259,16 @@ const Heading = variant === "signal" ? "h3" : "h2";
     }
 
     .post-card[data-variant="featured"] .post-thumbnail {
-      inline-size: calc(100% - 2 * var(--spacing-5));
-      margin: var(--spacing-5);
+      inline-size: 100%;
+      margin: 0;
     }
 
     .post-card[data-variant="featured"] .post-content {
       padding: var(--spacing-5);
-      padding-inline-start: 0;
+    }
+
+    .post-card[data-variant="home-featured"] .post-content {
+      padding: var(--spacing-5);
     }
   }
 </style>

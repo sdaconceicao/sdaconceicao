@@ -15,17 +15,20 @@ test.describe("blog", () => {
     const post = page.locator('.post-card[data-variant="featured"]');
     await expect(post).toHaveCount(1);
     await expect(post.getByRole("heading")).toHaveText("All you never wanted to know about agents");
+    const featuredHref = await post.getByRole("heading").getByRole("link").getAttribute("href");
+    expect(featuredHref).toBeTruthy();
     await expect(
-      page.getByRole("link", { name: "All you never wanted to know about agents" }),
-    ).toHaveCount(1);
+      page.locator(`.post-card[data-variant="default"] a[href="${featuredHref}"]`),
+    ).toHaveCount(0);
     const [thumbnail, title] = await Promise.all([
       post.locator("img").boundingBox(),
       post.getByRole("heading").boundingBox(),
     ]);
     expect(thumbnail?.width).toBeGreaterThan(96);
     expect(thumbnail?.x).toBeLessThan(title?.x ?? 0);
-    expect(thumbnail?.y).toBeCloseTo(title?.y ?? 0, 0);
+    expect(thumbnail?.y).toBeLessThan(title?.y ?? 0);
     await expect(post.locator("img")).toHaveCSS("border-radius", "4px");
+    await expect(post.locator("img")).toHaveCSS("margin", "0px");
 
     const listThumbnail = page.locator('.post-card[data-variant="default"] img').first();
     await expect(listThumbnail).toBeVisible();

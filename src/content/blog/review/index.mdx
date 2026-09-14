@@ -1,0 +1,303 @@
+---
+title: All you never wanted to know about agents
+description: A deep dive into the world of agents, from the basics to the most advanced concepts.
+pubDate: 2026-09-14
+draft: false
+heroImage: ./cover.png
+heroImageAlt: A cover image for the blog post about agents
+tags:
+  - agents
+  - ai
+  - machine learning
+---
+## Cookies
+
+A cookie is a string stored on the user's computer by the web browser while browsing a website.
+
+### Comparison
+
+| Pros                                          | Cons                            |
+| --------------------------------------------- | ------------------------------- |
+| Native support without any library usage      | Only supports storing strings   |
+| Simple key/value pairs are easy to understand | Extremely limited storage (4kb) |
+
+### Debugging
+
+To view your current cookies:
+
+* Go to the Application tab in the Chrome dev console
+* Under Storage, go to the Cookies item
+* Click the current URL you're on
+
+### Code
+
+#### Get Time
+
+Cookies are stored as one long string that has to be split and iterated over to find a single value.
+
+```javascript
+const getTime = () => (
+    document.cookie.split(';').map(cookie => {
+      const [name, value] = cookie.split('=');
+      if (name === 'time'){
+        return value;
+      }
+    })
+  );
+```
+
+#### Store Time
+
+```javascript
+const storeTime = (value) => {
+  document.cookie = "time=" + value.toString();
+}
+```
+
+Note the `.find()` rather than a `.map()` that returns `undefined` for every non matching entry the native version leaves holes in the array and forces the caller to filter them out.
+
+## LocalStorage
+
+LocalStorage is an object stored by the browser containing a list of key/value pairs.
+
+### Comparison
+
+| Pros                                          | Cons                                  |
+| --------------------------------------------- | ------------------------------------- |
+| Native support without any library usage      | Only supports storing strings         |
+| Simple key/value pairs are easy to understand | Limited space per browser (2mb– 10mb) |
+| More storage allowed then Cookies             |                                       |
+
+### Debugging
+
+To view your current localstorage:
+
+* Go to the Application tab in the Chrome Dev console
+* Under storage, go to the Local Storage item
+* Click the current url you're on
+
+### Code
+
+#### Get Time
+
+Retrieving data is simple, by retriving a name value pair.
+
+```javascript
+document.cookie.split(';').map(cookie => {
+const [name, value] = cookie.split('=');
+if (name === 'time') {
+    return value;
+}
+}));
+```
+
+#### Store Time
+
+Like cookies, all stored data must be serialized.
+
+```javascript
+document.cookie = "time=" + value.toString();
+```
+
+## IndexDB
+
+IndexedDB is a low-level API for client-side storage of significant amounts of structured data, including files/blobs.
+
+* Transactional database system
+* Data is stored as JSON
+
+### Comparison
+
+| Pros                                                       | Cons                                            |
+| ---------------------------------------------------------- | ----------------------------------------------- |
+| Native support without any library usage for most browsers | Very Complex API                                |
+| More storage and types supported                           | Storage limits are inconsistent across browsers |
+|                                                            | \* IE 250mb                                     |
+|                                                            | \* Chrome 6% of Free space                      |
+|                                                            | \* Firefox 10% of Free space                    |
+
+### Debugging
+
+To view your IndexDB:
+
+* Go to the Application tab in the Chrome Dev console
+* Under storage, go to the IndexDB item
+* Click the name of the db you're looking at, in our case it timeIndexDB
+
+### Code
+
+#### Setup
+
+Unlike previous options, we have to do a significant amount of setup before we can begin storing or retrieivng data. This is database living within your browser.
+
+```javascript
+request.onupgradeneeded = (event) => {
+    db = event.target.result;
+    let objectStore;
+    if (!db.objectStoreNames.contains('time')) {
+        objectStore = db.createObjectStore('time', {
+            keyPath: 'id'
+        });
+    }
+}
+
+```
+
+#### Get Time
+
+IndexDB methods to get and set data are comparable to what you would see in a typical server database.
+
+```javascript
+request.onerror = (event) => {
+    console.log('Transaction failed');
+};
+request.onsuccess = function(event) {
+    if (request.result) {
+        setTime(request.result.value);
+    } else {
+        console.log('No data record');
+    }
+};
+}
+```
+
+#### Store Time
+
+Unlike the previous options, we can store any type of data, like a time object. The actual api to store is much more complex.
+
+```javascript
+let db;
+const request = window.indexedDB.open('timeIndexDB');
+  request.onerror = function (event) {
+    console.log('The database is opened failed');
+  };
+
+  request.onsuccess = (event) => {
+    db = request.result;
+    console.log('The database is opened successfully');
+    setTime(getTime());
+  };
+
+  request.onupgradeneeded = (event) => {
+    db = event.target.result;
+    let objectStore;
+    if (!db.objectStoreNames.contains('time')) {
+      objectStore = db.createObjectStore('time', { keyPath: 'id' });
+    }
+  }
+```
+
+
+
+## LocalForage
+
+LocalForage is a library built on IndexDB(with fallbacks to LocalStorage on older browsers) that tries to match the simplicity of localStorage while bringing with it the ability to store more complex data.
+
+### Comparison
+
+| Pros                                                                 | Cons                                   |
+| -------------------------------------------------------------------- | -------------------------------------- |
+| Simple API very similar to localstorage                              | Requires installing a small dependency |
+| Can store any js types natively                                      |                                        |
+| Built on top of IndexDB so access to more storage space              |                                        |
+| Fallbacks to localstorage option if browser does not support IndexDB |                                        |
+
+### Debugging
+
+To view your LocalForage DB:
+
+* Go to the Application tab in the Chrome Dev console
+* Under storage, go to the IndexDB item
+* Click on localforage
+
+### Code
+
+#### Get Time
+
+The call to retrieve data is very similiar to localStorage. Unlike localStorage though, the get method here is promise based.
+
+```javascript
+const getTime = () => (
+  localForage.getItem('time', (err, value)=>{
+    if (!err) setTime(value);
+  })
+);
+```
+
+#### Store Time
+
+Storing data is nearly identical to the localStorage api.
+
+```javascript
+const storeTime = (value) => {
+  localForage.setItem('time', value)
+}
+
+```
+
+## PouchDB
+
+PouchDB is an open-source JavaScript database inspired by Apache CouchDB that is designed to run well within the browser.
+
+* Built to work in offline scenarios where a client won't always have internet access
+* Ideal for syncing with other backend servers like CouchDB
+* Interface is very rest like, using rest verbs for interactions (put, post, get etc)
+* Other similiar alternativesLokiJSMongoDBHoodieSQLite
+
+### Comparison
+
+| Pros                            | Cons                  |
+| ------------------------------- | --------------------- |
+| Built in syncing to CouchDB     | Complex setup and api |
+| Can store any js types natively |                       |
+
+### Debugging
+
+To view your PouchDB:
+
+* Go to the Application tab in the Chrome Dev console
+* Under storage, go to the IndexDB item
+* Click the name of the db you're looking at, in our case it _pouch_timeDB
+
+### Code
+
+#### Setup
+
+PouchDB does alot of the database setup we had to do manually with IndexDB.
+
+```javascript
+  db = new PouchDB('timeDB');
+
+```
+
+#### Get Time
+
+Retriving data is promise based, like localForage.
+
+```javascript
+const getTime = () => {
+    db.get('time').then(doc=>{
+      setTime(new Date(doc.value));
+    })
+  }
+```
+
+### Store Time
+
+Storing data is fairly complex, as we have to take revisions into consideration with PouchDB. We have to retrieve the existing record's id if it exists, and if so update that data, otherwise we will create a new record.
+
+```javascript
+const storeTime = (value) => {
+    db.get('time').then(
+    doc=>{
+      doc.value = value;
+      db.post(doc);
+    },
+    err=>{
+      db.put({
+        "_id": 'time',
+        value
+      });
+    });
+  }
+```

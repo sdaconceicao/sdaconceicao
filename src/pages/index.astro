@@ -9,35 +9,57 @@ import HomeLayout from "../layouts/HomeLayout.astro";
 import { readingTimeMinutes } from "../lib/dates";
 import { resolveEntryImage } from "../lib/images";
 import { selectHighlights, sortJobs } from "../lib/jobs";
-import { selectLatest } from "../lib/posts";
+import { selectFeaturedArticle, selectLatest } from "../lib/posts";
 import { selectFeatured } from "../lib/projects";
 import { RESUME_HREF, SITE } from "../site";
 
 const jobs = sortJobs(await getCollection("jobs"));
 const featuredProjects = selectFeatured(await getCollection("projects")).slice(0, 3);
 const [leadProject, ...secondaryProjects] = featuredProjects;
-const latestPosts = selectLatest(await getCollection("blog"), 3);
+const { featuredPost, otherPosts } = selectFeaturedArticle(await getCollection("blog"));
+const secondaryPosts = selectLatest(otherPosts, 2);
 ---
 
 <HomeLayout title={SITE.name} description={SITE.description}>
   <Section id="activity" title="Writing" number="01">
     <ArrowLink slot="action" href="/blog" direction="ne">All posts</ArrowLink>
 
-    <div class="post-grid">
+    <div class="writing-layout-container">
       {
-        latestPosts.length > 0 ? latestPosts.map((post) => (
-          <PostCard
-            title={post.data.title}
-            href={`/blog/${post.id}`}
-            pubDate={post.data.pubDate}
-            description={post.data.description}
-            readingTime={readingTimeMinutes(post.body ?? "")}
-            image={resolveEntryImage(post.filePath, post.data.heroImage)}
-            imageAlt={post.data.heroImageAlt}
-            showThumbnail={post.data.showThumbnail}
-            variant="signal"
-          />
-        )) : (
+        featuredPost ? (
+          <div class="writing-layout">
+            <PostCard
+              title={featuredPost.data.title}
+              href={`/blog/${featuredPost.id}`}
+              pubDate={featuredPost.data.pubDate}
+              description={featuredPost.data.description}
+              readingTime={readingTimeMinutes(featuredPost.body ?? "")}
+              dateFormat="month"
+              image={resolveEntryImage(featuredPost.filePath, featuredPost.data.heroImage)}
+              imageAlt={featuredPost.data.heroImageAlt}
+              showThumbnail={featuredPost.data.showThumbnail}
+              variant="home-featured"
+            />
+            {secondaryPosts.length > 0 && (
+              <div class="writing-secondary">
+                {secondaryPosts.map((post) => (
+                  <PostCard
+                    title={post.data.title}
+                    href={`/blog/${post.id}`}
+                    pubDate={post.data.pubDate}
+                    description={post.data.description}
+                    readingTime={readingTimeMinutes(post.body ?? "")}
+                    dateFormat="month"
+                    image={resolveEntryImage(post.filePath, post.data.heroImage)}
+                    imageAlt={post.data.heroImageAlt}
+                    showThumbnail={post.data.showThumbnail}
+                    variant="signal"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
           <p class="activity-empty">Nothing published yet — drafts in progress.</p>
         )
       }
@@ -117,11 +139,67 @@ const latestPosts = selectLatest(await getCollection("blog"), 3);
     margin-block-start: var(--spacing-4);
   }
 
-  .post-grid {
+  .writing-layout-container {
+    container-type: inline-size;
+  }
+
+  .writing-layout,
+  .writing-secondary {
     display: grid;
     align-items: start;
     gap: var(--spacing-4);
     min-inline-size: 0;
+  }
+
+  @media (min-width: 48rem) {
+    @container (min-width: 36rem) {
+      .writing-layout:has(.writing-secondary) {
+        position: relative;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+      }
+
+      .writing-layout > :global(.post-card[data-variant="home-featured"]) {
+        grid-column: 1;
+      }
+
+      .writing-secondary {
+        position: absolute;
+        grid-column: 2;
+        grid-row: 1;
+        align-items: stretch;
+        min-block-size: 0;
+        inset-block: 0;
+        inset-inline: 0;
+        grid-auto-rows: minmax(0, 1fr);
+      }
+
+      .writing-secondary :global(.post-card) {
+        min-block-size: 0;
+        overflow: hidden;
+      }
+
+      .writing-secondary :global(.post-layout:has(.post-thumbnail)) {
+        grid-template-columns: calc(var(--spacing-10) + 2 * var(--spacing-2)) minmax(0, 1fr);
+      }
+
+      .writing-secondary :global(.post-thumbnail) {
+        max-inline-size: var(--spacing-10);
+        max-block-size: var(--spacing-10);
+        margin: var(--spacing-2);
+      }
+
+      .writing-secondary :global(.post-content) {
+        padding-block: var(--spacing-2);
+      }
+
+      .writing-secondary :global(.post-description) {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+    }
   }
 
   .activity-empty {

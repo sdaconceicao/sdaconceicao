@@ -188,40 +188,63 @@ test.describe("homepage", () => {
     expect(first?.width).toBeCloseTo(second?.width ?? 0, 0);
   });
 
-  test("uses full-width writing rows and limits card styling to phones", async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+  test("adapts the featured writing layout to its available space", async ({ page }) => {
+    await page.setViewportSize({ width: 1800, height: 1000 });
     await page.goto("/");
     const posts = page.locator("#activity article");
     expect(await posts.count()).toBeGreaterThanOrEqual(2);
-    const [first, second] = await Promise.all([
+    const secondaryItems = page.locator(".writing-secondary article");
+    const [first, secondary, firstSecondary, secondSecondary] = await Promise.all([
       posts.nth(0).boundingBox(),
-      posts.nth(1).boundingBox(),
+      page.locator(".writing-secondary").boundingBox(),
+      secondaryItems.nth(0).boundingBox(),
+      secondaryItems.nth(1).boundingBox(),
     ]);
-    expect(first?.x).toBeCloseTo(second?.x ?? 0, 0);
-    expect(second?.y).toBeGreaterThan((first?.y ?? 0) + (first?.height ?? 0));
-    await expect(posts.first()).toHaveCSS("border-top-width", "0px");
+    expect(first?.x).toBeLessThan(secondary?.x ?? 0);
+    expect(first?.y).toBeCloseTo(secondary?.y ?? 0, 0);
+    expect(first?.height).toBeCloseTo(secondary?.height ?? 0, 0);
+    expect(firstSecondary?.height).toBeCloseTo(secondSecondary?.height ?? 0, 0);
+    await expect(posts.first()).toHaveAttribute("data-variant", "home-featured");
     const [wideThumbnail, wideTitle] = await Promise.all([
       posts.first().locator("img").boundingBox(),
       posts.first().getByRole("heading").boundingBox(),
     ]);
-    expect(wideThumbnail?.height).toBeLessThan(96);
-    expect(wideThumbnail?.width).toBeCloseTo(96, 0);
-    expect(wideThumbnail?.x).toBeLessThan(wideTitle?.x ?? 0);
-    expect(wideThumbnail?.y).toBeCloseTo(wideTitle?.y ?? 0, 0);
+    expect(wideThumbnail?.width).toBeGreaterThan(96);
+    expect(wideThumbnail?.y).toBeLessThan(wideTitle?.y ?? 0);
+    await expect(secondaryItems.first().locator("time")).toHaveText(/^[A-Z][a-z]{2} \d{4}$/);
 
-    await page.setViewportSize({ width: 375, height: 800 });
-    const [narrowFirst, narrowSecond, narrowThumbnail, narrowTitle] = await Promise.all([
-      posts.nth(0).boundingBox(),
-      posts.nth(1).boundingBox(),
-      posts.first().locator("img").boundingBox(),
-      posts.first().getByRole("heading").boundingBox(),
+    await page.setViewportSize({ width: 1583, height: 1000 });
+    const [stackedFeatured, stackedSecondary] = await Promise.all([
+      posts.first().boundingBox(),
+      page.locator(".writing-secondary").boundingBox(),
     ]);
-    expect(narrowSecond?.y).toBeGreaterThan((narrowFirst?.y ?? 0) + (narrowFirst?.height ?? 0));
-    await expect(posts.first()).toHaveCSS("border-top-width", "1px");
-    expect(narrowThumbnail?.height).toBeLessThan(96);
-    expect(narrowThumbnail?.width).toBeCloseTo(96, 0);
-    expect(narrowThumbnail?.x).toBeLessThan(narrowTitle?.x ?? 0);
-    expect(narrowThumbnail?.y).toBeCloseTo(narrowTitle?.y ?? 0, 0);
+    expect(stackedSecondary?.x).toBeCloseTo(stackedFeatured?.x ?? 0, 0);
+    expect(stackedSecondary?.y).toBeGreaterThan(
+      (stackedFeatured?.y ?? 0) + (stackedFeatured?.height ?? 0),
+    );
+    await expect(secondaryItems.first().getByRole("heading")).toBeVisible();
+    await expect(secondaryItems.first().locator(".post-description")).toBeVisible();
+
+    await page.setViewportSize({ width: 558, height: 1207 });
+    const mobileBoxes = await posts.evaluateAll((items) =>
+      items.map((item) => item.getBoundingClientRect().toJSON()),
+    );
+    expect(mobileBoxes).toHaveLength(3);
+    expect(mobileBoxes[1]?.x).toBeCloseTo(mobileBoxes[0]?.x ?? 0, 0);
+    expect(mobileBoxes[2]?.x).toBeCloseTo(mobileBoxes[0]?.x ?? 0, 0);
+    expect(mobileBoxes[1]?.y).toBeGreaterThan(mobileBoxes[0]?.bottom ?? 0);
+    expect(mobileBoxes[2]?.y).toBeGreaterThan(mobileBoxes[1]?.bottom ?? 0);
+
+    for (const post of await posts.all()) {
+      const [thumbnail, title] = await Promise.all([
+        post.locator("img").boundingBox(),
+        post.getByRole("heading").boundingBox(),
+      ]);
+      expect(thumbnail?.width).toBeLessThanOrEqual(96);
+      expect(thumbnail?.x).toBeLessThan(title?.x ?? 0);
+      expect(thumbnail?.y).toBeCloseTo(title?.y ?? 0, 0);
+      await expect(post).toHaveCSS("border-left-width", "0px");
+    }
   });
 
   test("keeps projects capped while writing grows in the two-column layout", async ({ page }) => {
