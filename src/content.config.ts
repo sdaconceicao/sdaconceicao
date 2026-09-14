@@ -18,6 +18,7 @@ const blog = defineCollection({
       pubDate: z.coerce.date(),
       updatedDate: z.coerce.date().optional(),
       draft: z.boolean().default(true),
+      featured: z.boolean().default(false),
       tags: z.array(z.string().min(1)).default([]),
       /**
        * A BARE filename co-located with index.mdx (e.g. "hero.jpg").
@@ -33,6 +34,7 @@ const blog = defineCollection({
        */
       heroImage: z.string().optional(),
       heroImageAlt: z.string().default(""),
+      showThumbnail: z.boolean().default(true),
       canonicalUrl: z.string().url().optional(),
     })
     .refine((data) => !data.heroImage || data.heroImageAlt.trim().length > 0, {

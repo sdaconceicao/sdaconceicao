@@ -7,6 +7,31 @@ test.describe("blog", () => {
     await expect(page.getByText("No published posts yet.")).toHaveCount(0);
   });
 
+  test("the index leads with one larger featured article and does not repeat it", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/blog");
+    const post = page.locator('.post-card[data-variant="featured"]');
+    await expect(post).toHaveCount(1);
+    await expect(post.getByRole("heading")).toHaveText("All you never wanted to know about agents");
+    await expect(
+      page.getByRole("link", { name: "All you never wanted to know about agents" }),
+    ).toHaveCount(1);
+    const [thumbnail, title] = await Promise.all([
+      post.locator("img").boundingBox(),
+      post.getByRole("heading").boundingBox(),
+    ]);
+    expect(thumbnail?.width).toBeGreaterThan(96);
+    expect(thumbnail?.x).toBeLessThan(title?.x ?? 0);
+    expect(thumbnail?.y).toBeCloseTo(title?.y ?? 0, 0);
+    await expect(post.locator("img")).toHaveCSS("border-radius", "4px");
+
+    const listThumbnail = page.locator('.post-card[data-variant="default"] img').first();
+    await expect(listThumbnail).toBeVisible();
+    expect((await listThumbnail.boundingBox())?.width).toBeCloseTo(96, 0);
+  });
+
   test("a published post builds to a stable URL", async ({ page }) => {
     const response = await page.goto("/blog/local-storage-options");
     expect(response?.status()).toBe(200);

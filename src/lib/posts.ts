@@ -21,6 +21,18 @@ export const collectTags = (posts: Post[]): string[] =>
     a.localeCompare(b),
   );
 
+export const selectFeaturedArticle = (
+  posts: Post[],
+): { featuredPost: Post | undefined; otherPosts: Post[] } => {
+  const published = selectPublished(posts);
+  const featuredPost = published.find((post) => post.data.featured) ?? published[0];
+
+  return {
+    featuredPost,
+    otherPosts: featuredPost ? published.filter((post) => post.id !== featuredPost.id) : [],
+  };
+};
+
 /** The "Writing" teaser on the homepage. */
 export const selectLatest = (posts: Post[], count: number): Post[] =>
   selectPublished(posts).slice(0, Math.max(0, count));

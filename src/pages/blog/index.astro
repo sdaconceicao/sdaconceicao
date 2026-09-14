@@ -3,9 +3,10 @@ import { getCollection } from "astro:content";
 import PostCard from "../../components/content/PostCard.astro";
 import PageLayout from "../../layouts/PageLayout.astro";
 import { readingTimeMinutes } from "../../lib/dates";
-import { selectPublished } from "../../lib/posts";
+import { resolveEntryImage } from "../../lib/images";
+import { selectFeaturedArticle } from "../../lib/posts";
 
-const posts = selectPublished(await getCollection("blog"));
+const { featuredPost, otherPosts } = selectFeaturedArticle(await getCollection("blog"));
 ---
 
 <PageLayout
@@ -18,19 +19,38 @@ const posts = selectPublished(await getCollection("blog"));
   </p>
 
   {
-    posts.length > 0 ? (
-      <div class="post-list">
-        {posts.map((post) => (
+    featuredPost ? (
+      <>
+        <div class="featured-post">
           <PostCard
-            title={post.data.title}
-            href={`/blog/${post.id}`}
-            pubDate={post.data.pubDate}
-            description={post.data.description}
-            tags={post.data.tags}
-            readingTime={readingTimeMinutes(post.body ?? "")}
+            title={featuredPost.data.title}
+            href={`/blog/${featuredPost.id}`}
+            pubDate={featuredPost.data.pubDate}
+            description={featuredPost.data.description}
+            readingTime={readingTimeMinutes(featuredPost.body ?? "")}
+            image={resolveEntryImage(featuredPost.filePath, featuredPost.data.heroImage)}
+            imageAlt={featuredPost.data.heroImageAlt}
+            showThumbnail={featuredPost.data.showThumbnail}
+            variant="featured"
           />
-        ))}
-      </div>
+        </div>
+        {otherPosts.length > 0 && (
+          <div class="post-list">
+            {otherPosts.map((post) => (
+              <PostCard
+                title={post.data.title}
+                href={`/blog/${post.id}`}
+                pubDate={post.data.pubDate}
+                description={post.data.description}
+                readingTime={readingTimeMinutes(post.body ?? "")}
+                image={resolveEntryImage(post.filePath, post.data.heroImage)}
+                imageAlt={post.data.heroImageAlt}
+                showThumbnail={post.data.showThumbnail}
+              />
+            ))}
+          </div>
+        )}
+      </>
     ) : (
       <p class="empty">No published posts yet.</p>
     )
@@ -43,8 +63,15 @@ const posts = selectPublished(await getCollection("blog"));
     margin-block-start: var(--spacing-3);
   }
 
-  .post-list {
+  .featured-post {
     margin-block-start: var(--spacing-12);
+  }
+
+  .post-list {
+    display: grid;
+    align-items: start;
+    gap: var(--spacing-4);
+    margin-block-start: var(--spacing-8);
   }
 
   .empty {

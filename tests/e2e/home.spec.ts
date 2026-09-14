@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("homepage", () => {
   test("renders every section as a named landmark region", async ({ page }) => {
     await page.goto("/");
-    for (const name of ["About", "Selected projects", "Recent experience", "Writing & updates"]) {
+    for (const name of ["About", "Selected projects", "Recent experience", "Writing"]) {
       await expect(page.getByRole("region", { name })).toBeVisible();
     }
   });
@@ -117,7 +117,7 @@ test.describe("homepage", () => {
     expect(rail?.width).toBeGreaterThan((shell?.width ?? 0) * 0.9);
     await expect(page.getByRole("navigation", { name: "On this page" })).toBeHidden();
     expect(
-      (await page.getByRole("heading", { name: "Writing & updates" }).boundingBox())?.y,
+      (await page.getByRole("heading", { name: "Writing", exact: true }).boundingBox())?.y,
     ).toBeLessThan(700);
   });
 
@@ -125,7 +125,7 @@ test.describe("homepage", () => {
     await page.setViewportSize({ width: 375, height: 800 });
     await page.goto("/");
     const writingHeading = await page
-      .getByRole("heading", { name: "Writing & updates" })
+      .getByRole("heading", { name: "Writing", exact: true })
       .boundingBox();
     expect(writingHeading?.y).toBeLessThan(800);
   });
@@ -186,6 +186,42 @@ test.describe("homepage", () => {
       tiles.nth(1).boundingBox(),
     ]);
     expect(first?.width).toBeCloseTo(second?.width ?? 0, 0);
+  });
+
+  test("uses full-width writing rows and limits card styling to phones", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const posts = page.locator("#activity article");
+    expect(await posts.count()).toBeGreaterThanOrEqual(2);
+    const [first, second] = await Promise.all([
+      posts.nth(0).boundingBox(),
+      posts.nth(1).boundingBox(),
+    ]);
+    expect(first?.x).toBeCloseTo(second?.x ?? 0, 0);
+    expect(second?.y).toBeGreaterThan((first?.y ?? 0) + (first?.height ?? 0));
+    await expect(posts.first()).toHaveCSS("border-top-width", "0px");
+    const [wideThumbnail, wideTitle] = await Promise.all([
+      posts.first().locator("img").boundingBox(),
+      posts.first().getByRole("heading").boundingBox(),
+    ]);
+    expect(wideThumbnail?.height).toBeLessThan(96);
+    expect(wideThumbnail?.width).toBeCloseTo(96, 0);
+    expect(wideThumbnail?.x).toBeLessThan(wideTitle?.x ?? 0);
+    expect(wideThumbnail?.y).toBeCloseTo(wideTitle?.y ?? 0, 0);
+
+    await page.setViewportSize({ width: 375, height: 800 });
+    const [narrowFirst, narrowSecond, narrowThumbnail, narrowTitle] = await Promise.all([
+      posts.nth(0).boundingBox(),
+      posts.nth(1).boundingBox(),
+      posts.first().locator("img").boundingBox(),
+      posts.first().getByRole("heading").boundingBox(),
+    ]);
+    expect(narrowSecond?.y).toBeGreaterThan((narrowFirst?.y ?? 0) + (narrowFirst?.height ?? 0));
+    await expect(posts.first()).toHaveCSS("border-top-width", "1px");
+    expect(narrowThumbnail?.height).toBeLessThan(96);
+    expect(narrowThumbnail?.width).toBeCloseTo(96, 0);
+    expect(narrowThumbnail?.x).toBeLessThan(narrowTitle?.x ?? 0);
+    expect(narrowThumbnail?.y).toBeCloseTo(narrowTitle?.y ?? 0, 0);
   });
 
   test("keeps projects capped while writing grows in the two-column layout", async ({ page }) => {

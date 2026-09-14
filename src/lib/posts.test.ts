@@ -4,6 +4,7 @@ import {
   collectTags,
   isPublished,
   selectByTag,
+  selectFeaturedArticle,
   selectLatest,
   selectPublished,
   sortPostsByDate,
@@ -11,8 +12,13 @@ import {
 
 type Post = CollectionEntry<"blog">;
 
-const post = (id: string, pubDate: string, draft: boolean, tags: string[] = []): Post =>
-  ({ id, data: { pubDate: new Date(pubDate), draft, tags } }) as unknown as Post;
+const post = (
+  id: string,
+  pubDate: string,
+  draft: boolean,
+  tags: string[] = [],
+  featured = false,
+): Post => ({ id, data: { pubDate: new Date(pubDate), draft, tags, featured } }) as unknown as Post;
 
 const older = post("older", "2024-01-01", false, ["css"]);
 const newer = post("newer", "2026-01-01", false, ["css", "a11y"]);
@@ -76,6 +82,35 @@ describe("collectTags", () => {
 
   it("is empty when there are no published posts", () => {
     expect(collectTags([unpublished])).toEqual([]);
+  });
+});
+
+describe("selectFeaturedArticle", () => {
+  it("selects a featured published article regardless of date and excludes it from the rest", () => {
+    const featuredOlder = post("featured", "2023-01-01", false, [], true);
+    const result = selectFeaturedArticle([...all, featuredOlder]);
+
+    expect(result.featuredPost?.id).toBe("featured");
+    expect(result.otherPosts.map((p) => p.id)).toEqual(["newer", "middle", "older"]);
+  });
+
+  it("uses the newest published article when none is featured", () => {
+    const result = selectFeaturedArticle(all);
+
+    expect(result.featuredPost?.id).toBe("newer");
+    expect(result.otherPosts.map((p) => p.id)).toEqual(["middle", "older"]);
+  });
+
+  it("ignores featured drafts", () => {
+    const featuredDraft = post("featured-draft", "2028-01-01", true, [], true);
+    expect(selectFeaturedArticle([...all, featuredDraft]).featuredPost?.id).toBe("newer");
+  });
+
+  it("returns no featured or remaining articles when none are published", () => {
+    expect(selectFeaturedArticle([unpublished])).toEqual({
+      featuredPost: undefined,
+      otherPosts: [],
+    });
   });
 });
 
