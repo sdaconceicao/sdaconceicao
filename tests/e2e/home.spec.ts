@@ -15,10 +15,13 @@ test.describe("homepage", () => {
     await expect(h1).toHaveText("Just call me Steve");
   });
 
-  test("exposes the in-page navigation with a distinct accessible name", async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/");
-    await expect(page.getByRole("navigation", { name: "On this page" })).toBeVisible();
+  test("uses the in-page navigation at every desktop layout", async ({ page }) => {
+    for (const width of [1440, 1920]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+      await expect(page.getByRole("navigation", { name: "On this page" })).toBeVisible();
+      await expect(page.getByRole("navigation", { name: "Primary" })).toHaveCount(0);
+    }
   });
 
   test("gives social links real accessible names", async ({ page }) => {

@@ -80,33 +80,32 @@ const IntroTag = variant === "home" ? "section" : "div";
       </div>
     )}
 
-    <nav
-      class:list={["site-nav", { "site-nav-home": variant === "home" }]}
-      aria-label="Primary"
-    >
-      <ul role="list">
-        {PAGE_LINKS.map((item, index) => (
-          <li>
-            <a
-              href={item.href}
-              aria-current={
-                pathname === item.href
-                  ? "page"
-                  : pathname.startsWith(`${item.href}/`)
-                    ? "location"
-                    : undefined
-              }
-            >
-              <span class="site-index" aria-hidden="true">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <span class="site-indicator" aria-hidden="true" />
-              <span class="site-label meta">{item.label}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    {variant !== "home" && (
+      <nav class="site-nav" aria-label="Primary">
+        <ul role="list">
+          {PAGE_LINKS.map((item, index) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={
+                  pathname === item.href
+                    ? "page"
+                    : pathname.startsWith(`${item.href}/`)
+                      ? "location"
+                      : undefined
+                }
+              >
+                <span class="site-index" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span class="site-indicator" aria-hidden="true" />
+                <span class="site-label meta">{item.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
   </div>
 
   <SocialLinks items={SOCIALS} showLabels={variant === "home"} />
@@ -241,10 +240,6 @@ const IntroTag = variant === "home" ? "section" : "div";
   .site-nav,
   .site-nav ul {
     inline-size: 100%;
-  }
-
-  .site-nav-home {
-    display: none;
   }
 
   .site-nav ul {
@@ -490,14 +485,4 @@ const IntroTag = variant === "home" ? "section" : "div";
     }
   }
 
-  @media (min-width: 120rem) and (min-height: 48rem) {
-    .rail-actions,
-    .rail-nav {
-      display: none;
-    }
-
-    .site-nav-home {
-      display: block;
-    }
-  }
 </style>
