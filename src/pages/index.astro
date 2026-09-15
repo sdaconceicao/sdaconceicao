@@ -17,11 +17,15 @@ const jobs = sortJobs(await getCollection("jobs"));
 const featuredProjects = selectFeatured(await getCollection("projects")).slice(0, 3);
 const [leadProject, ...secondaryProjects] = featuredProjects;
 const { featuredPost, otherPosts } = selectFeaturedArticle(await getCollection("blog"));
-const secondaryPosts = selectLatest(otherPosts, 2);
+const secondaryPosts = selectLatest(otherPosts, 4);
 ---
 
 <HomeLayout title={SITE.name} description={SITE.description}>
-  <Section id="activity" title="Writing" number="01">
+  <Section id="about" title="About" number="01">
+    <p class="about-copy">{SITE.about}</p>
+  </Section>
+
+  <Section id="activity" title="Writing" number="02">
     <ArrowLink slot="action" href="/blog" direction="ne">All posts</ArrowLink>
 
     <div class="writing-layout-container">
@@ -66,7 +70,7 @@ const secondaryPosts = selectLatest(otherPosts, 2);
     </div>
   </Section>
 
-  <Section id="projects" title="Selected projects" number="02">
+  <Section id="projects" title="Selected projects" number="03">
     <ArrowLink slot="action" href="/projects" direction="ne">View all projects</ArrowLink>
 
     {
@@ -108,7 +112,7 @@ const secondaryPosts = selectLatest(otherPosts, 2);
     }
   </Section>
 
-  <Section id="experience" title="Recent experience" number="03">
+  <Section id="experience" title="Recent experience" number="04">
     <ArrowLink slot="action" href={RESUME_HREF} direction="ne" external>
       Full history in resume
     </ArrowLink>
@@ -133,6 +137,11 @@ const secondaryPosts = selectLatest(otherPosts, 2);
 </HomeLayout>
 
 <style>
+  .about-copy {
+    max-inline-size: var(--measure-narrow);
+    color: var(--fg-muted);
+  }
+
   .project-secondary {
     display: grid;
     gap: var(--spacing-4);
@@ -149,6 +158,10 @@ const secondaryPosts = selectLatest(otherPosts, 2);
     align-items: start;
     gap: var(--spacing-4);
     min-inline-size: 0;
+  }
+
+  .writing-secondary :global(.post-card:nth-child(n + 3)) {
+    display: none;
   }
 
   @media (min-width: 48rem) {
@@ -199,6 +212,58 @@ const secondaryPosts = selectLatest(otherPosts, 2);
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
       }
+    }
+  }
+
+  @media (min-width: 105.875rem) {
+    .writing-layout:has(.writing-secondary) {
+      grid-template-rows: repeat(2, minmax(0, 1fr)) repeat(2, auto);
+    }
+
+    .writing-layout > :global(.post-card[data-variant="home-featured"]) {
+      grid-row: 1 / span 2;
+    }
+
+    .writing-secondary {
+      display: contents;
+      position: static;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(1)) {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(2)) {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(n + 3)) {
+      display: block;
+      grid-column: 1 / -1;
+    }
+
+    .writing-secondary
+      :global(.post-card:nth-child(n + 3) .post-layout:has(.post-thumbnail)) {
+      grid-template-columns:
+        calc(var(--spacing-32) + var(--spacing-6) + 2 * var(--spacing-2))
+        minmax(0, 1fr);
+    }
+
+    .writing-secondary :global(.post-card:nth-child(n + 3) .post-thumbnail) {
+      inline-size: calc(var(--spacing-32) + var(--spacing-6));
+      max-inline-size: none;
+      max-block-size: none;
+      margin: var(--spacing-2) var(--spacing-4) var(--spacing-2) 0;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(3)) {
+      grid-row: 3;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(4)) {
+      grid-row: 4;
     }
   }
 

@@ -22,7 +22,6 @@ const pathname = Astro.url.pathname;
  * a screen-reader user cannot tell which one is the document title.
  */
 const NameTag = variant === "home" ? "h1" : "p";
-const IntroTag = variant === "home" ? "section" : "div";
 ---
 
 <header class="rail" data-variant={variant}>
@@ -34,12 +33,7 @@ const IntroTag = variant === "home" ? "section" : "div";
 			</div>
 		</div>
 
-    <IntroTag
-      class="rail-intro"
-      id={variant === "home" ? "about" : undefined}
-      aria-label={variant === "home" ? "About" : undefined}
-      tabindex={variant === "home" ? "-1" : undefined}
-    >
+    <div class="rail-intro">
       <div class="rail-identity">
         {/* The adjacent name already identifies this decorative portrait. */}
         <Image
@@ -54,7 +48,6 @@ const IntroTag = variant === "home" ? "section" : "div";
       </div>
       <NameTag class="rail-tagline">{SITE.tagline}</NameTag>
       <p class="rail-role">{SITE.role}</p>
-      {variant === "home" && <p class="rail-description">{SITE.description}</p>}
       {
         variant === "home" && (
           <div class="rail-actions">
@@ -72,7 +65,7 @@ const IntroTag = variant === "home" ? "section" : "div";
           </div>
         )
       }
-    </IntroTag>
+    </div>
 
     {variant === "home" && (
       <div class="rail-nav">
@@ -181,7 +174,6 @@ const IntroTag = variant === "home" ? "section" : "div";
     line-height: var(--leading-tight);
   }
 
-  .rail-description,
   .rail-actions {
     grid-column: 1 / -1;
   }
@@ -191,11 +183,6 @@ const IntroTag = variant === "home" ? "section" : "div";
     font-family: var(--font-mono);
     font-size: var(--text-lg);
     font-weight: 600;
-  }
-
-  .rail-description {
-    max-inline-size: var(--measure-narrow);
-    color: var(--fg-muted);
   }
 
   .rail-actions {

@@ -7,11 +7,14 @@ export const SITE = {
   tagline: "Just call me Steve",
   description:
     "I’m a software engineer who enjoys building great products and great teams. I care about helping people grow, automating the tedious work, and keeping things simple and reliable.",
+  about:
+    "I’m a software engineer who enjoys building great products and great teams. I care about helping people grow, automating the tedious work, and keeping things simple and reliable.",
   url: "https://stephenandrewdesigns.com",
   locale: "en",
 } as const;
 
 export const SECTIONS = [
+  { id: "about", label: "About" },
   { id: "activity", label: "Writing" },
   { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },

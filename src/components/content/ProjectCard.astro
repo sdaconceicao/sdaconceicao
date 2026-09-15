@@ -76,6 +76,10 @@ const statusLabel = status === "wip" ? "In progress" : status === "archived" ? "
     transition: border-color var(--dur) var(--ease);
   }
 
+  .project[data-variant="lead"] {
+    block-size: auto;
+  }
+
   .project::before {
     content: "";
     position: absolute;

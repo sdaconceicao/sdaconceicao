@@ -1,5 +1,5 @@
 ---
-title: PA Liberty Bells 250
+title: Liberty Bells 250
 description: An interactive app that provides list and map views of the 250th anniversary Liberty Bell Project in Pennsylvania
 repo: https://github.com/sdaconceicao/pa-libertybells-250
 url: https://pa-libertybells-250.vercel.app/
