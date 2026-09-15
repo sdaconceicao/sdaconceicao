@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   collectTags,
   isPublished,
+  matchesPost,
+  postResultCount,
   selectByTag,
   selectFeaturedArticle,
   selectLatest,
@@ -82,6 +84,36 @@ describe("collectTags", () => {
 
   it("is empty when there are no published posts", () => {
     expect(collectTags([unpublished])).toEqual([]);
+  });
+});
+
+describe("post filters", () => {
+  const searchable = {
+    title: "Poképendium patterns",
+    description: "A practical component guide",
+    body: "Use a reducer for predictable state.",
+    tags: ["React", "TypeScript"],
+  };
+
+  it("searches title, description, and body regardless of case, accents, or spacing", () => {
+    expect(matchesPost(searchable, "  POKEPENDIUM ", [])).toBe(true);
+    expect(matchesPost(searchable, "COMPONENT GUIDE", [])).toBe(true);
+    expect(matchesPost(searchable, " reducer ", [])).toBe(true);
+    expect(matchesPost(searchable, "missing", [])).toBe(false);
+  });
+
+  it("matches any selected tag and combines tags with the text query", () => {
+    expect(matchesPost(searchable, "", ["CSS", "React"])).toBe(true);
+    expect(matchesPost(searchable, "state", ["TypeScript"])).toBe(true);
+    expect(matchesPost(searchable, "state", ["CSS"])).toBe(false);
+    expect(matchesPost(searchable, "missing", ["React"])).toBe(false);
+    expect(matchesPost(searchable, "", [])).toBe(true);
+  });
+
+  it("formats empty, singular, and plural result counts", () => {
+    expect(postResultCount(0, 0)).toBe("0 of 0 posts");
+    expect(postResultCount(1, 1)).toBe("1 of 1 post");
+    expect(postResultCount(2, 5)).toBe("2 of 5 posts");
   });
 });
 

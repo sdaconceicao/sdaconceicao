@@ -1,12 +1,10 @@
 ---
 import { getCollection } from "astro:content";
-import PostCard from "../../components/content/PostCard.astro";
+import PostBrowser from "../../components/content/PostBrowser/PostBrowser.astro";
 import PageLayout from "../../layouts/PageLayout.astro";
-import { readingTimeMinutes } from "../../lib/dates";
-import { resolveEntryImage } from "../../lib/images";
-import { selectFeaturedArticle } from "../../lib/posts";
+import { selectPublished } from "../../lib/posts";
 
-const { featuredPost, otherPosts } = selectFeaturedArticle(await getCollection("blog"));
+const posts = selectPublished(await getCollection("blog"));
 ---
 
 <PageLayout
@@ -18,60 +16,13 @@ const { featuredPost, otherPosts } = selectFeaturedArticle(await getCollection("
     Notes on frontend development, accessibility, and the parts of the browser that surprise me.
   </p>
 
-  {
-    featuredPost ? (
-      <>
-        <div class="featured-post">
-          <PostCard
-            title={featuredPost.data.title}
-            href={`/blog/${featuredPost.id}`}
-            pubDate={featuredPost.data.pubDate}
-            description={featuredPost.data.description}
-            readingTime={readingTimeMinutes(featuredPost.body ?? "")}
-            image={resolveEntryImage(featuredPost.filePath, featuredPost.data.heroImage)}
-            imageAlt={featuredPost.data.heroImageAlt}
-            showThumbnail={featuredPost.data.showThumbnail}
-            variant="featured"
-          />
-        </div>
-        {otherPosts.length > 0 && (
-          <div class="post-list">
-            {otherPosts.map((post) => (
-              <PostCard
-                title={post.data.title}
-                href={`/blog/${post.id}`}
-                pubDate={post.data.pubDate}
-                description={post.data.description}
-                readingTime={readingTimeMinutes(post.body ?? "")}
-                image={resolveEntryImage(post.filePath, post.data.heroImage)}
-                imageAlt={post.data.heroImageAlt}
-                showThumbnail={post.data.showThumbnail}
-              />
-            ))}
-          </div>
-        )}
-      </>
-    ) : (
-      <p class="empty">No published posts yet.</p>
-    )
-  }
+  {posts.length > 0 ? <PostBrowser posts={posts} /> : <p class="empty">No published posts yet.</p>}
 </PageLayout>
 
 <style>
   .page-intro {
     max-inline-size: var(--measure);
     margin-block-start: var(--spacing-3);
-  }
-
-  .featured-post {
-    margin-block-start: var(--spacing-12);
-  }
-
-  .post-list {
-    display: grid;
-    align-items: start;
-    gap: var(--spacing-4);
-    margin-block-start: var(--spacing-8);
   }
 
   .empty {

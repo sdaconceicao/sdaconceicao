@@ -7,32 +7,75 @@ test.describe("blog", () => {
     await expect(page.getByText("No published posts yet.")).toHaveCount(0);
   });
 
-  test("the index leads with one larger featured article and does not repeat it", async ({
-    page,
-  }) => {
+  test("the index uses the portfolio filter-and-results layout", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/blog");
-    const post = page.locator('.post-card[data-variant="featured"]');
-    await expect(post).toHaveCount(1);
-    await expect(post.getByRole("heading")).toHaveText("All you never wanted to know about agents");
-    const featuredHref = await post.getByRole("heading").getByRole("link").getAttribute("href");
-    expect(featuredHref).toBeTruthy();
-    await expect(
-      page.locator(`.post-card[data-variant="default"] a[href="${featuredHref}"]`),
-    ).toHaveCount(0);
-    const [thumbnail, title] = await Promise.all([
-      post.locator("img").boundingBox(),
-      post.getByRole("heading").boundingBox(),
-    ]);
-    expect(thumbnail?.width).toBeGreaterThan(96);
-    expect(thumbnail?.x).toBeLessThan(title?.x ?? 0);
-    expect(thumbnail?.y).toBeLessThan(title?.y ?? 0);
-    await expect(post.locator("img")).toHaveCSS("border-radius", "4px");
-    await expect(post.locator("img")).toHaveCSS("margin", "0px");
+    const filters = page.getByRole("complementary", { name: "Filter posts" });
+    const results = page.getByRole("region", { name: "Post results" });
+    await expect(filters).toBeVisible();
+    await expect(results.getByRole("article")).toHaveCount(5);
+    await expect(results.getByRole("status")).toHaveText("5 of 5 posts");
+    await expect(page.locator('.post-card[data-variant="featured"]')).toHaveCount(0);
+    expect(
+      (await results.getByRole("article").first().locator("img").boundingBox())?.width,
+    ).toBeCloseTo(96, 0);
+  });
 
-    const listThumbnail = page.locator('.post-card[data-variant="default"] img').first();
-    await expect(listThumbnail).toBeVisible();
-    expect((await listThumbnail.boundingBox())?.width).toBeCloseTo(96, 0);
+  test("combines title, description, and body search with any selected tag", async ({ page }) => {
+    await page.goto("/blog");
+    const results = page.getByRole("region", { name: "Post results" });
+    const search = page.getByRole("searchbox", { name: "Search posts" });
+
+    await search.fill("Testing Options Compared");
+    await expect(results.getByRole("article")).toHaveCount(1);
+    await search.fill("tradeoffs are not obvious");
+    await expect(results.getByRole("heading", { name: "Local Storage Options" })).toBeVisible();
+    await search.fill("governance also determines");
+    await expect(
+      results.getByRole("heading", { name: "What are design systems, and how do we build them?" }),
+    ).toBeVisible();
+
+    await search.fill("");
+    await page.getByRole("button", { name: /^Tags / }).click();
+    await page.getByRole("searchbox", { name: "Search tags" }).fill("design");
+    const designSystems = page.getByRole("checkbox", { name: "design-system", exact: true });
+    await designSystems.click();
+    await designSystems.press("Escape");
+    await expect(results.getByRole("article")).toHaveCount(1);
+
+    await page.getByRole("button", { name: /^Tags / }).click();
+    await page.getByRole("searchbox", { name: "Search tags" }).fill("agents");
+    const agents = page.getByRole("checkbox", { name: "agents", exact: true });
+    await agents.click();
+    await agents.press("Escape");
+    await expect(results.getByRole("article")).toHaveCount(4);
+
+    await search.fill("governance");
+    await expect(results.getByRole("article")).toHaveCount(1);
+    await page.getByRole("button", { name: "Clear filters" }).click();
+    await expect(search).toHaveValue("");
+    await expect(page.getByRole("checkbox", { checked: true })).toHaveCount(0);
+    await expect(results.getByRole("status")).toHaveText("5 of 5 posts");
+  });
+
+  test("uses a modal filter drawer on narrow screens", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 700 });
+    await page.goto("/blog");
+    const opener = page.getByRole("button", { name: "Filters", exact: true });
+    await expect(page.getByRole("complementary", { name: "Filter posts" })).toHaveCount(0);
+    await opener.click();
+
+    const drawer = page.getByRole("dialog", { name: "Filter posts" });
+    await expect(drawer).toBeVisible();
+    await drawer.getByRole("searchbox", { name: "Search posts" }).fill("governance");
+    await expect(drawer.getByRole("status")).toHaveText("1 of 5 posts");
+    await drawer.getByRole("button", { name: "View results" }).click();
+
+    await expect(drawer).not.toBeVisible();
+    await expect(opener).toBeFocused();
+    await expect(
+      page.getByRole("region", { name: "Post results" }).getByRole("article"),
+    ).toHaveCount(1);
   });
 
   test("a published post builds to a stable URL", async ({ page }) => {
