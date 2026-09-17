@@ -42,12 +42,21 @@ const resolveFile = (pathname) => {
   const rel = normalize(decodeURIComponent(pathname)).replace(/^(\.\.[/\\])+/, "");
   const base = join(ROOT, rel);
   const candidates = [base, `${base}.html`, join(base, "index.html")];
-  return candidates.find((c) => c.startsWith(ROOT) && existsSync(c) && statSync(c).isFile());
+  const file = candidates.find(
+    (candidate) =>
+      candidate.startsWith(ROOT) && existsSync(candidate) && statSync(candidate).isFile(),
+  );
+  return { file, isDirectoryIndex: file === candidates[2] };
 };
 
 createServer((req, res) => {
-  const { pathname } = new URL(req.url, `http://localhost:${PORT}`);
-  const file = resolveFile(pathname);
+  const { pathname, search } = new URL(req.url, `http://localhost:${PORT}`);
+  const { file, isDirectoryIndex } = resolveFile(pathname);
+
+  if (isDirectoryIndex && !pathname.endsWith("/")) {
+    res.writeHead(308, { location: `${pathname}/${search}` }).end();
+    return;
+  }
 
   if (!file) {
     const notFound = join(ROOT, "404.html");

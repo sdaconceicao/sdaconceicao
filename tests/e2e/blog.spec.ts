@@ -94,6 +94,123 @@ test.describe("blog", () => {
     await expect(page.getByText("Draft", { exact: true })).toHaveCount(0);
   });
 
+  test("offers network-specific article sharing", async ({ page }) => {
+    await page.goto("/blog/local-storage-options");
+    const sharing = page.getByRole("navigation", { name: "Share this article" });
+    const destinations = {
+      LinkedIn: /^https:\/\/www\.linkedin\.com\/sharing\/share-offsite\//,
+      Reddit: /^https:\/\/www\.reddit\.com\/submit\?/,
+      X: /^https:\/\/x\.com\/intent\/tweet\?/,
+      Bluesky: /^https:\/\/bsky\.app\/intent\/compose\?/,
+      Facebook: /^https:\/\/www\.facebook\.com\/sharer\/sharer\.php\?/,
+      Email: /^mailto:\?/,
+    };
+    await expect(sharing).toHaveCount(1);
+    for (const toolbar of await sharing.all()) {
+      await expect(toolbar.getByRole("link")).toHaveCount(6);
+      await expect(toolbar.locator("svg")).toHaveCount(7);
+      await expect(toolbar.locator("ul")).toHaveCSS("list-style-type", "none");
+      for (const [name, href] of Object.entries(destinations)) {
+        await expect(toolbar.getByRole("link", { name, exact: true })).toHaveAttribute(
+          "href",
+          href,
+        );
+      }
+    }
+  });
+
+  test("uses native sharing when available", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "share", {
+        configurable: true,
+        value: async (data: ShareData) => {
+          (window as Window & { __shared?: ShareData }).__shared = data;
+        },
+      });
+    });
+    await page.goto("/blog/local-storage-options");
+    await page.getByRole("button", { name: "Share" }).first().click();
+    const shared = await page.evaluate(
+      () => (window as Window & { __shared?: ShareData }).__shared,
+    );
+    expect(shared).toEqual({
+      title: "Local Storage Options",
+      url: "https://stephenandrewdesigns.com/blog/local-storage-options/",
+    });
+  });
+
+  test("copies the article link when native sharing is unavailable", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+    });
+    await page.goto("/blog/local-storage-options");
+    const share = page.getByRole("button", { name: "Share" }).first();
+    await share.click();
+    await expect(page.getByRole("button", { name: "Link copied" })).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      "https://stephenandrewdesigns.com/blog/local-storage-options/",
+    );
+  });
+
+  test("the sharing toolbar reflows with accessible targets", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto("/blog/local-storage-options");
+    const sharing = page.getByRole("navigation", { name: "Share this article" });
+    const controls = [
+      ...(await sharing.getByRole("button").all()),
+      ...(await sharing.getByRole("link").all()),
+    ];
+    for (const control of controls) {
+      const box = await control.boundingBox();
+      expect(box?.width).toBeGreaterThanOrEqual(44);
+      expect(box?.height).toBeGreaterThanOrEqual(44);
+    }
+    expect(await sharing.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(
+      true,
+    );
+    await expect(sharing).toHaveCSS("flex-direction", "row");
+    await expect(sharing.locator("svg").first()).toHaveCSS("width", "18px");
+
+    const summary = page.getByRole("complementary", { name: "Article summary" });
+    const readingShare = page.locator("[data-share-sticky]");
+    for (const width of [600, 1024]) {
+      await page.setViewportSize({ width, height: 800 });
+      await expect(readingShare).toBeHidden();
+      const [headerBox, heroBox, summaryBox, proseBox] = await Promise.all([
+        page.locator(".post-header").boundingBox(),
+        page.locator(".post-hero").boundingBox(),
+        summary.boundingBox(),
+        page.locator(".prose").boundingBox(),
+      ]);
+      if (!headerBox || !heroBox || !summaryBox || !proseBox) {
+        throw new Error("Article layout must be visible");
+      }
+      expect(heroBox.width).toBeCloseTo(headerBox.width, 0);
+      expect(summaryBox.width).toBeCloseTo(headerBox.width, 0);
+      expect(proseBox.width).toBeCloseTo(headerBox.width, 0);
+      expect(summaryBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
+      expect(summaryBox.y + summaryBox.height).toBeLessThanOrEqual(heroBox.y + heroBox.height);
+    }
+    await expect(page.locator(".post-hero")).toHaveCSS("border-bottom-left-radius", "12px");
+
+    await summary.evaluate((element) => {
+      window.scrollTo(0, element.getBoundingClientRect().bottom + window.scrollY + 1);
+    });
+    await expect(readingShare).toBeHidden();
+
+    await page.setViewportSize({ width: 1440, height: 800 });
+    await expect(readingShare).toBeVisible();
+    await expect(readingShare).toHaveCSS("position", "sticky");
+    await expect(readingShare).toHaveCSS("flex-direction", "column");
+    await expect(readingShare.locator("ul")).toHaveCSS("flex-direction", "column");
+    const railBox = await readingShare.boundingBox();
+    if (!railBox) throw new Error("Reading toolbar must be visible");
+    const wideProseBox = await page.locator(".prose").boundingBox();
+    if (!wideProseBox) throw new Error("Article body must be visible");
+    expect(railBox.x).toBeGreaterThanOrEqual(wideProseBox.x + wideProseBox.width);
+  });
+
   test("a post page has exactly one h1", async ({ page }) => {
     await page.goto("/blog/local-storage-options");
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
@@ -110,15 +227,33 @@ test.describe("blog", () => {
     ).toBe(true);
   });
 
-  test("the post body fills the available detail width", async ({ page }) => {
+  test("the intro spans the page while the post body remains centered", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/blog/local-storage-options");
-    const [main, prose] = await Promise.all([
+    const [main, breadcrumb, title, hero, summary, prose] = await Promise.all([
       page.getByRole("main").boundingBox(),
+      page.getByRole("link", { name: "All posts" }).boundingBox(),
+      page.getByRole("heading", { level: 1 }).boundingBox(),
+      page.locator(".post-hero").boundingBox(),
+      page.getByRole("complementary", { name: "Article summary" }).boundingBox(),
       page.locator(".prose").boundingBox(),
     ]);
 
-    expect(prose?.width).toBeGreaterThan((main?.width ?? 0) * 0.95);
+    expect(title?.x).toBeCloseTo(breadcrumb?.x ?? 0, 0);
+    expect(hero?.x).toBeCloseTo(breadcrumb?.x ?? 0, 0);
+    expect(summary?.y).toBeGreaterThanOrEqual(hero?.y ?? 0);
+    expect((summary?.y ?? 0) + (summary?.height ?? 0)).toBeLessThanOrEqual(
+      (hero?.y ?? 0) + (hero?.height ?? 0),
+    );
+    expect((summary?.x ?? 0) + (summary?.width ?? 0)).toBeCloseTo(
+      (main?.x ?? 0) + (main?.width ?? 0),
+      0,
+    );
+    expect(prose?.width).toBeLessThan(main?.width ?? 0);
+    expect((prose?.x ?? 0) + (prose?.width ?? 0) / 2).toBeCloseTo(
+      (main?.x ?? 0) + (main?.width ?? 0) / 2,
+      0,
+    );
   });
 
   test("rss.xml is well-formed and includes published posts", async ({ request }) => {

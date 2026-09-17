@@ -12,18 +12,11 @@ const posts = selectPublished(await getCollection("blog"));
   description="Posts on frontend development, accessibility, and internationalization."
 >
   <h1 class="page-title">Writing</h1>
-  <p class="page-intro">
-    Notes on frontend development, accessibility, and the parts of the browser that surprise me.
-  </p>
 
   {posts.length > 0 ? <PostBrowser posts={posts} /> : <p class="empty">No published posts yet.</p>}
 </PageLayout>
 
 <style>
-  .page-intro {
-    max-inline-size: var(--measure);
-    margin-block-start: var(--spacing-3);
-  }
 
   .empty {
     margin-block-start: var(--spacing-8);

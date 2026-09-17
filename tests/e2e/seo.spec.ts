@@ -45,6 +45,10 @@ test.describe("seo and metadata", () => {
   });
 
   test("the CMS shell is served and pinned with an SRI hash", async ({ request }) => {
+    const redirect = await request.get("/admin", { maxRedirects: 0 });
+    expect(redirect.status()).toBe(308);
+    expect(redirect.headers().location).toBe("/admin/");
+
     const response = await request.get("/admin/");
     expect(response.status()).toBe(200);
     const body = await response.text();
