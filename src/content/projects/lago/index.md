@@ -12,7 +12,12 @@ tech:
   - Playwright
 featured: true
 image: ./cover.png
-imageAlt: "Lago's Button documentation in Storybook: a rendered button above its props table"
+imageAlt: "Lago's documentation on Design Tokens"
+images:
+  - src: ./lago-1.png
+    alt: "Size examples"
+  - src: ./lago-2.png
+    alt: "Light Mode"  
 status: wip
 order: 1
 ---
