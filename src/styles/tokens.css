@@ -149,8 +149,7 @@
   --timeline-col-mobile: 5.75rem;
   --avatar-size: clamp(8rem, 15vw, 11rem);
   --project-card-image-max-block: 250px;
-  --project-card-image-max-inline: 375px;
-  --project-hero-max-block: min(42svh, 40rem);
+  --project-card-image-max-inline: 444px;
 
   /* ── Motion ────────────────────────────────────────────────────────────── */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);

@@ -1,0 +1,897 @@
+---
+title: Agents of Code
+description: A deep dive into the world of agents, from the basics to the most
+  advanced concepts.
+pubDate: 2026-03-04
+draft: false
+featured: false
+tags:
+  - agents
+  - ai
+heroImage: ./cover.png
+heroImageAlt: A cover image for the blog post about agents
+---
+
+
+We’re going to describe what actually is an agent and what can they do, what is spec-driven development, how you can use agents effectively to get good results, and how you can use agents to be a better developer.
+
+## What Is an Agent?
+
+An agent really is just a large language model that is going to try to predict what you want it to say. You give it a prompt and, ideally, you give it some context. Based on what it’s learned in the past, it’s going to try to figure out what the most highly ranked response is given those pieces of information.
+
+Most of the LLMs we’re using have been trained on a lot of things. They’ve seen things like Stack Overflow and GitHub. Depending on the model, they’re going to have a lot of data they’ve looked at.
+
+They’re going to see, “When somebody has a problem with this TypeScript error, it generally means this. Therefore, I’m going to give you a response based on that.”
+
+That’s what these things are, and it’s best to treat them like that.
+
+These are helpers. Don’t treat them as a mentor.
+
+Oftentimes senior developers will treat agents like a junior developer. It’s something I can give a task to, and if I give it a good set of definitions for what is expected, it can go do it and come back with a good result.
+
+Oftentimes junior developers treat agents like they are a senior developer. If it tells them something, it’s, “OK, well, it told me what to do, so it must know what it’s talking about.”
+
+That is often not the case.
+
+Whenever it comes back with something, it’s really important that you understand what it told you. If you don’t understand what it told you, ask it questions. Ask it for help. Ask it, “Explain why you did this.”
+
+Oftentimes you will find that a hallucination has occurred, especially if you’re working with something very nuanced. The answer it gave you might not be a good answer.
+
+Make sure you understand what it came back with, because in my opinion:
+
+The second you commit it, it’s your code. It’s not the agent’s code. It is your code.
+
+You should be expected to make changes to it in the future.
+
+Whenever, as a team, you go through a review process and that code gets merged into production, eventually it’s not your code anymore. It’s the team’s code. So the team also needs to understand how this works.
+
+This is not just at the developer level. This is at the entire team.
+
+If something is in the code, “It was made by Claude” is not an acceptable answer. You have to understand what it is because it is your code as a team.
+
+## What Can Agents Do?
+
+Agents can pretty much do anything that we do.
+
+You can do development work. You can do code review. If you want to do a security review, they’re really good at that.
+
+A lot of the work I’ve done over the last couple of months has been not bothering people and saying, “Hey, tell me how this works.”
+
+I’ll go through the code and have an agent look at it and say:
+
+Explain this to me. Tell me how this is working.
+
+It can also tell me, “There’s a problem here,” or “There’s a security issue here.” It can give you really good feedback.
+
+It’s really good for testing. You can have it write automated tests. You can have these things run those tests as well.
+
+You can also use it almost like somebody who’s on the level with you.
+
+“I’m having trouble. I don’t know what’s a good way to do something. What are the best practices for X?”
+
+It can give you that information.
+
+But this is a recurring theme: the less familiar you are with something, the more you really need to verify that what it told you is true.
+
+It will lie to your face and say it with the confidence of the best snake-oil salesman in the world.
+
+You really need to be knowledgeable about these things.
+
+This isn’t going to replace you. It’s not going to replace the skills that you have. If anything, it depends upon them even more.
+
+The other thing is that if you don’t ask it something, there’s a good chance it’s not going to take it into consideration.
+
+If you’re a person who doesn’t care too much about testing, it’s probably not going to think about testing unless you’ve got some guardrails in place.
+
+It Is Your Code
+
+It’s never an answer to say:
+
+It told me to do that.
+
+It is your code. You have to understand what it did.
+
+Agents do stupid stuff. If it does something you don’t understand or it seems like an over-engineered solution, go back and say:
+
+No. Don’t do this. Do it a different way.
+
+You have to own every part of the code.
+
+## Managing Context
+
+Agents take a prompt, but they also need context.
+
+Context is exactly what it sounds like. It’s the code you’re building within.
+
+If you’re in a repo and you say:
+
+I want to make a change to the login screen. I want to add a new button.
+
+It can oftentimes figure it out, but you’re not going to get the best result, and it’s also going to have to go searching for it.
+
+It’s better to give it the context around what you’re changing.
+
+If I’m adding a reset-password button to a login page, I wouldn’t necessarily give it the whole login page. I’d give it the form that’s on that page so it has a good idea of where the changes are going to be made.
+
+If there’s a backend API that it’s hitting, give it that URL as context as well. It doesn’t have to just be source code. It can be HTTP links.
+
+You want to have as much information as you need, but not too much.
+
+The more context you give it, the bigger its thought process is going to be. It’s going to cost you more money and it’s going to take more time.
+
+You want that sweet spot of giving it just enough information to do what it needs to do without any more than that.
+
+In general, I usually wouldn’t give it entire files. I’d give it lines of code. There are situations like bigger refactors where that changes, but generally speaking you’re saying:
+
+Here’s this API endpoint.
+Here’s this method.
+Do something with it.
+
+Give it the minimal amount of information and you will get a quicker response. You will also get a response that uses fewer tokens, and tokens equal money.
+
+Something else to think about is that this is not a thinking person.
+
+Imagine if every interaction you ever had was built upon every single thing that had ever been said to you before.
+
+That is what an agent is doing. Whenever it responds to you, it is looking back at the conversation. All of those things become tokens that are part of the context.
+
+The longer that history is and the more context you give it, the slower it’s going to be and the more tokens and money it’s going to use.
+
+Use the Right Tool for the Right Situation
+
+There are different tools you can use for different use cases.
+
+A lot of people are using Cursor. Claude Code is another option. These tools are useful because you’re coding with context. They can interact with the repository, browser, or shell directly.
+
+That’s different from copying some code out of your repository and pasting it into ChatGPT.
+
+You might get good answers that way, but oftentimes you’re not going to get as good of an answer as when you have these integrated processes in your repo.
+
+With something like Cursor, it sees the repo and you can give it direct context.
+
+## Using an Agent for Code Review
+
+I had a pull request that was relatively large and changed the way we were doing password resets. There were changes on both the PHP side and the TypeScript side.
+
+I’m very familiar with the TypeScript side. I’m not as familiar with the PHP side.
+
+The agent found some issues in the PHP code. Then, going back to what I said before: trust but verify.
+
+I looked into the issues it suggested and confirmed:
+
+Is this actually an issue, or is this a hallucination?
+
+One was a real issue. It was something I, as a senior developer, probably would not have known because I’m not as familiar with some of the PHP nomenclature around it.
+
+But it also identified something else as a problem that wasn’t actually a problem. It didn’t have the context that we were intentionally changing the terms-of-service logic.
+
+So it’s not perfect.
+
+It doesn’t know every single thing that I know as a developer.
+
+There were also things that I found personally that it didn’t find. For example, duplicated code that would have been better brought out into a separate component.
+
+But I hadn’t asked it to look for that. I told it to focus on bugs.
+
+So this is not a magic bullet, but it is a really good helper. It can fill in some of the gaps where you might be missing something, but it also doesn’t know everything.
+
+I’ll also do this before I open a PR myself.
+
+I’ll do a pre-review with the agent and basically ask:
+
+Did I miss something?
+
+It will go through and tell me what it sees.
+
+GitHub Copilot
+
+GitHub Copilot is something I’ve used pretty extensively in a GitHub environment, and it is really good at finding CI issues.
+
+If a GitHub Actions pipeline fails, Copilot has good domain knowledge of how GitHub’s runners work.
+
+You can point it at the failure and ask:
+
+Figure out what is going on here. Why did this fail?
+
+It can identify things about the underlying environment because it’s GitHub’s system.
+
+That makes it excellent for GitHub-focused problems.
+
+On the other hand, if you point Claude at those same GitHub internals without giving it access to them, it’s shooting in the dark:
+
+Try this. Maybe try this.
+
+It doesn’t have access to the servers.
+
+So use the tool that is most appropriate for the situation.
+
+Don’t take your screws and use a hammer to smash them in.
+
+Each tool is good for a different scenario.
+
+ChatGPT, for example, I find really good for general guidance:
+
+What’s the best way to do state management?
+What are some best practices for this?
+
+I’ve also used it as a second opinion. If another agent tells me something is a security vulnerability, I can put that information into ChatGPT and ask whether it concurs with the assessment. Then I may still Google it and confirm that I’ve got multiple sources saying yes, this really is an issue.
+
+Each one of these things is good for a certain purpose.
+
+## Agent Modes
+
+There are different modes you can use for these agents.
+
+* Agent Mode
+
+  * Agent mode is really good for simple things.
+  * If I see a type error, I’ll go in and say:
+  * Why is there a type error here? Explain it and fix it.
+  * Usually that one line is enough context. It gives a quick response and it’s good.
+  * The same thing applies to a linter error or a small styling error. These are very small, limited things.
+* Debug Mode
+
+  * Debug mode is more bug-focused.
+  * If you’ve got a page where it looks like there’s a race condition and half the time an error occurs, debug mode is aimed more at that kind of thing.
+  * It’s using more context and it’s going to use more tokens because it’s thinking more.
+* Plan Mode
+
+  * Plan mode is where I’m falling more and more.
+  * That’s when you’re talking about complex things: building a new page from scratch or doing a major refactor.
+  * Before it does anything, it’s going to come back with a Markdown document that basically says:
+
+Here’s what I’m going to do.
+
+If you didn’t give it enough information, it’s also going to ask you questions.
+
+If you say:
+
+I want a new login page.
+
+It might ask:
+
+Do you support two-factor authentication?
+Which providers do you need?
+Do you just want simple login?
+
+It keeps asking those questions and builds out a document telling you exactly what it’s going to build.
+
+Once you agree on that, it goes and does the work.
+
+Ask Mode
+
+Ask mode is exactly what it sounds like. It’s very lightweight, and it’s not allowed to change anything.
+
+That’s generally where I would ask for a pull request review because I don’t want it to change the code. I just want to know what’s good and bad in it.
+
+It’s also great for asking how something currently works:
+
+How does authentication currently work?
+
+Or:
+
+What is the best way of doing X?
+
+Ask mode can be useful there as well.
+
+## Choosing Models
+
+There are also different models you can use.
+
+Auto and Sonnet are what I tend to work in when something is small and quick. They’re fast models and they’re able to do simple things.
+
+When I start getting into complex stuff, like a difficult bug fix or building a large feature, that’s generally when I would move over to Opus.
+
+Opus is slower.
+
+With Sonnet, it can feel like:
+
+Go do this.
+OK, I’m doing it.
+OK, it’s done.
+
+With Opus there is a lot more thinking.
+
+That brings up another important point:
+
+Don’t just put in a prompt and walk away for five minutes.
+
+You really should watch what it’s doing, because you can often catch it going down a bad path.
+
+You can see it thinking about something and say:
+
+No, no. I didn’t mean that.
+
+Otherwise you come back five minutes later and it’s gone down a rabbit hole you didn’t want it to.
+
+Always be watching what it’s doing, especially with planning and the larger models.
+
+## Rules
+
+Rules are things you can have at the project level or even at your own user level.
+
+They sit in the background of your agents without you having to explicitly talk about them.
+
+For example, you can have a rule targeted at TSX files.
+
+Any time the agent makes a change to a TSX file, it can automatically know:
+
+follow this naming convention
+use this template
+unit tests are required
+follow these React component rules
+
+You don’t have to say:
+
+When I’m making a new page, go follow our React component rules.
+
+It sees that this is a TSX file and knows those rules apply.
+
+The nice part is that these rules are plain text. They’re Markdown files. It’s not code or anything fancy.
+
+They’re really good for people too.
+
+If a new developer comes into the system, we would traditionally have a document saying:
+
+Here are our coding standards.
+
+That is what this is, except it’s also used by the agents so that they follow the same rules.
+
+The person and the machine are in sync with each other.
+
+It becomes a single source of truth for what we as a team do.
+
+## Keep Rules Targeted
+
+You want to keep rules generally very targeted.
+
+That’s why having things like glob patterns is important.
+
+If I make a change to a stylesheet, I don’t need all of the React component rules included. It’s just a CSS file. Those things don’t matter.
+
+The bigger and more complex your rules become, the more potential context they use.
+
+So don’t be too wordy.
+
+Try to keep them as succinct as possible. Don’t be overly verbose, but there’s still value in having a comprehensive set of rules because they’re useful for both the agents and the people.
+
+## Skills
+
+Skills are basically rules-based, repeatable actions.
+
+They’re great for things that don’t have to be part of your everyday interactions.
+
+For example, imagine a company is on PHP 7 and wants to upgrade to PHP 8.
+
+You could write a skill based around that.
+
+The skill could explain all the things to watch out for: PHP 8 breaking changes, method signature changes, and everything else involved in that migration.
+
+Then you can simply tell the agent:
+
+I want to convert this repo from PHP 7.3 to PHP 8.
+
+It can see that it has a skill for that and say:
+
+OK, now I know all the things I have to look for and the process I should follow to make that conversion.
+
+It’s a more efficient way of doing things.
+
+Another really good use case is pull request review.
+
+Instead of manually telling it what to look for every time, you could have a pull-request-review skill that says:
+
+check these rules
+confirm X, Y, and Z
+verify tests
+look for these classes of problems
+
+That becomes a repeatable process.
+
+## Rules vs. Skills
+
+A skill is more of a specific thing.
+
+I want you to convert this application.
+I want you to do a pull request review.
+I want you to make a component.
+
+A rule is something that I want in place while I’m doing everyday work.
+
+Any time I’m saying, “Make me a page,” I might want certain rules in the background.
+
+A skill is repeatable, but it doesn’t need to live in the context all the time.
+
+The result is that skills are cheaper because they don’t have the same context cost.
+
+There are a lot of things I used to put into rules that I think would make more sense as skills.
+
+For example, a lot of the rules I have around React could probably be turned into a “make component” skill.
+
+Then instead of always having those instructions in context, when I say:
+
+Make a component.
+
+The agent says:
+
+Oh, I’m making a component. I’m going to use the make-component skill.
+
+That makes more sense.
+
+Skills can have scripts as well.
+
+The scripts can be whatever language you want.
+
+For example, if we’re bringing SVGs directly into a repo, we usually don’t want to take them in raw. We want to optimize them.
+
+You could have a skill that says:
+
+Import this SVG.
+
+Then it puts it into the appropriate folder, runs the optimization script, and you’re done.
+
+It’s a way to automate your life around a repeatable process.
+
+## Sharing Skills
+
+Skills can be scoped at the project level or at the user level.
+
+We could have a repo that was just skills and have company-wide skills that everybody checks out.
+
+Something like PHP 7 to PHP 8 could very much be a company-wide skill because we have a lot of repos we might want to change.
+
+Something like SVG handling might make more sense at the project level.
+
+Code review would be another excellent example of something that could be shared by everybody. We’re doing code reviews the same way whether it’s PHP or JavaScript.
+
+## MCP Integration
+
+MCP integration is where a lot of this stuff comes together.
+
+MCPs are a way for AI agents to interact with other systems more directly.
+
+Pull request review is a good example.
+
+You could have a Jira MCP in place. Based on the branch naming convention, the agent can tell which Jira ticket the branch is associated with.
+
+It can say:
+
+Give me all the information from that Jira ticket.
+
+Then it pulls out the acceptance criteria.
+
+Now connect to the GitHub MCP and say:
+
+Give me all the changes associated with this branch compared to the target branch.
+
+From those two things, it can compare the implementation to the acceptance criteria.
+
+Do these changes pass the acceptance criteria that were given?
+
+That gives you an even better way of doing a pull request review.
+
+It really is close to how a person would work.
+
+## Spec-Driven Development
+
+All of this comes down to a concept called spec-driven development.
+
+Spec-driven development is taking the traditional SDLC processes we already have and bringing agents into them.
+
+It’s much closer to how people work.
+
+Instead of a person going and writing something, you’re having an agent write it, but you’re still gathering information and getting the context necessary for it.
+
+You’re talking with that agent and identifying potential issues.
+
+Maybe you want to update your login process but you’re on an end-of-life version of PHP, so it can’t use some modern libraries.
+
+What are we going to do?
+
+Think it out. Build that out as a plan.
+
+The end result is a plan that effectively looks like a Jira ticket.
+
+It comes back with:
+
+Here’s what I’m going to do.
+I’m going to write these things.
+I’m going to do this.
+I’m going to write tests.
+
+Then you agree on it, or you say:
+
+No, this is wrong.
+
+You can edit the Markdown file yourself or say:
+
+This doesn’t make sense. What about this?
+
+Then it rewrites it.
+
+It’s like interacting with another person.
+
+## Vibe Coding vs. Spec-Driven Development
+
+This differs a lot from the term I hate: vibe coding.
+
+Vibe coding gets a bad rap, but I don’t think vibe coding is inherently a bad thing. You just really need to know when to use it properly.
+
+Vibe coding is good if you want to build something quickly as a proof of concept.
+
+It’s not something I would necessarily want to maintain.
+
+A good example is an OLS CSS refactor I did.
+
+It was a proof of concept, but I still used the planning approach because I had a long list of requirements.
+
+The number-one requirement was:
+
+I don’t want to touch the HTML.
+
+All I wanted to do was use the existing CSS classes and modify how things looked.
+
+I basically told it:
+
+You can go wild and do whatever you want as long as you’re not touching the HTML.
+
+I gave it the pages I wanted and iteratively went through them.
+
+It took about three days before I had a result I was fully happy with.
+
+Changing the whole app took about three days, which I can’t even imagine doing as a person, and I was able to do other work while it was happening.
+
+Spec-driven development is much more in line with the SDLC process.
+
+It’s about things being repeatable.
+
+It’s something you’re going to maintain, so you better understand the code.
+
+You’re also doing a lot of iterative work with it.
+
+You can start with a big ask and then make smaller asks:
+
+Now I want to add this little feature.
+Now I want to add this little feature.
+
+But you’re still going through that process:
+
+Here’s what I want.
+This is what I heard. Is this what you want?
+Yes. Go build it.
+
+That’s where I do most of my development at this point.
+
+It’s repeatable, and you can see why decisions were made because it tells you what it’s going to do and then it does it.
+
+If it doesn’t do it, it’s also easier to go back and say:
+
+Hey, you said you were going to do X and you didn’t do that.
+
+It can see:
+
+Oh yeah, that was in the plan and I missed it.
+
+That gives you more guidance than having this black box of:
+
+Go fix this.
+
+Three minutes later:
+
+OK, I fixed it.
+
+Great.
+
+That’s good for a POC. That is not good for typical development.
+
+We have to understand how these things are working, and we want to make sure we’re doing things in a standard way.
+
+A Good Spec Looks Like a Jira Ticket
+
+The actual specs we give these agents look a lot like Jira tickets.
+
+If you give a good, fully documented list of the things that are expected, you can effectively have development done from that spec.
+
+You can then iterate on it.
+
+Maybe the original implementation didn’t have search.
+
+You add another spec:
+
+Now I want to add search to it.
+
+You keep adding the smaller pieces.
+
+This also gives product owners an opportunity to write better tickets for developers.
+
+There’s the phrase:
+
+Garbage in, garbage out.
+
+The better those Jira tickets are, with really good acceptance criteria and all that kind of stuff, the better developers are going to be able to build these things out.
+
+Ideally, you can get to the point where a developer takes the ticket and says:
+
+Go build it.
+
+That’s where we want to get to.
+
+I don’t see the product owner doing the development work.
+
+There’s still a lot of back and forth.
+
+The agent is going to see 12 acceptance criteria and ask:
+
+How do you want me to build this?
+
+Then it may do something and the developer says:
+
+That’s not a good way of doing it.
+The state management is bad.
+Use this approach instead.
+
+There’s still a lot of room for the developer in this process.
+
+But from the PO down, everybody is part of getting us to better-developed software.
+
+If you get that first part good, there’s a chance the stuff down the road is going to be better because you started with a good set of acceptance criteria.
+
+Technical information belongs in the spec too:
+
+Use this library.
+Use this function that already exists.
+Use this strategy.
+
+You want that spec to be a fully fleshed-out thing.
+
+How Do You Get Good Results?
+
+It’s not just about getting results.
+
+The bigger question is:
+
+How do you get good results?
+
+First, manage your context. Don’t give it too much, but don’t give it too little.
+
+Use the proper modes and models based on your use case.
+
+If you’re making a small bug fix, there’s a certain tool you’re going to use.
+
+If you’re building out a whole new feature or doing a major refactor, you should be using planning and probably a different model.
+
+Skills and rules are really beneficial for making things reproducible so that things feel consistent with each other.
+
+Make the Codebase Agent-Friendly
+
+The number-one important thing is making the codebase agent-friendly.
+
+Agents and people are very similar.
+
+They want the same things.
+
+Testing
+
+We want to have testing in place.
+
+Having unit testing isn’t just about regressions. It makes development easier.
+
+If I make a major change, I don’t have to cross my fingers and hope that it was fine.
+
+I’ve got a set of tests in place that tell me I didn’t break things I didn’t look at with my eyes.
+
+Unit testing is probably the number-one most important thing. Get that in there.
+
+Documentation
+
+Have things well documented.
+
+These agents are not geniuses.
+
+If you’ve got a codebase that makes your head explode, they’re going to have the same problems.
+
+They’re going to have a hard time figuring it out and they’re going to be spinning their wheels doing basically the same things you would as a developer.
+
+Consistent Design Patterns
+
+Very connected to that is having consistent design patterns.
+
+If you’re using fetch, Axios, and 30 different ways of interacting with APIs, it’s going to get confused.
+
+Which one do you use?
+
+What would you do as a developer?
+
+You’d have to ask somebody:
+
+I see that you’re using five different ways to talk to an API. Which one am I supposed to use?
+
+The agent has to do the same thing.
+
+That wastes tokens and time.
+
+If there’s one way in this repo that we do something, and it’s this way, the agents are going to be much better.
+
+Especially if you’ve got those decisions codified into rules and skills:
+
+We use fetch for all of our API interactions.
+We use Jest for unit testing.
+Our frontend components are built in React and follow these rules.
+
+It doesn’t have to ask you questions. You’ve already told it.
+
+So you’re going to get a consistent answer each time instead of having it guess.
+
+Making the codebase agent-friendly also makes it developer-friendly.
+
+Verify the Changes
+
+As I’m doing things, I’m always verifying the changes.
+
+Especially if it’s a big change, I want to go through it in steps.
+
+When I was doing the OLS refactor, it was:
+
+Step one: build this page.
+
+Then I would go to that page and test it manually. It also had tests that would run through it to make sure certain things were still functional.
+
+If everything was good, I would say:
+
+OK, move on.
+
+If we caught something, it would stop, make the changes, and then move forward.
+
+Commit Often
+
+Commit often.
+
+Always have good places where you can say:
+
+OK, I know it’s good right now, so I’m going to commit.
+
+If there’s a problem later, that’s OK. You can go back to those commits.
+
+Now you know the problem happened somewhere between these two places.
+
+Do the testing constantly and confirm that things are doing what you expect.
+
+Give the Agent Access to the Environment
+
+Have agents access the environment where possible.
+
+Cursor has browsers built into it.
+
+When I was having issues with something not looking correct, I had it go into the browser itself.
+
+It wasn’t guessing how it worked.
+
+I could tell it:
+
+My username is this. Log in as this. Go to this page and you’ll see the problem.
+
+Just like I was working with another person, except a much faster person.
+
+Give it access to the browser. Give it a terminal if it’s a backend process.
+
+Give it that level of information.
+
+How Can Agents Make You a Better Developer?
+
+Treat the agents as the tools they are and use them appropriately.
+
+You have to be the expert.
+
+I want to say that a million times:
+
+You are the expert.
+
+This is not replacing you as a developer.
+
+If you feel that it is, you’re not using it correctly.
+
+Think about it as an android versus a cyborg.
+
+We want to be cyborgs.
+
+We want to be a mix of the person and the machine combined, and we want to use these tools to help us be better.
+
+They are not replacing us.
+
+They are augmenting us and making us better.
+
+Watch for hallucinations and everything associated with them.
+
+You are the master. You are the one in charge of this thing.
+
+Don’t let it do all the work for you.
+
+You have to understand how it works.
+
+Use spec-driven development when it makes sense.
+
+If the feature is:
+
+Change the login button to say “Submit” instead of “Login.”
+
+You do not need to write a spec for that. It’s a one-line change.
+
+If we’re rebuilding the login page?
+
+Yeah. Go use the spec. Use that spec-driven approach.
+
+Use it when it’s appropriate.
+
+Treat Testing as a Contract
+
+Testing is super crucial.
+
+View testing as a contract.
+
+If I write a test that says when you give an add method the numbers one and two, it returns three, that is a contract between you and the agent.
+
+Now, if I make a change, that contract has to continue to be fulfilled.
+
+Have the testing in place.
+
+Doing these changes in a repo without testing is much harder.
+
+It’s doable, but it is much harder because you have less faith when you make broad changes.
+
+Watch Your Usage
+
+You can look at your usage and see what these prompts are costing.
+
+Even if the request is included in your subscription, it can still tell you something like:
+
+This prompt would have cost six cents.
+
+Or:
+
+This one cost three dollars because you used two million tokens.
+
+You can look at that and say:
+
+OK, I know what that was. That was when it went off the rails and did all that other stuff.
+
+Think about the prompts you’re doing.
+
+Try to avoid big, long prompts that become those huge, expensive requests if possible.
+
+Agent Orchestration
+
+Another concept is agent orchestration.
+
+I’m not limited to working on a single task at a time.
+
+I was working in the design system while I was working on the OLS refactor.
+
+I could do that because I had one agent running in one repo and another agent running in another repo.
+
+At the same time, I could also do reviews and other work.
+
+It opens you up to be more of a multitasker.
+
+Git worktrees are becoming more relevant because of this.
+
+You can have multiple branches checked out.
+
+One agent can be doing one thing while another agent is doing another.
+
+Worktrees were something people didn’t use very often, but now, especially with agent orchestration, they’re becoming more relevant.
+
+Use the Right Tool
+
+One of the biggest things to understand in everyday use is when to use different tools, different modes, and different models.
+
+They each have their uses.
+
+Don’t use a hammer to pound in all the screws.
+
+Use the right tool for the right situation.
+
+That comes down to knowing which one to use. Sonnet and Auto may be very similar for a lot of smaller work, while there is a drastic difference between something like Opus and Sonnet.
+
+The important part isn’t picking one AI tool and using it for everything.
+
+It’s knowing what you’re trying to accomplish, giving the agent the right context, using the appropriate tool and mode, and then understanding and verifying the result.

@@ -125,6 +125,10 @@ const projects = defineCollection({
         /** Hand-authored, so a relative "./cover.png" resolves through image(). */
         image: image().optional(),
         imageAlt: z.string().default(""),
+        /** Additional images displayed only on the project detail page. */
+        images: z
+          .array(z.object({ src: image(), alt: z.string().trim().min(1) }))
+          .default([]),
         year: z.number().int().min(1990).max(2100).optional(),
         status: z.enum(["live", "archived", "wip"]).default("live"),
         order: z.number().int().default(999),
