@@ -252,15 +252,19 @@ test.describe("homepage", () => {
     expect(wideThumbnail?.y).toBeLessThan(wideTitle?.y ?? 0);
     await expect(secondaryItems.first().locator("time")).toHaveText(/^[A-Z][a-z]{2} \d{4}$/);
 
-    await page.setViewportSize({ width: 1693, height: 1000 });
+    await page.setViewportSize({ width: 1439, height: 1000 });
     await expect(posts).toHaveCount(3);
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await expect(posts).toHaveCount(2);
+    await page.setViewportSize({ width: 1693, height: 1000 });
+    await expect(posts).toHaveCount(2);
     await page.setViewportSize({ width: 1694, height: 1000 });
     await expect(posts).toHaveCount(5);
     await page.setViewportSize({ width: 1795, height: 1000 });
     await expect(posts).toHaveCount(5);
 
     await page.setViewportSize({ width: 1583, height: 1000 });
-    await expect(posts).toHaveCount(3);
+    await expect(posts).toHaveCount(2);
     const [stackedFeatured, stackedSecondary] = await Promise.all([
       posts.first().boundingBox(),
       page.locator(".writing-secondary").boundingBox(),

@@ -22,7 +22,9 @@ const secondaryPosts = selectLatest(otherPosts, 4);
 
 <HomeLayout title={SITE.name} description={SITE.description}>
   <Section id="about" title="About" number="01">
-    <p class="about-copy">{SITE.about}</p>
+    <div class="about-copy">
+      {SITE.about.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
   </Section>
 
   <Section id="activity" title="Writing" number="02">
@@ -138,6 +140,8 @@ const secondaryPosts = selectLatest(otherPosts, 4);
 
 <style>
   .about-copy {
+    display: grid;
+    gap: var(--spacing-4);
     color: var(--fg-muted);
   }
 
@@ -211,6 +215,12 @@ const secondaryPosts = selectLatest(otherPosts, 4);
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
       }
+    }
+  }
+
+  @media (min-width: 90rem) and (max-width: 105.874rem) {
+    .writing-secondary :global(.post-card:nth-child(n + 2)) {
+      display: none;
     }
   }
 
