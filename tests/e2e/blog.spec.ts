@@ -227,9 +227,19 @@ test.describe("blog", () => {
     ).toBe(true);
   });
 
-  test("the intro spans the page while the post body remains centered", async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+  test("the hero spans the page while its content aligns with the post body", async ({ page }) => {
+    await page.setViewportSize({ width: 1200, height: 900 });
     await page.goto("/blog/local-storage-options");
+    const [boundaryBreadcrumb, boundaryTitle, boundaryProse] = await Promise.all([
+      page.getByRole("link", { name: "All posts" }).boundingBox(),
+      page.getByRole("heading", { level: 1 }).boundingBox(),
+      page.locator(".prose").boundingBox(),
+    ]);
+
+    expect(boundaryTitle?.x).toBeCloseTo(boundaryBreadcrumb?.x ?? 0, 0);
+    expect(boundaryTitle?.x).toBeLessThan(boundaryProse?.x ?? 0);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
     const [main, breadcrumb, title, hero, summary, prose] = await Promise.all([
       page.getByRole("main").boundingBox(),
       page.getByRole("link", { name: "All posts" }).boundingBox(),
@@ -240,13 +250,17 @@ test.describe("blog", () => {
     ]);
 
     expect(title?.x).toBeCloseTo(breadcrumb?.x ?? 0, 0);
-    expect(hero?.x).toBeCloseTo(breadcrumb?.x ?? 0, 0);
+    expect(title?.x).toBeCloseTo(prose?.x ?? 0, 0);
+    expect(hero?.x).toBeLessThan(title?.x ?? 0);
+    expect((hero?.x ?? 0) + (hero?.width ?? 0)).toBeGreaterThan(
+      (summary?.x ?? 0) + (summary?.width ?? 0),
+    );
     expect(summary?.y).toBeGreaterThanOrEqual(hero?.y ?? 0);
     expect((summary?.y ?? 0) + (summary?.height ?? 0)).toBeLessThanOrEqual(
       (hero?.y ?? 0) + (hero?.height ?? 0),
     );
     expect((summary?.x ?? 0) + (summary?.width ?? 0)).toBeCloseTo(
-      (main?.x ?? 0) + (main?.width ?? 0),
+      (prose?.x ?? 0) + (prose?.width ?? 0),
       0,
     );
     expect(prose?.width).toBeLessThan(main?.width ?? 0);

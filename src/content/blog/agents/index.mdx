@@ -1,8 +1,8 @@
 ---
-title: Spec Driven Development with Agents
-description: A deep dive into the world of agents, from the basics to the most
-  advanced concepts.
-pubDate: 2026-03-11
+title: All you ever wanted to know about Agents
+description: In this first article in my 4 Part series on Agents, I'm going to
+  describe what actually is an agent and what can they do.
+pubDate: 2026-03-04
 draft: false
 featured: false
 tags:
@@ -11,440 +11,77 @@ tags:
 heroImage: ./cover.png
 heroImageAlt: A cover image for the blog post about agents
 ---
-
-# Working Effectively with AI Coding Agents
-
-AI coding agents can do a surprising amount of the work developers normally do. They can write code, review pull requests, investigate bugs, find security issues, write tests, explain unfamiliar code, and interact with development environments.
-
-But getting good results from them isn't simply a matter of giving an agent a prompt and letting it work. The quality of the result depends heavily on how you use the agent:
-
-* the context you provide
-* the tool and mode you choose
-* the rules you establish
-* how carefully you verify what it produces
-
-The most important thing to understand is that an agent is a tool. It is a very powerful tool, but it is still a tool.
-
 ## What Is an Agent?
 
-An agent is, at its core, a large language model trying to predict an appropriate response based on the information it has been given.
+An agent really is just a Large Language Model (LLM) that is going to try to predict what you want it to say. You give it a prompt and, ideally, you give it some context. Based on what it’s learned in the past, it’s going to try to figure out what the most highly ranked response is given those pieces of information.
 
-These models have been trained on enormous amounts of material, including things like GitHub repositories and Stack Overflow. When you give an agent a problem, it uses that learned information along with the context you provide to determine what it thinks the appropriate response should be.
+Most of the LLM's we’re using have been trained on specific domains of knowledge.  Models like Claude's and Cursor's have been trained on content from sites like Stack Overflow and GitHub.
 
-That's what these things are, and it's best to treat them like that.
+Oftentimes you will find that a hallucination has occurred, especially if you’re working with something very nuanced. The answer it gave you might not be a good answer.
 
-**These are helpers. Don't treat them as a mentor.**
+Make sure you understand what it came back with, because in my opinion, the second you commit it, it’s your code. It’s not the agent’s code. It is your code.  You should be expected to make changes to it in the future.
 
-Senior developers will often treat an agent somewhat like a junior developer, giving it a well defined task, provide the necessary information, and expect it to come back with a useful result. The dangerous mistake is treating the agent like a senior developer. If it tells you something, that doesn't mean it knows what it's talking about. It can produce an answer that sounds completely confident and is completely wrong.
-
-Whenever an agent gives you an answer or makes a change, you need to understand what it did. If you don't understand it, ask questions:
-
-> Why did you do this?
-
-> Explain how this works.
-
-> Why is this the appropriate approach?
-
-Especially when you're working with something nuanced or unfamiliar, hallucinations are possible. The less familiar you are with a subject, the more carefully you need to verify the agent's claims.
-
-This leads to the most important rule of working with agents:
-
-**The second you commit it, it's your code.**
-
-It isn't the agent's code. It is your code.
-
-You are the person who will have to maintain it, debug it, explain it, and eventually change it. Once that code is reviewed and merged, it becomes the team's code. "Claude wrote it" or "the agent told me to do that" isn't an acceptable explanation.
-
-You have to own it.
+Whenever, as a team, you go through a review process and that code gets merged into production, eventually it’s not your code anymore. It’s the team’s code. So the team also needs to understand how this works.
 
 ## What Can Agents Do?
 
-Agents can perform much of the work developers already do.
+Agents can pretty much do anything that we do.
 
-They can write application code, investigate bugs, perform code reviews, identify potential security issues, write automated tests, and explain how an unfamiliar part of a codebase works.
+### Write Code
 
-One of the things I've found particularly useful is having an agent explain existing code rather than immediately asking it to change something.
+This is an obvious one. If you give an agent a technical task, it's going to be able to write your the code to implement it for you, which is great.
 
-I can go through a codebase and ask:
+### Creating a Technical Plan and Implement It
+
+Something we'll go into more in depth in my next article is the ability for an agent to actually come up with a plan for the work you're doing. This goes beyond making a simple bug fix, and is extremely useful when we start developing complex features in an already complex application.
+
+An agent can help guide you through the process of figuring out:
+
+* What do you actually want in a feature?
+* How will it be implemented in the current system?
+* How wil we confirm it meets these expectations?
+
+### Explaining How a System Works
+
+A lot of the work I’ve done over the last couple of months has been not bothering people and saying
+
+> Hey, tell me how this works.”
+
+Instead, I’ll go through the code and have an agent look at it and say:
 
 > Explain this to me. Tell me how this is working.
 
-It can walk through the implementation, identify potential problems, and point out things I may have missed.
+It can also tell me, “There’s a problem here,” or “There’s a security issue here.” It can give you really good feedback.
 
-They can also act as a second set of eyes during development. Before opening a pull request, I can ask an agent:
+### Code Review
 
-> Did I miss something?
+I recently had a pull request that was relatively large and changed the process around password resets. There were changes on both the PHP side and the TypeScript side.  I was very familiar with the TypeScript side, but not as familiar with the PHP side.  To help me, I had an agent review the change set, and it found some issues in the PHP code. With any results you get from an agent, it's important to trust but verify.  I looked into the issues it suggested and confirmed is this actually an issue, or is this a hallucination?
 
-It can review the changes and tell me what it sees.
+One was a real issue. It was something I, as a senior developer, probably would not have known because I’m not as familiar with some of the backend side of the application.   But it also identified something else as a problem that wasn’t actually a problem. It didn’t have the context that we were intentionally changing the some business logic, so it’s not perfect.
 
-But it isn't a magic bullet.
+I’ll also do this before I open a PR myself. On more then one occasion, I've had a pre-review catch issues that the next reviewer would likely have had to write up.
 
-For example, I had a relatively large pull request that changed the password-reset process on both the PHP and TypeScript sides. I was very familiar with the TypeScript code but less familiar with the PHP implementation.
+### Testing Automation
 
-The agent identified several issues in the PHP code. I investigated them rather than simply accepting its recommendations.
+Agents are an excellent tool for improving automated testing in an existing application. Unit tests in particular can now be handled almost trivially with an agent, letting developers spend more of their time on higher level concerns like UX, architecture, and meeting acceptance criteria.
 
-One of the issues was real. It was something I probably wouldn't have caught because I wasn't as familiar with some of the PHP nomenclature involved.
+More recently, agents have become useful for more complex E2E testing as well. With tools like Playwright and its MCP integration, you can get browser based tests up and running quickly, covering real user interactions across multiple steps. This makes it much easier to validate that features actually work as expected, rather than relying solely on unit tests to verify individual pieces of functionality.
 
-But another issue it identified wasn't actually a problem. It didn't have the context that we were intentionally changing some of the terms-of-service logic.
+### A Peer to Run Ideas Off Of
 
-At the same time, I found something the agent didn't identify: duplicated code that would have been better extracted into a separate component.
+You can also use it almost like somebody who’s on the level with you.
 
-The reason was simple. I had asked it to look for bugs. I hadn't asked it to look for opportunities to improve the structure of the code.
+> I’m having trouble. I don’t know what’s a good way to do something. What are the best practices for X
 
-The agent did exactly what I asked, within the limits of what it understood.
+It can give you that information.  But this is a recurring theme: the less familiar you are with something, the more you really need to verify that what it told you is true.  It will lie to your face and say it with the confidence of the best snake oil salesman in the world.  You really need to be knowledgeable about these things.
 
-**Agents depend on your expertise rather than replacing it.**
+This isn’t going to replace you. It’s not going to replace the skills that you have. If anything, it depends upon them even more.  The other thing is that if you don’t ask it something, there’s a good chance it’s not going to take it into consideration.  If you’re a person who doesn’t care too much about testing, it’s probably not going to think about testing unless you’ve got some guardrails in place.
 
-If you don't ask the agent to consider something, there is a good chance it won't consider it. If you don't care about testing, for example, the agent isn't necessarily going to prioritize testing unless you establish that expectation somewhere.
+### Working Together through Agent Orchestration
 
-## Context Is Everything
+Increasingly, many more advanced agents are taking on a planner implementer pattern. In this pattern, you'll have a more advanced planner model used to figure out what needs done, and how to do it, then cheaper models are given those plans to implement.
 
-Agents don't just work from your prompt. They work from the context surrounding the prompt.
+This is really useful on multiple levels
 
-Suppose you're working in a repository and say:
-
-> I want to make a change to the login screen. I want to add a new button.
-
-The agent may be able to figure out what you mean, but it has to search for the relevant code and make assumptions about what you actually want.
-
-Instead, give it the context surrounding the change.
-
-If you're adding a reset-password button to a login page, you might provide the form that actually needs to change. If that form communicates with a backend API, provide the relevant API endpoint as well.
-
-Context doesn't have to be source code. It can include documentation, HTTP endpoints, configuration, or other information relevant to the task.
-
-The goal is to give the agent **enough information to make a good decision without giving it everything**.
-
-More context isn't automatically better.
-
-The more information you give an agent, the more tokens it has to process. That generally means more time and more cost. A huge amount of irrelevant context can also make it harder for the agent to identify what actually matters.
-
-For a small change, I generally wouldn't give it an entire file if a relevant section of that file is sufficient.
-
-Instead of:
-
-> Here's the entire application. Change this button.
-
-Give it:
-
-> Here is a code snippet that needs to be changed, and here is the expected behavior.
-
-That gives the agent a much smaller problem to reason about.
-
-There's another reason to pay attention to context: conversation history is context too.
-
-An agent doesn't have human memory. Each interaction is based on the information available to it, and the accumulated conversation becomes part of what it has to process. As that history grows, the amount of context grows with it.
-
-That's why long-running conversations can become slower and more expensive.
-
-The goal is to find the sweet spot: **enough context to make a good decision, but no more than necessary.**
-
-## Use the Right Tool for the Situation
-
-There are many different tools for working with AI agents, and they don't all have the same capabilities.
-
-Tools such as Cursor and Claude Code can work directly with a repository, terminal, browser, and other development resources. That's fundamentally different from copying a piece of code out of a repository and pasting it into a general-purpose chatbot.
-
-You may get a good answer from the latter, but an integrated development environment gives the agent access to much more of the information it needs.
-
-The same principle applies to specialized tools.
-
-I've found GitHub Copilot particularly useful for problems involving GitHub Actions and the GitHub environment. If a pipeline fails, it has useful domain knowledge about how GitHub's runners work and can investigate the failure in that context.
-
-If you point a different agent at the same problem without giving it access to those underlying systems, it may be forced to guess.
-
-Similarly, I use general-purpose tools for things like architecture questions or getting a second opinion:
-
-> What's a good approach for state management?
-
-> What are the best practices for this?
-
-If another agent tells me something is a security vulnerability, I can use another model as a second opinion and then verify the result against external documentation.
-
-The important part isn't choosing one AI tool and using it for everything.
-
-**Use the tool that has the information and capabilities appropriate to the problem.**
-
-## Choose the Right Mode
-
-Many agent tools also provide different modes for different kinds of work.
-
-### Agent Mode
-
-Agent mode is useful for small, well-defined tasks.
-
-If I have a TypeScript error, I might ask:
-
-> Why is there a type error here? Explain it and fix it.
-
-A single line of context may be enough.
-
-The same approach works well for a linter error, a small styling problem, or another narrowly scoped change.
-
-### Debug Mode
-
-Debugging a difficult problem requires more context.
-
-If a page has a race condition that only produces an error intermittently, a debugging-oriented mode can investigate the problem more deeply.
-
-The tradeoff is that it uses more context and generally takes more time and tokens.
-
-### Plan Mode
-
-Plan mode is where I increasingly turn for complex work.
-
-If I'm building a new page from scratch or performing a major refactor, I don't necessarily want the agent to start changing code immediately.
-
-Instead, I want it to understand the problem first.
-
-For example, if I say:
-
-> I want a new login page.
-
-There may be a lot of unanswered questions:
-
-* Do we support two-factor authentication?
-* Which authentication providers are required?
-* Is this replacing an existing login flow?
-* What existing components should be reused?
-* What testing is expected?
-
-A planning-oriented agent can identify those questions and produce a document describing what it intends to build.
-
-I can review that plan, correct it, and then let the agent implement it.
-
-That is much safer than saying "build this" and discovering later that it made assumptions I didn't intend.
-
-### Ask Mode
-
-Ask mode is useful when you want information without allowing the agent to modify anything.
-
-This is where I would generally perform a pull-request review. I want the agent to inspect the code and tell me what it thinks is good or bad, but I don't want it changing the implementation.
-
-It's also useful for questions such as:
-
-> How does authentication currently work?
-
-or:
-
-> What is the best way of doing X?
-
-The distinction is important: sometimes you want the agent to act, and sometimes you want it to investigate.
-
-## Choose the Right Model
-
-Different models are also appropriate for different levels of complexity.
-
-For small, straightforward work, I tend to use faster models such as Auto or Sonnet. They're good at simple changes where the problem is well understood.
-
-For more complicated work—difficult bugs, large features, or substantial refactoring—I may move to a more capable model such as Opus.
-
-The tradeoff is speed.
-
-With a fast model, the interaction can feel like:
-
-> Go do this.
-
-> OK, I'm doing it.
-
-> OK, it's done.
-
-A more capable model spends more time reasoning about the problem.
-
-But regardless of the model, don't simply give it a prompt and walk away.
-
-**Watch what it's doing.**
-
-You can often catch an agent going down the wrong path while it's working. If you see it making an incorrect assumption, you can stop it and redirect it:
-
-> No, that's not what I meant.
-
-Otherwise, you can come back several minutes later and discover that it has spent all that time building something based on a misunderstanding.
-
-The larger and more complex the task, the more important this becomes.
-
-## Rules and Skills
-
-One of the most useful ways to make agents consistent is to move recurring instructions out of individual prompts.
-
-### Rules
-
-Rules are persistent instructions that can apply at the project or user level.
-
-For example, a rule targeting TSX files could tell an agent:
-
-* Follow this naming convention.
-* Use this component structure.
-* Unit tests are required.
-* Follow these React component conventions.
-
-The agent doesn't need to be reminded about those things every time it modifies a TSX file.
-
-Rules are also useful for people.
-
-Traditionally, a team might maintain a document describing its coding standards. Rules can serve the same purpose while also giving agents access to those standards.
-
-That means the developer and the agent are working from the same source of truth.
-
-### Keep Rules Targeted
-
-Rules should be targeted to the situations where they apply.
-
-If I'm modifying a stylesheet, I don't need every React component rule included in the context.
-
-That's why mechanisms such as file patterns are useful. They allow the agent to receive only the instructions relevant to the work it is doing.
-
-The larger and more complex your rules become, the more context they consume.
-
-So don't make them unnecessarily verbose.
-
-There is value in having comprehensive standards, but the individual rules should be as focused and succinct as possible.
-
-### Skills
-
-Skills are better suited to repeatable tasks that don't need to be part of every interaction.
-
-Imagine a company has a number of PHP 7 applications that need to be upgraded to PHP 8.
-
-You could create a skill describing the migration process, including breaking changes, method signature changes, and other things that need to be checked.
-
-Then you can tell the agent:
-
-> Convert this repository from PHP 7.3 to PHP 8.
-
-The agent can recognize that this is a migration task and apply the appropriate process.
-
-Pull-request review is another good example. Instead of manually explaining what to check every time, a review skill could define the process:
-
-* Check these rules.
-* Confirm X, Y, and Z.
-* Verify the tests.
-* Look for these classes of problems.
-
-That makes the review process repeatable.
-
-The distinction is useful:
-
-**Rules are things that should be present during everyday work. Skills are processes you invoke when you need them.**
-
-I've found that some things I previously put into rules make more sense as skills.
-
-For example, rather than having every React instruction permanently present in the context, I could have a "make component" skill containing the process for creating a component.
-
-Skills can also include scripts.
-
-If a repository needs SVG assets optimized before they're added, a skill could handle the process:
-
-> Import this SVG.
-
-The skill could put it in the appropriate directory, run the optimization script, and finish the task.
-
-That's a practical way to automate repetitive development processes.
-
-Skills can also be shared. A company-wide repository could contain skills for things such as PHP migrations or code review, while project-specific skills could handle things such as that project's SVG workflow.
-
-## Connect Agents to Your Development Environment
-
-MCP integrations provide another way to give agents useful context and access to external systems.
-
-Consider pull-request review.
-
-Suppose the branch name identifies a Jira ticket. An agent could use a Jira integration to retrieve the ticket and its acceptance criteria.
-
-It could then use a GitHub integration to retrieve the changes made by the branch.
-
-Now the agent has two pieces of information:
-
-> What was supposed to be built?
-
-and:
-
-> What was actually changed?
-
-It can compare the implementation against the acceptance criteria.
-
-That gets much closer to how a person actually performs a code review.
-
-The broader principle is the same as context management: **give the agent access to the information it needs instead of making it guess.**
-
-This also applies to the development environment itself.
-
-If a problem only exists in a browser, let the agent use the browser when possible.
-
-If it's a backend problem, give it access to the terminal and the appropriate development environment.
-
-For example, when I was troubleshooting something that didn't look correct in a browser, I could have the agent actually navigate to the page rather than asking it to guess what the application looked like.
-
-The interaction becomes much closer to working with another developer:
-
-> Log in with this account, go to this page, and look at the problem.
-
-The more directly the agent can observe the environment, the less it has to infer.
-
-## Verify Everything
-
-All of these techniques ultimately come back to one thing:
-
-**Trust, but verify.**
-
-Don't assume that because an agent produced something, it is correct.
-
-For small changes, verification may be as simple as reviewing the diff and running the relevant tests.
-
-For larger changes, I prefer to work incrementally.
-
-When I was working on a large CSS refactor, I didn't simply tell the agent to change the entire application and come back when it was finished.
-
-I had it work through the application in steps.
-
-Build this page.
-
-Then I would inspect the page manually and run the tests.
-
-If everything was correct:
-
-> OK, move on.
-
-If something was wrong, we would stop, fix it, and continue.
-
-This provides checkpoints throughout the process instead of one enormous change at the end.
-
-### Commit Often
-
-Frequent commits make this process much safer.
-
-Whenever you reach a point where you know the application is in a good state, commit it.
-
-If something goes wrong later, you have a known-good point to return to. You can also narrow down where a problem was introduced.
-
-This is particularly useful when agents are making large changes because you don't want a single enormous commit containing everything the agent did.
-
-Test continuously. Review continuously. Commit at known-good points.
-
-## The Developer Is Still Responsible
-
-AI agents aren't replacing the skills developers have.
-
-If anything, they make those skills more important.
-
-You need to know enough about the system to recognize when an agent is making a bad decision. You need enough domain knowledge to recognize hallucinations. You need enough engineering judgment to reject an over-engineered solution.
-
-If the agent does something you don't understand, stop and investigate it.
-
-If it chooses a poor approach, tell it to use a different one.
-
-If it misses something, explain what it missed.
-
-The goal isn't an android that works instead of you.
-
-It's a cyborg: the person and the machine working together.
-
-The agent provides speed, scale, and another perspective. You provide judgment, context, domain knowledge, and accountability.
-
-You are still the expert.
-
-**The agent is there to augment your abilities, not replace them.**
-
-And ultimately, the most important rule remains the simplest:
-
-**Once you commit the code, it's your code.**
+1. You're only paying the expensive model to plan. The actual grunt work is done by cheaper models
+2. Multiple agents can work together in parallel on tasks at the same time, cutting down on the total time to finish a task

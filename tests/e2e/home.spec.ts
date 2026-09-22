@@ -197,6 +197,35 @@ test.describe("homepage", () => {
     expect(first?.width).toBeCloseTo(second?.width ?? 0, 0);
   });
 
+  test("sizes responsive writing thumbnails without extending the secondary column", async ({
+    page,
+  }) => {
+    for (const width of [1288, 1800]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto("/");
+
+      const featured = await page
+        .locator('#activity article[data-variant="home-featured"]')
+        .boundingBox();
+      const secondary = page.locator(".writing-secondary article");
+      const [secondCard, firstThumbnail, secondThumbnail, firstContent] = await Promise.all([
+        secondary.nth(1).boundingBox(),
+        secondary.nth(0).locator("img").boundingBox(),
+        secondary.nth(1).locator("img").boundingBox(),
+        secondary.nth(0).locator(".post-content").boundingBox(),
+      ]);
+
+      expect(firstThumbnail?.width ?? 0).toBeGreaterThanOrEqual(90);
+      expect(secondThumbnail?.width ?? 0).toBeGreaterThanOrEqual(90);
+      expect(
+        (firstContent?.x ?? 0) - ((firstThumbnail?.x ?? 0) + (firstThumbnail?.width ?? 0)),
+      ).toBeCloseTo(16, 0);
+      expect((secondCard?.y ?? 0) + (secondCard?.height ?? 0)).toBeLessThanOrEqual(
+        (featured?.y ?? 0) + (featured?.height ?? 0) + 1,
+      );
+    }
+  });
+
   test("adapts the featured writing layout to its available space", async ({ page }) => {
     await page.setViewportSize({ width: 1800, height: 1000 });
     await page.goto("/");

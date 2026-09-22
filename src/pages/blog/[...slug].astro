@@ -470,6 +470,38 @@ const shareLinks = [
     }
   }
 
+  @media (min-width: 75.0625rem) {
+    .post-masthead--with-hero {
+      grid-template-columns:
+        minmax(0, 1fr)
+        minmax(
+          0,
+          calc(
+            var(--article-layout-measure) - var(--article-share-rail-measure) -
+              var(--spacing-16)
+          )
+        )
+        var(--spacing-16)
+        var(--article-share-rail-measure)
+        minmax(0, 1fr);
+      column-gap: 0;
+    }
+
+    .post-masthead--with-hero .post-header {
+      grid-column: 2;
+    }
+
+    .post-intro--with-hero .post-summary {
+      grid-column: 4;
+    }
+
+    :global(.page-main:has(.post-masthead--with-hero) > .breadcrumb) {
+      inset-inline: 0;
+      inline-size: min(100%, var(--article-layout-measure));
+      margin-inline: auto;
+    }
+  }
+
   @media (min-width: 80.625rem) {
     :global(.page-main:has(.post-masthead--with-hero)) {
       --post-masthead-bleed: var(--spacing-12);
