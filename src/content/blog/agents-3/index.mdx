@@ -1,262 +1,60 @@
 ---
 title: Rules, Skills, MCPs and How to Use Them with Agents
-description: In Part 3 of my 4 Part series on Agents, we will discuss how to use rules and skills with agents to get the best results.
-  advanced concepts.
+description: In Part 3 of my 4 Part series on Agents, we will discuss how to use
+  rules and skills with agents to get the best results. advanced concepts.
 pubDate: 2026-03-18
 draft: false
 featured: false
 tags:
   - agents
   - ai
-#heroImage: ./cover.png
-#heroImageAlt: A cover image for the blog post about agents
 ---
-
 ## Rules
 
+Rules are things you can have at the project level or even at your own user level. They sit in the background of your agents without you having to explicitly talk about them.  For example, you can have a rule targeted at TSX files. Any time the agent makes a change to a TSX file, it can automatically know:
 
-Rules are things you can have at the project level or even at your own user level.
+* follow this naming convention
+* use this template
+* unit tests are required
+* follow these React component rules
 
-
-They sit in the background of your agents without you having to explicitly talk about them.
-
-
-For example, you can have a rule targeted at TSX files.
-
-
-Any time the agent makes a change to a TSX file, it can automatically know:
-
-
-follow this naming convention
-use this template
-unit tests are required
-follow these React component rules
-
-
-You don’t have to say:
-
-
-When I’m making a new page, go follow our React component rules.
-
-
-It sees that this is a TSX file and knows those rules apply.
-
-
-The nice part is that these rules are plain text. They’re Markdown files. It’s not code or anything fancy.
-
-
-They’re really good for people too.
-
-
-If a new developer comes into the system, we would traditionally have a document saying:
-
-
-Here are our coding standards.
-
-
-That is what this is, except it’s also used by the agents so that they follow the same rules.
-
-
-The person and the machine are in sync with each other.
-
-
-It becomes a single source of truth for what we as a team do.
-
-
-### Keep Rules Targeted
-
-
-You want to keep rules generally very targeted.
-
-
-That’s why having things like glob patterns is important.
-
-
-If I make a change to a stylesheet, I don’t need all of the React component rules included. It’s just a CSS file. Those things don’t matter.
-
-
-The bigger and more complex your rules become, the more potential context they use.
-
-
-So don’t be too wordy.
-
-
-Try to keep them as succinct as possible. Don’t be overly verbose, but there’s still value in having a comprehensive set of rules because they’re useful for both the agents and the people.
-
+The nice part is that these rules are plain text. They’re Markdown files. It’s not code or anything fancy That makes them really useful for people too. If a new developer comes into the system, we would traditionally have a document saying telling them these same things, but now the rules files can serve both purposes.   It becomes a single source of truth for what we as a team do.
 
 ## Skills
 
+Skills are basically rules-based, repeatable actions.  They’re great for things that don’t have to be part of your everyday interactions.  For example, imagine a project is running with PHP 7 and needs to upgrade to PHP 8. You could build a skill could explain all the things to watch out for: PHP 8 breaking changes, method signature changes, and everything else involved in that migration.
 
-Skills are basically rules-based, repeatable actions.
+Another really good use case is pull request review.  Instead of manually telling it what to look for every time, you could have a pull-request-review skill that says:
 
-
-They’re great for things that don’t have to be part of your everyday interactions.
-
-
-For example, imagine a company is on PHP 7 and wants to upgrade to PHP 8.
-
-
-You could write a skill based around that.
-
-
-The skill could explain all the things to watch out for: PHP 8 breaking changes, method signature changes, and everything else involved in that migration.
-
-
-Then you can simply tell the agent:
-
-
-I want to convert this repo from PHP 7.3 to PHP 8.
-
-
-It can see that it has a skill for that and say:
-
-
-OK, now I know all the things I have to look for and the process I should follow to make that conversion.
-
-
-It’s a more efficient way of doing things.
-
-
-Another really good use case is pull request review.
-
-
-Instead of manually telling it what to look for every time, you could have a pull-request-review skill that says:
-
-
-check these rules
-confirm X, Y, and Z
-verify tests
-look for these classes of problems
-
+* check these rules
+* confirm X, Y, and Z
+* verify tests
+* look for these classes of problems
 
 That becomes a repeatable process.
 
-
-## Rules vs. Skills
-
-
-A skill is more of a specific thing.
-
-
-I want you to convert this application.
-I want you to do a pull request review.
-I want you to make a component.
-
-
-A rule is something that I want in place while I’m doing everyday work.
-
-
-Any time I’m saying, “Make me a page,” I might want certain rules in the background.
-
-
-A skill is repeatable, but it doesn’t need to live in the context all the time.
-
-
-The result is that skills are cheaper because they don’t have the same context cost.
-
-
-There are a lot of things I used to put into rules that I think would make more sense as skills.
-
-
-For example, a lot of the rules I have around React could probably be turned into a “make component” skill.
-
-
-Then instead of always having those instructions in context, when I say:
-
-
-Make a component.
-
-
-The agent says:
-
-
-Oh, I’m making a component. I’m going to use the make-component skill.
-
-
-That makes more sense.
-
-
-Skills can have scripts as well.
-
-
-The scripts can be whatever language you want.
-
-
-For example, if we’re bringing SVGs directly into a repo, we usually don’t want to take them in raw. We want to optimize them.
-
-
-You could have a skill that says:
-
-
-Import this SVG.
-
-
-Then it puts it into the appropriate folder, runs the optimization script, and you’re done.
-
-
-It’s a way to automate your life around a repeatable process.
-
-
 ## Sharing Skills
-
 
 Skills can be scoped at the project level or at the user level.
 
-
 We could have a repo that was just skills and have company-wide skills that everybody checks out.
 
-
-Something like PHP 7 to PHP 8 could very much be a company-wide skill because we have a lot of repos we might want to change.
-
-
-Something like SVG handling might make more sense at the project level.
-
+Something like PHP 7 to PHP 8 could very much be a org wide skill because we have a lot of repos we might want to change. Something like SVG handling might make more sense at the project level.
 
 Code review would be another excellent example of something that could be shared by everybody. We’re doing code reviews the same way whether it’s PHP or JavaScript.
 
-
 ## MCP Integration
 
-
-MCP integration is where a lot of this stuff comes together.
-
-
-MCPs are a way for AI agents to interact with other systems more directly.
-
-
-Pull request review is a good example.
-
-
-You could have a Jira MCP in place. Based on the branch naming convention, the agent can tell which Jira ticket the branch is associated with.
-
+MCPs are a way for AI agents to interact with other systems more directly.   Pull request review is a good example.  You could have a Jira MCP in place. Based on the branch naming convention, the agent can tell which Jira ticket the branch is associated with.
 
 It can say:
 
-
-Give me all the information from that Jira ticket.
-
+> Give me all the information from that Jira ticket.
 
 Then it pulls out the acceptance criteria.
 
-
 Now connect to the GitHub MCP and say:
 
+> Give me all the changes associated with this branch compared to the target branch.
 
-Give me all the changes associated with this branch compared to the target branch.
-
-
-From those two things, it can compare the implementation to the acceptance criteria.
-
-
-Do these changes pass the acceptance criteria that were given?
-
-
-That gives you an even better way of doing a pull request review.
-
-
-It really is close to how a person would work.
-
-
-
-
-
+From those two things, it can compare the implementation to the acceptance criteria.  It really is close to how a good reviewer would work.
