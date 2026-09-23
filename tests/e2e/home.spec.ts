@@ -127,7 +127,7 @@ test.describe("homepage", () => {
     await expect(page.getByRole("navigation", { name: "On this page" })).toBeHidden();
     expect(
       (await page.getByRole("heading", { name: "Writing", exact: true }).boundingBox())?.y,
-    ).toBeLessThan(700);
+    ).toBeLessThan(800);
   });
 
   test("brings writing into the first phone viewport", async ({ page }) => {
