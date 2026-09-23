@@ -9,15 +9,15 @@ tags:
   - agents
   - ai
   - machine learning
-heroImage: ./cover.png
-heroImageAlt: A cover image for the blog post about agents
+#heroImage: ./cover.png
+#heroImageAlt: A cover image for the blog post about agents
 ---
 Code review takes time and effort. There’s context switching involved, and sometimes it can be challenging just to understand how a change fits into the bigger picture. So it’s worth asking: why are we actually going through this process at all?
 
-The obvious answer is that we’re trying to figure out whether a proposed change accomplishes its intended goal and whether it does it in a way that we’re comfortable with. Those are two different things, and both are important. It’s not good enough that the code does what we want it to do. 
+The obvious answer is that we’re trying to figure out whether a proposed change accomplishes its intended goal and whether it does it in a way that we’re comfortable with. Those are two different things, and both are important. It’s not good enough that the code does what we want it to do.
 
-* Is it error prone? 
-* Is it something none of us understand? 
+* Is it error prone?
+* Is it something none of us understand?
 * Are we going to regret this decision six months from now?
 
 The work we do today doesn’t live in isolation. We have to live with it going forward.
@@ -64,11 +64,9 @@ Comments are useful, but generally they shouldn’t be explaining how the code w
 
 If I’m reviewing something and thinking, “I don’t understand this, and I don’t want to maintain this,” that’s a legitimate concern. Ask whether it can be simplified. Ask the author to explain it. There are tools that can help you understand it too, but the end goal should still be code that is as simple and understandable as we can reasonably make it.
 
-The same principle applies to the scope of the change.
+The same principle applies to the scope of the change. If you’re fixing a bug and notice another unrelated bug, don’t just throw that fix into the same PR. Create another Jira ticket. If React released an update while you were working on something unrelated, don’t decide to update React at the same time.
 
-If you’re fixing a bug and notice another unrelated bug, don’t just throw that fix into the same PR. Create another Jira ticket. If React released an update while you were working on something unrelated, don’t decide to update React at the same time.
-
-Keep the work focused on the acceptance criteria you were given.
+## Keep the work focused on the acceptance criteria you were given.
 
 Every unrelated change is another potential point of failure and another thing the reviewer has to understand and test. Given the choice between one giant PR and four small, focused PRs, I’ll take the four small ones any day of the week. The context is smaller: here’s the thing, I review the thing, I test the thing, and I’m done.
 
@@ -78,9 +76,7 @@ For larger features, stacked PRs can help with this. If a feature naturally brea
 
 Before assigning a PR to somebody, there are several things you can do to make their life easier.
 
-Use conventional commits with your Jira ticket information, and keep the history clean. That gives us a paper trail. Six months from now, I can look at a commit, see that it was a fix associated with a Jira ticket, go back to Jira, and understand why those files changed.
-
-The more context we preserve, the easier it is for both people and agents to understand the work later.
+Use conventional commits with your Jira ticket information, and keep the history clean. That gives us a paper trail. Six months from now, I can look at a commit, see that it was a fix associated with a Jira ticket, go back to Jira, and understand why those files changed.  The more context we preserve, the easier it is for both people and agents to understand the work later.
 
 PR templates are useful for the same reason. A template can walk the developer through what’s expected: make sure the commit follows the convention, identify database changes, explain what changed, and—one of the most important things—tell me how to test it.
 
@@ -88,15 +84,9 @@ As a reviewer, I shouldn’t have to reverse-engineer the steps necessary to ver
 
 ## Review Your Own Code First
 
-This is probably the easiest improvement we can make: do a code review on your own work before asking somebody else to review it.
-
-If you’re using Cursor or Claude, use the code review capabilities that are already there. With enough project context, the agent can look at the branch, identify the Jira ticket, pull the acceptance criteria, apply the rules for the repository, check whether tests were written, and flag things you missed.
-
-This is the laziest thing you can possibly do, and it can eliminate a huge amount of work for the reviewer.
+This is probably the easiest improvement we can make.  If you’re using Cursor or Claude, use the code review skills that are already there. With enough project context, the agent can look at the branch, identify the Jira ticket, pull the acceptance criteria, apply the rules for the repository, check whether tests were written, and flag things you missed.
 
 But don’t take everything an agent says as gospel.  Go through its findings. Sometimes it has found a real problem. Sometimes the problem is that the acceptance criteria weren’t updated. Sometimes the agent is just wrong. The point isn’t to blindly follow it. The point is to use it to catch problems before another person has to spend their time finding them.
-
-If you take nothing else away from this, do the pre review. It takes almost no effort, and it will make the person reviewing your work a lot happier.
 
 ## Give Reviewers Somewhere to Test
 
@@ -112,13 +102,11 @@ Preview environments also give us somewhere to run E2E tests. We can combine aut
 
 ## Don't Hand Off Something With Failing CI
 
-Before assigning a review, make sure CI passes.
-
-If formatting, types, unit tests, or some other automated check is failing, there’s not much point in assigning the PR to somebody. If I open it and immediately see that the tests are failing, the first thing I’m going to say is, “It’s not working. Fix that before I review it.”
+Before assigning a review, make sure CI passes.  If formatting, types, unit tests, or some other automated check is failing, there’s not much point in assigning the PR to somebody. If I open it and immediately see that the tests are failing, the first thing I’m going to say is, “It’s not working. Fix that before I review it.”
 
 ## As a Reviewer, Understand the Code
 
-Once the work reaches the reviewer, the first question should be: do I understand this code?
+Once the work reaches the reviewer, the first question you should try to answer is whether you understand the code.
 
 AI makes this especially important.  I’ve seen junior developers treat agent generated code almost like it came from a senior developer: the agent generated it, so it must know what it’s doing. Senior developers tend to treat the agent more like an intern or junior developer: here’s the work I want you to do; go do the busy work and bring it back to me.
 
@@ -128,29 +116,25 @@ And when you approve it as a reviewer, it isn’t just the author's code anymore
 
 If you don’t understand something now, you definitely aren’t going to understand it six months from now. Ask questions. Why is this being done? Is this necessary? What is this actually doing?
 
-Then ask the other critical question: does it actually accomplish the acceptance criteria?
+Then ask the other critical question of does it actually accomplish the acceptance criteria?
 
-There can be absolutely nothing wrong with the code itself and it can still be the wrong change. If the card has five requirements and the implementation only addresses three, it isn’t done. Either the acceptance criteria weren’t updated or the implementation missed something. Figure out which one it is.
+There can be absolutely nothing wrong with the code itself and it can still be the wrong change. If the work has five requirements and the implementation only addresses three, it isn’t done. Either the acceptance criteria weren’t updated or the implementation missed something. Figure out which one it is.
 
 ## Good Enough Isn't Always Good Enough
 
-Matching the acceptance criteria is the bare minimum. That gets you the C grade.
+Matching the acceptance criteria is the bare minimum.  We also need to ask whether the implementation is something we want to maintain. Can it be simpler? Was there an unnecessary refactor? Are unrelated changes mixed in? Is there excessive defensive code? Is there duplicated code? Is there dead code that somebody added because “we might need it later”?
 
-We also need to ask whether the implementation is something we want to maintain. Can it be simpler? Was there an unnecessary refactor? Are unrelated changes mixed in? Is there excessive defensive code? Is there duplicated code? Is there dead code that somebody added because “we might need it later”?
-
-If we don’t need it today, don’t assume we’re going to need it tomorrow. Otherwise, we’re adding code that has to be understood, tested, maintained, and eventually removed.
-
-Try to keep the implementation limited to the task at hand.
+If we don’t need it today, don’t assume we’re going to need it tomorrow. Otherwise, we’re adding code that has to be understood, tested, maintained, and eventually removed.  Try to keep the implementation limited to the task at hand.
 
 ## Testing Gives Reviewers Confidence
 
-Probably the biggest thing I look for is testing.
+Probably the biggest thing I look for in any review is corresponding automated testing.
 
 Unit tests and E2E tests give developers, reviewers, and agents a way to confirm that something actually works. They also let us test situations that would otherwise be painful or impossible to reproduce manually.
 
 When I see a PR with unit tests that run through CI and pass, I feel much more confident. It doesn't prove every possible scenario works, but it gives me a baseline. I know the expected happy paths and known negative paths have been exercised.
 
-And clicking a button to run ten tests is a lot easier than building the application and manually performing those ten scenarios myself.
+Clicking a button to run ten tests is a lot easier than building the application and manually performing those ten scenarios myself.
 
 ## Use AI as a Review Tool, Not as the Reviewer
 
@@ -178,7 +162,7 @@ The more of that process we can automate, checking out the worktree, finding the
 
 ## Automate the Repetitive Parts
 
-With alittle bit of work, you can also make your own skills that automate many of these steps to let you focus on the important part of the process, the actual review. The agent can pull the acceptance criteria, perform its review, and create draft comments directly in the PR.
+With a little bit of work, you can also make your own skills that automate many of these steps to let you focus on the important part of the process, the actual review. The agent can pull the acceptance criteria, perform its review, and create draft comments directly in the PR.
 
 The important part is that I as the reviewer still have control. I can delete a comment that's irrelevant. I can rewrite something where I don't agree with the wording. I can decide that the agent's finding isn't actually a problem.
 

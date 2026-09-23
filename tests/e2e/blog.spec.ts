@@ -270,6 +270,31 @@ test.describe("blog", () => {
     );
   });
 
+  test("uses the masthead layout with a gradient when a post has no hero image", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/blog/review/");
+
+    const masthead = page.locator(".post-masthead");
+    await expect(page.locator(".post-hero")).toHaveCount(0);
+    await expect(masthead).toHaveCSS("background-image", /linear-gradient/);
+
+    const [breadcrumb, title, summary, prose] = await Promise.all([
+      page.getByRole("link", { name: "All posts" }).boundingBox(),
+      page.getByRole("heading", { level: 1 }).boundingBox(),
+      page.getByRole("complementary", { name: "Article summary" }).boundingBox(),
+      page.locator(".prose").boundingBox(),
+    ]);
+
+    expect(title?.x).toBeCloseTo(breadcrumb?.x ?? 0, 0);
+    expect(title?.x).toBeCloseTo(prose?.x ?? 0, 0);
+    expect((summary?.x ?? 0) + (summary?.width ?? 0)).toBeCloseTo(
+      (prose?.x ?? 0) + (prose?.width ?? 0),
+      0,
+    );
+  });
+
   test("rss.xml is well-formed and includes published posts", async ({ request }) => {
     const response = await request.get("/rss.xml");
     expect(response.status()).toBe(200);

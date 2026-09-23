@@ -53,7 +53,11 @@ const shareLinks = [
 >
   <article>
     <div
-      class:list={["post-masthead", { "post-masthead--with-hero": hero }]}
+      class:list={[
+        "post-masthead",
+        "post-masthead--visual",
+        { "post-masthead--with-hero": hero, "post-masthead--without-hero": !hero },
+      ]}
     >
       <header class="post-header">
         {post.data.draft && <p class="draft-badge pill meta">Draft</p>}
@@ -76,7 +80,7 @@ const shareLinks = [
         <TechTagList items={post.data.tags} label="Post tags" />
       </header>
 
-      <div class:list={["post-intro", { "post-intro--with-hero": hero }]}>
+      <div class="post-intro">
         {hero && (
           <Image
             src={hero}
@@ -192,7 +196,7 @@ const shareLinks = [
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .post-masthead--with-hero {
+  .post-masthead--visual {
     overflow: hidden;
     margin-block: calc(-1 * var(--spacing-6));
     margin-inline: calc(-1 * var(--post-masthead-bleed));
@@ -210,13 +214,21 @@ const shareLinks = [
     content: "";
   }
 
-  :global(.page-main:has(.post-masthead--with-hero)) {
+  .post-masthead--without-hero {
+    background-image: linear-gradient(
+      135deg,
+      var(--article-hero-surface),
+      color-mix(in srgb, var(--article-hero-surface) 82%, var(--article-hero-accent))
+    );
+  }
+
+  :global(.page-main:has(.post-masthead--visual)) {
     --post-masthead-bleed: var(--gutter);
 
     position: relative;
   }
 
-  :global(.page-main:has(.post-masthead--with-hero) > .breadcrumb) {
+  :global(.page-main:has(.post-masthead--visual) > .breadcrumb) {
     position: absolute;
     z-index: 3;
     inset-block-start: var(--spacing-6);
@@ -225,7 +237,7 @@ const shareLinks = [
     color: var(--article-hero-muted);
   }
 
-  :global(.page-main:has(.post-masthead--with-hero) > .breadcrumb a) {
+  :global(.page-main:has(.post-masthead--visual) > .breadcrumb a) {
     color: var(--article-hero-accent);
   }
 
@@ -262,21 +274,21 @@ const shareLinks = [
     margin-block-start: var(--spacing-3);
   }
 
-  .post-masthead--with-hero .page-title,
-  .post-masthead--with-hero .post-description {
+  .post-masthead--visual .page-title,
+  .post-masthead--visual .post-description {
     color: var(--article-hero-fg);
   }
 
-  .post-masthead--with-hero .post-meta {
+  .post-masthead--visual .post-meta {
     color: var(--article-hero-muted);
   }
 
-  .post-masthead--with-hero .draft-badge {
+  .post-masthead--visual .draft-badge {
     border-color: var(--article-hero-accent);
     color: var(--article-hero-accent);
   }
 
-  .post-masthead--with-hero :global(.tech-tag) {
+  .post-masthead--visual :global(.tech-tag) {
     border-color: var(--article-hero-boundary);
     background-color: transparent;
     color: var(--article-hero-fg);
@@ -302,26 +314,21 @@ const shareLinks = [
     display: contents;
   }
 
-  .post-content > :global(.prose),
-  .post-summary,
-  .post-intro:not(.post-intro--with-hero) {
+  .post-content > :global(.prose) {
     inline-size: 100%;
     max-inline-size: none;
     margin-inline: auto;
-  }
-
-  .post-intro--with-hero .post-summary {
-    margin-block-end: 0;
-    border-block-start: 0;
   }
 
   .post-summary {
     z-index: 2;
     grid-column: 1;
     grid-row: 2;
+    inline-size: 100%;
+    max-inline-size: none;
     margin: 0;
     padding-block: var(--spacing-6) var(--spacing-8);
-    border-block-start: 1px solid var(--border);
+    border-block-start: 0;
     background-color: transparent;
   }
 
@@ -385,23 +392,23 @@ const shareLinks = [
     color: var(--accent);
   }
 
-  .post-masthead--with-hero .share-toolbar {
+  .post-masthead--visual .share-toolbar {
     border-color: var(--article-hero-boundary);
   }
 
-  .post-masthead--with-hero .share-toolbar a {
+  .post-masthead--visual .share-toolbar a {
     border-color: var(--article-hero-boundary);
     color: var(--article-hero-fg);
   }
 
-  .post-masthead--with-hero .share-toolbar button {
+  .post-masthead--visual .share-toolbar button {
     border-color: var(--article-hero-accent);
     background-color: var(--article-hero-accent);
     color: var(--article-hero-surface);
   }
 
-  .post-masthead--with-hero .share-toolbar a:hover,
-  .post-masthead--with-hero .share-toolbar a:focus-visible {
+  .post-masthead--visual .share-toolbar a:hover,
+  .post-masthead--visual .share-toolbar a:focus-visible {
     border-color: var(--article-hero-accent);
     color: var(--article-hero-accent);
   }
@@ -431,7 +438,7 @@ const shareLinks = [
   }
 
   @media (min-width: 26.25rem) {
-    :global(.page-main:has(.post-masthead--with-hero)) {
+    :global(.page-main:has(.post-masthead--visual)) {
       --post-masthead-bleed: var(--spacing-6);
     }
   }
@@ -444,7 +451,7 @@ const shareLinks = [
       column-gap: var(--spacing-16);
     }
 
-    .post-masthead--with-hero {
+    .post-masthead--visual {
       block-size: var(--article-hero-block-size);
     }
 
@@ -455,7 +462,7 @@ const shareLinks = [
       padding-block: 0;
     }
 
-    .post-intro--with-hero .post-summary {
+    .post-summary {
       grid-column: 2;
       grid-row: 1;
       align-self: center;
@@ -464,14 +471,14 @@ const shareLinks = [
       border-inline-start: 0;
     }
 
-    .post-masthead--with-hero .share-toolbar,
-    .post-masthead--with-hero .share-toolbar ul {
+    .post-masthead--visual .share-toolbar,
+    .post-masthead--visual .share-toolbar ul {
       gap: var(--spacing-1);
     }
   }
 
   @media (min-width: 75.0625rem) {
-    .post-masthead--with-hero {
+    .post-masthead--visual {
       grid-template-columns:
         minmax(0, 1fr)
         minmax(
@@ -487,15 +494,15 @@ const shareLinks = [
       column-gap: 0;
     }
 
-    .post-masthead--with-hero .post-header {
+    .post-masthead--visual .post-header {
       grid-column: 2;
     }
 
-    .post-intro--with-hero .post-summary {
+    .post-summary {
       grid-column: 4;
     }
 
-    :global(.page-main:has(.post-masthead--with-hero) > .breadcrumb) {
+    :global(.page-main:has(.post-masthead--visual) > .breadcrumb) {
       inset-inline: 0;
       inline-size: min(100%, var(--article-layout-measure));
       margin-inline: auto;
@@ -503,7 +510,7 @@ const shareLinks = [
   }
 
   @media (min-width: 80.625rem) {
-    :global(.page-main:has(.post-masthead--with-hero)) {
+    :global(.page-main:has(.post-masthead--visual)) {
       --post-masthead-bleed: var(--spacing-12);
     }
   }
