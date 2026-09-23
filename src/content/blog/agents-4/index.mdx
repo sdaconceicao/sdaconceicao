@@ -1,0 +1,66 @@
+---
+title: Spec Driven Development with Agents
+description: In the final installment of my 4 Part series on Agents, we will discuss how to use spec-driven development with agents to get the best results.
+  advanced concepts.
+pubDate: 2026-03-25
+draft: false
+featured: false
+tags:
+  - agents
+  - ai
+#heroImage: ./cover.png
+#heroImageAlt: A cover image for the blog post about agents
+---
+## Spec-Driven Development
+
+Spec-driven development is taking the traditional SDLC processes we already have and bringing agents into them.  It’s much closer to how people work.  Instead of a person going and writing something, you’re having an agent write it, but you’re still gathering information and getting the context necessary for it. While you're interacting with the agent, you’re identifying potential issues in the early planning phase, before you're gone through the hassle of writing any code or testing yet.
+
+## Vibe Coding vs. Spec-Driven Development
+
+This differs a lot from the term I hate: vibe coding. Vibe coding gets a bad rap, but I don’t think vibe coding is inherently a bad thing. You just really need to know when to use it properly.  It's good if you want to build something quickly as a proof of concept. If it's something you want to maintain long term on the other hand, it's the the way I would go.
+
+A good example is an very long in the tooth legacy site redesign I did. It was a proof of concept, but I still used the planning approach because I had a pretty simple requirement in that I didn't want to touch the HTML or JS side of the app if I could avoid it.  All I wanted to do was use the existing CSS classes and modify how things looked.
+
+With my plan, that become the chief rule:
+
+> You can go wild and do whatever you want as long as you’re not touching the HTML.
+
+I gave it the pages I wanted and iteratively went through them.  It took about a days before I had a result I was fully happy with.   Changing the whole app took about three days, which I can’t even imagine doing as a singe person alone, and I was able to do other work while it was happening.
+
+## Spec-driven development is much more in line with the SDLC process.
+
+It’s about things being repeatable.  It’s something you’re going to maintain, so you better understand the code.  You’re also doing a lot of iterative work with it.  You can start with a big ask and then make smaller requests, but you’re still going through that process:
+
+* Author: Here’s what I want.
+* Agent: This is what I heard. Is this what you want?
+* Author: Yes. Go build it.
+
+That’s where I do most of my development at this point.  It’s repeatable, and you can see why decisions were made because it tells you what it’s going to do and then it does it.  If it doesn’t do it, it’s also easier to go back and and make a correction, because you haven't had the agent build your entire application for you yet.
+
+We have to understand how these things are working, and we want to make sure we’re doing things in a standard way.
+
+## A Good Spec Looks Like a Jira Ticket
+
+The actual specs we give these agents look a lot like Jira tickets.  If you give a good, fully documented list of the things that are expected, you can effectively have development done from that spec.
+
+The end result is a plan that effectively looks like a Jira ticket. Your plan will have
+
+* Summary of the plan
+* Acceptance criteria
+* Technical details with multiple phases depending on the complexity of the plan
+
+Then you agree on it, or you say:
+
+> No, this is wrong. We didn't take this edge case into consideration.
+
+It’s like interacting with another person.
+
+This also gives product owners an opportunity to write better tickets for developers.  There’s the phrase:
+
+> Garbage in, garbage out.
+
+The better those Jira tickets are, with really good acceptance criteria in particular, the better developers are going to be able to build these things out.
+
+Ideally, you can get to the point where a developer takes the ticket and says:
+
+> Go build it.

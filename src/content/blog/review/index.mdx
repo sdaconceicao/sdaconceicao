@@ -1,0 +1,187 @@
+---
+title: How to Review like a Pro
+description: Being a good developer is not just about writing code, it's about
+  being able to review code effectively.
+pubDate: 2026-08-19
+draft: false
+featured: false
+tags:
+  - agents
+  - ai
+  - machine learning
+#heroImage: ./cover.png
+#heroImageAlt: A cover image for the blog post about agents
+---
+Code review takes time and effort. There’s context switching involved, and sometimes it can be challenging just to understand how a change fits into the bigger picture. So it’s worth asking: why are we actually going through this process at all?
+
+The obvious answer is that we’re trying to figure out whether a proposed change accomplishes its intended goal and whether it does it in a way that we’re comfortable with. Those are two different things, and both are important. It’s not good enough that the code does what we want it to do.
+
+* Is it error prone?
+* Is it something none of us understand?
+* Are we going to regret this decision six months from now?
+
+The work we do today doesn’t live in isolation. We have to live with it going forward.
+
+## Code Review Isn't Just About Finding Problems
+
+Review is also about knowledge sharing. It’s not enough that one person knows how something works. We want the team to understand it.
+
+When we build a new feature, the reviewer gets an opportunity to understand how it works and how it was built. It’s also an opportunity to share techniques. Maybe I found a useful way of doing something on the front end that we haven’t done before. A review gives us a place to say, “Hey, I found this helpful,” and start a discussion.
+
+These aren’t meant to be one way interactions. It shouldn’t be that the author puts something out there, the reviewer says something, and then we’re done. It should be a back-and-forth: this is why I did this; okay, I didn’t know that; now we’ve both learned something.
+
+I’ve learned a lot not just from working on my own, but from having somebody with a different mindset review my work and point out things I didn’t think about. That helps all of us improve.
+
+Most importantly, this isn’t my code or your code. It’s the team’s code. Once something has gone through review, the whole team may have to maintain it. We’re not working in little silos. We’re working together on shared products.
+
+Because of that, review shouldn’t be an afterthought. It needs to be a core part of the development process.
+
+## Good Reviews Start Before the Code Is Written
+
+One of the most important things we can do is clearly define the work before development starts.
+
+“Make this page better” isn’t useful acceptance criteria. Neither is “improve the process so people don’t have to click so many things.” I can’t measure that, and as a reviewer I can’t confidently give it a thumbs up or thumbs down.
+
+Instead, make it specific. Maybe the page needs to load within 50 milliseconds. Maybe we’re reducing a process from four clicks to two. Those are measurable. The developer knows what they’re supposed to build, and the reviewer knows exactly what they’re supposed to verify.
+
+Put the effort in during refinement and when creating the Jira ticket so that, when we actually do the work, we know when we’re done.
+
+Just as importantly, keep the acceptance criteria updated.
+
+Requirements change while we work. That’s fine. Maybe we start with five acceptance criteria and discover that only two are actually necessary. That’s part of an agile process. But update the card.
+
+If I review something six months later, I shouldn’t need to know about a Teams conversation between two developers explaining why three acceptance criteria were ignored. Nobody is going to remember that conversation.
+
+At a bare minimum, Jira needs to be a source of truth. Ideally, that trail goes even further into actual documentation. I want to be able to look at a commit, see that it relates to CL42, open CL42, and understand exactly what that change was expected to do.
+
+This becomes even more important as we use AI agents. Those tools are increasingly pulling context directly from Jira and related documentation. If the source of truth is wrong, you’re giving the agent bad context before it even starts.
+
+The acceptance criteria can’t just be “make it gooder.” They need to be defined and definitive.
+
+## Keep the Code Understandable and the Change Focused
+
+Comments are useful, but generally they shouldn’t be explaining how the code works. The code should do that as much as possible. Comments are much more valuable when they explain why something unusual has to work a certain way.
+
+If I’m reviewing something and thinking, “I don’t understand this, and I don’t want to maintain this,” that’s a legitimate concern. Ask whether it can be simplified. Ask the author to explain it. There are tools that can help you understand it too, but the end goal should still be code that is as simple and understandable as we can reasonably make it.
+
+The same principle applies to the scope of the change. If you’re fixing a bug and notice another unrelated bug, don’t just throw that fix into the same PR. Create another Jira ticket. If React released an update while you were working on something unrelated, don’t decide to update React at the same time.
+
+## Keep the work focused on the acceptance criteria you were given.
+
+Every unrelated change is another potential point of failure and another thing the reviewer has to understand and test. Given the choice between one giant PR and four small, focused PRs, I’ll take the four small ones any day of the week. The context is smaller: here’s the thing, I review the thing, I test the thing, and I’m done.
+
+For larger features, stacked PRs can help with this. If a feature naturally breaks into multiple steps, splitting those steps into individually reviewable changes makes a large feature much easier to reason about.
+
+## Make Your Work Easy to Review
+
+Before assigning a PR to somebody, there are several things you can do to make their life easier.
+
+Use conventional commits with your Jira ticket information, and keep the history clean. That gives us a paper trail. Six months from now, I can look at a commit, see that it was a fix associated with a Jira ticket, go back to Jira, and understand why those files changed.  The more context we preserve, the easier it is for both people and agents to understand the work later.
+
+PR templates are useful for the same reason. A template can walk the developer through what’s expected: make sure the commit follows the convention, identify database changes, explain what changed, and—one of the most important things—tell me how to test it.
+
+As a reviewer, I shouldn’t have to reverse-engineer the steps necessary to verify your work. Tell me: go to this page, click this, do this, run this check. Give me, at a bare minimum, what I need to confirm that the change does what it’s supposed to do.
+
+## Review Your Own Code First
+
+This is probably the easiest improvement we can make.  If you’re using Cursor or Claude, use the code review skills that are already there. With enough project context, the agent can look at the branch, identify the Jira ticket, pull the acceptance criteria, apply the rules for the repository, check whether tests were written, and flag things you missed.
+
+But don’t take everything an agent says as gospel.  Go through its findings. Sometimes it has found a real problem. Sometimes the problem is that the acceptance criteria weren’t updated. Sometimes the agent is just wrong. The point isn’t to blindly follow it. The point is to use it to catch problems before another person has to spend their time finding them.
+
+## Give Reviewers Somewhere to Test
+
+Another major improvement is having an environment where reviewers can actually see and test the work.
+
+Preview environments are ideal because the reviewer doesn’t have to pull down the code, interrupt whatever they’re currently doing, and configure another environment. They can just go to an isolated environment and test the change.
+
+That also opens review up to non developers. If a PO can open a preview, look at the feature, and verify it without breaking anything or depending on the developer to walk them through it, that’s incredibly useful.
+
+It lets us find and clean up problems before the first merge instead of merging, discovering another problem, opening another bug, and going through the entire process again.
+
+Preview environments also give us somewhere to run E2E tests. We can combine automated testing with manual review and make the entire process much easier.
+
+## Don't Hand Off Something With Failing CI
+
+Before assigning a review, make sure CI passes.  If formatting, types, unit tests, or some other automated check is failing, there’s not much point in assigning the PR to somebody. If I open it and immediately see that the tests are failing, the first thing I’m going to say is, “It’s not working. Fix that before I review it.”
+
+## As a Reviewer, Understand the Code
+
+Once the work reaches the reviewer, the first question you should try to answer is whether you understand the code.
+
+AI makes this especially important.  I’ve seen junior developers treat agent generated code almost like it came from a senior developer: the agent generated it, so it must know what it’s doing. Senior developers tend to treat the agent more like an intern or junior developer: here’s the work I want you to do; go do the busy work and bring it back to me.
+
+Either way, once you commit that code, it’s your code. It doesn’t matter where it came from. You have to take ownership of it, which means you need to understand it.
+
+And when you approve it as a reviewer, it isn’t just the author's code anymore. It becomes the whole team’s code. We all have to maintain it.
+
+If you don’t understand something now, you definitely aren’t going to understand it six months from now. Ask questions. Why is this being done? Is this necessary? What is this actually doing?
+
+Then ask the other critical question of does it actually accomplish the acceptance criteria?
+
+There can be absolutely nothing wrong with the code itself and it can still be the wrong change. If the work has five requirements and the implementation only addresses three, it isn’t done. Either the acceptance criteria weren’t updated or the implementation missed something. Figure out which one it is.
+
+## Good Enough Isn't Always Good Enough
+
+Matching the acceptance criteria is the bare minimum.  We also need to ask whether the implementation is something we want to maintain. Can it be simpler? Was there an unnecessary refactor? Are unrelated changes mixed in? Is there excessive defensive code? Is there duplicated code? Is there dead code that somebody added because “we might need it later”?
+
+If we don’t need it today, don’t assume we’re going to need it tomorrow. Otherwise, we’re adding code that has to be understood, tested, maintained, and eventually removed.  Try to keep the implementation limited to the task at hand.
+
+## Testing Gives Reviewers Confidence
+
+Probably the biggest thing I look for in any review is corresponding automated testing.
+
+Unit tests and E2E tests give developers, reviewers, and agents a way to confirm that something actually works. They also let us test situations that would otherwise be painful or impossible to reproduce manually.
+
+When I see a PR with unit tests that run through CI and pass, I feel much more confident. It doesn't prove every possible scenario works, but it gives me a baseline. I know the expected happy paths and known negative paths have been exercised.
+
+Clicking a button to run ten tests is a lot easier than building the application and manually performing those ten scenarios myself.
+
+## Use AI as a Review Tool, Not as the Reviewer
+
+Most harnesses have built in code-review skills, and they're useful both before opening your PR and when you're reviewing somebody else's work. But it isn't the whole job.
+
+Don't assume everything it writes is accurate. Read its findings and make sure you understand them. If it says something is a critical problem and you don't understand why, ask it. Make it show you the problematic code. Ask for the actual scenario where the failure occurs.
+
+There's value in forcing yourself to put the problem into your own words. If the agent says something is wrong and I can explain why it's wrong, I've demonstrated that I actually understand the issue. If all I can say is, “The agent told me this was a problem,” that's not enough.
+
+Use the tool until you understand the problem just as well as the person who wrote the code.
+
+Giving those agents better context makes them much more useful. Integrating them with Jira and Confluence means that when the agent sees a Jira ticket number, it can retrieve the ticket via Jira's API, understand the acceptance criteria, and use that information during its review instead of requiring you to manually copy and paste everything.
+
+Again, this is why keeping our source of truth accurate matters so much.
+
+## Reduce the Cost of Review
+
+One of the pain points with review is that you're usually already doing something else.
+
+You're working in one repository and suddenly somebody asks you to review another. Now you have to stash your changes, push a branch, switch environments, get your brain into a completely different context, and eventually switch back.
+
+Git worktrees can make the mechanical part of that much easier. A worktree lets you check out another branch into its own isolated location without disturbing what you're already doing. With projects that support running multiple instances cleanly, that can make reviews significantly less disruptive.
+
+The more of that process we can automate, checking out the worktree, finding the associated Jira ticket, showing pipeline status, opening the PR and ticket together, starting a review agent, the less friction there is around doing the review in the first place.
+
+## Automate the Repetitive Parts
+
+With a little bit of work, you can also make your own skills that automate many of these steps to let you focus on the important part of the process, the actual review. The agent can pull the acceptance criteria, perform its review, and create draft comments directly in the PR.
+
+The important part is that I as the reviewer still have control. I can delete a comment that's irrelevant. I can rewrite something where I don't agree with the wording. I can decide that the agent's finding isn't actually a problem.
+
+The automation removes the repetitive work of doing a review locally, writing everything down, finding the corresponding lines in the PR, and manually copying comments over. It doesn't remove the reviewer from the process.
+
+Tools such as automated PR review bots can take that even further. They can automatically review a pull request against repository rules, add comments where they find problems, and summarize whether they think the change should be approved. They can also rereview changes after issues have been addressed.
+
+Again, the goal isn't to blindly accept what the bot says. It's to automate the mechanical parts and let the developer and reviewer focus on understanding the change and making the decisions.
+
+## Review Should Be Constructive
+
+At the end of the day, we want to support each other through constructive review.
+
+Reviews are an opportunity to improve our code and learn from each other. We want review to be a normal, healthy part of the development process. This isn't about assigning blame. It's about making ourselves better, making our code better, and doing those things together.
+
+Use the tools that are available. There's no reason to do all of this on your own.
+
+And take ownership of what you contribute. Once you commit it, it doesn't matter where it came from. It's your code.
+
+Once the team approves it, that ownership expands. It's no longer just your code. It's the team's code, and all of us have to maintain it going forward.
+
+If there's only one practical change to make immediately, do the pre review. Before every PR you open, run a code review against your own work. It takes almost no effort, catches things before another person has to find them, and can massively improve the review process.

@@ -4,6 +4,8 @@ description: There are many different ways to deal with local data in the
   browser, and the tradeoffs are not obvious.
 pubDate: 2021-01-04
 draft: false
+#heroImage: ./cover.png
+#heroImageAlt: A cover image for the blog post about local storage options
 tags:
   - localstorage
   - web
@@ -165,17 +167,17 @@ Unlike the previous options, we can store any type of data, like a time object. 
 
 ```javascript
 let db;
-const request = window.indexedDB.open('timeIndexDB'); 
+const request = window.indexedDB.open('timeIndexDB');
   request.onerror = function (event) {
     console.log('The database is opened failed');
   };
-  
+
   request.onsuccess = (event) => {
     db = request.result;
     console.log('The database is opened successfully');
     setTime(getTime());
   };
-  
+
   request.onupgradeneeded = (event) => {
     db = event.target.result;
     let objectStore;

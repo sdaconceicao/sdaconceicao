@@ -1,0 +1,81 @@
+---
+title: Design Systems - Part 2 - How to build one
+description: In part 1 we discussed what a design system is, and in this part we'll discuss how to build one.
+pubDate: 2026-02-03
+draft: true
+featured: false
+tags:
+  - design-system
+heroImage: ./cover.png
+heroImageAlt: A cover image for the blog post about agents
+---
+
+# How to build a design system
+
+
+## Design First
+
+An important part of this process is thinking about design before simply building something.
+
+We've already started doing this in OLS with things like the login screen and sidebar. Design, product, and development work through the feature together. We go back and forth, encounter issues, make changes, settle on the design, and then build it.
+
+It's a little more work upfront, but the result is a consistent product and, ideally, something that can be reused across multiple applications.
+
+Wireframes and finished designs can still be different things. I tend to think of a wireframe as primarily answering how is this thing supposed to function?, while the design answers more of how does this look when everything comes together?
+
+But even during wireframing, established templates and design-system rules can influence what we're creating. If we establish what a standard data page or edit page looks like, Job Information and OLS can use that same underlying structure even though the data itself is different.
+
+The applications begin to feel like parts of the same product family because they're using the same tools and design principles.
+
+
+## How I Built Lago
+
+React Aria + Storybook + Chromatic
+
+### React Aria as the foundation
+
+TBD
+
+
+
+### Storybook
+
+Storybook is another thing people sometimes confuse with the design system. Storybook isn't the design system; it's a tool we use for documentation and testing.
+
+It lets us build and view components in isolation. That's especially important when integrating a design system into existing applications like OLS or Portal, where style bleeding can become a problem.
+
+Storybook gives us a bare environment where we can see how a component behaves without application-specific styles interfering with it.
+
+It also provides interactive documentation. Developers and designers can see the available sizes and states of a component, change its properties, and immediately see what happens in a real browser.
+
+The goal is that somebody can eventually go to a URL, find something like the Avatar component, see what it does and what properties it supports, play with it, view the code, and copy what they need into their application.
+
+### Chromatic and the Review Process
+
+Chromatic hosts our Storybook and gives us preview environments.
+
+When a developer builds something and opens a pull request, a preview version of Storybook can be created containing those changes. A designer can then review the actual component without needing to pull down and run the code.
+
+This becomes especially useful when changing something shared. If I change a text field, that text field might also be used inside a date picker, autosuggest, and several other components. The designer can see all of those affected components and determine whether the changes are expected or whether something broke.
+
+That brings design directly into the review process alongside development and product and helps us catch unintended consequences immediately.
+
+## Testing and Accessibility
+
+Testing is an important part of the system. We're using Vitest and React Testing Library for much of the component and unit testing, while Playwright helps cover things that are better tested in a browser.
+
+Accessibility is especially important when building a design system because an accessibility problem in a shared component can be repeated throughout every application using it.
+
+Storybook can run accessibility checks against individual stories and identify which components have problems. That gives us a way to diagnose those issues while the component is isolated rather than discovering them after they have spread throughout an application.
+
+## Release Automation
+
+The end result isn't the Storybook application. Storybook is documentation. What consuming applications actually care about is the published component library on an NPM registry.
+
+The consuming application should ultimately treat the design system like any other dependency: authenticate with our private registry, install the package, and start using the components.
+
+We're using Release Please to automate releases. Changes follow our conventional commit conventions, and Release Please can use that information to maintain versions, generate changelogs, create release tags, and drive publishing.
+
+The idea is to remove as much manual release work as possible. Once the appropriate changes have been reviewed and approved, merging them can trigger the rest of the release process.
+
+

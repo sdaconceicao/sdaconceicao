@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import FormattedDate from "../../components/content/FormattedDate.astro";
 import Prose from "../../components/content/Prose.astro";
+import Icon, { type IconName } from "../../components/ui/Icon.astro";
 import TechTagList from "../../components/ui/TechTagList.astro";
 import PageLayout from "../../layouts/PageLayout.astro";
 import { readingTimeMinutes } from "../../lib/dates";
@@ -23,6 +24,20 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 const hero = resolveEntryImage(post.filePath, post.data.heroImage);
 const readingTime = readingTimeMinutes(post.body ?? "");
+const shareUrl = post.data.canonicalUrl ?? Astro.url.href;
+const encodedTitle = encodeURIComponent(post.data.title);
+const encodedUrl = encodeURIComponent(shareUrl);
+const shareLinks = [
+  ["LinkedIn", `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`],
+  ["Reddit", `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`],
+  ["X", `https://x.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`],
+  [
+    "Bluesky",
+    `https://bsky.app/intent/compose?text=${encodeURIComponent(`${post.data.title} ${shareUrl}`)}`,
+  ],
+  ["Facebook", `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`],
+  ["Email", `mailto:?subject=${encodedTitle}&body=${encodedUrl}`],
+] as const;
 ---
 
 <PageLayout
@@ -37,46 +52,212 @@ const readingTime = readingTimeMinutes(post.body ?? "");
   backLabel="All posts"
 >
   <article>
-    <header class="post-header">
-      {post.data.draft && <p class="draft-badge pill meta">Draft</p>}
-      <h1 class="page-title">{post.data.title}</h1>
-      <p class="post-meta meta">
-        <FormattedDate date={post.data.pubDate} />
-        {readingTime > 0 && (
-          <>
-            <span aria-hidden="true"> · </span>
-            <span>{readingTime} min read</span>
-          </>
-        )}
-        {post.data.updatedDate && (
-          <>
-            <span aria-hidden="true"> · </span>
-            <span>Updated <FormattedDate date={post.data.updatedDate} /></span>
-          </>
-        )}
-      </p>
-      <TechTagList items={post.data.tags} label="Post tags" />
-      {hero && (
-        <Image
-          src={hero}
-          alt={post.data.heroImageAlt}
-          class="post-hero"
-          widths={[400, 800, 1200]}
-          sizes="(min-width: 64rem) 40rem, 100vw"
-          loading="eager"
-        />
-      )}
-    </header>
+    <div
+      class:list={[
+        "post-masthead",
+        "post-masthead--visual",
+        { "post-masthead--with-hero": hero, "post-masthead--without-hero": !hero },
+      ]}
+    >
+      <header class="post-header">
+        {post.data.draft && <p class="draft-badge pill meta">Draft</p>}
+        <h1 class="page-title">{post.data.title}</h1>
+        <p class="post-meta meta">
+          <FormattedDate date={post.data.pubDate} />
+          {readingTime > 0 && (
+            <>
+              <span aria-hidden="true"> · </span>
+              <span>{readingTime} min read</span>
+            </>
+          )}
+          {post.data.updatedDate && (
+            <>
+              <span aria-hidden="true"> · </span>
+              <span>Updated <FormattedDate date={post.data.updatedDate} /></span>
+            </>
+          )}
+        </p>
+        <TechTagList items={post.data.tags} label="Post tags" />
+      </header>
 
-    <Prose>
-      <Content />
-    </Prose>
+      <div class="post-intro">
+        {hero && (
+          <Image
+            src={hero}
+            alt={post.data.heroImageAlt}
+            class="post-hero"
+            widths={[400, 800, 1200, 1600]}
+            sizes="100vw"
+            loading="eager"
+          />
+        )}
+        <aside class="post-summary" data-share-summary aria-labelledby="article-summary-heading">
+          <h2 id="article-summary-heading" class="sr-only">Article summary</h2>
+          <p class="post-description">{post.data.description}</p>
+          <nav class="share-toolbar share-toolbar-inline" aria-label="Share this article">
+            <button type="button" data-share data-title={post.data.title} data-url={shareUrl}>
+              <Icon name="share" />
+              <span class="sr-only" aria-live="polite">Share</span>
+            </button>
+            <ul class="share-links" role="list">
+              {shareLinks.map(([label, href]) => (
+                <li>
+                  <a href={href}>
+                    <Icon name={label.toLowerCase() as IconName} />
+                    <span class="sr-only">{label}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+      </div>
+    </div>
+
+    <div class="post-content">
+      <Prose>
+        <Content />
+      </Prose>
+
+      <nav
+        class="share-toolbar share-toolbar-sticky"
+        aria-label="Share this article while reading"
+        data-share-sticky
+        hidden
+      >
+        <button type="button" data-share data-title={post.data.title} data-url={shareUrl}>
+          <Icon name="share" />
+          <span class="sr-only" aria-live="polite">Share</span>
+        </button>
+        <ul class="share-links" role="list">
+          {shareLinks.map(([label, href]) => (
+            <li>
+              <a href={href}>
+                <Icon name={label.toLowerCase() as IconName} />
+                <span class="sr-only">{label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
   </article>
 </PageLayout>
 
+<script>
+  const bindShare = (button: HTMLButtonElement) => {
+    if (button.dataset.shareBound) return;
+    button.dataset.shareBound = "true";
+
+    button.addEventListener("click", async () => {
+      const title = button.dataset.title ?? document.title;
+      const url = button.dataset.url ?? window.location.href;
+      const status = button.querySelector<HTMLElement>(".sr-only");
+      try {
+        if (navigator.share) {
+          await navigator.share({ title, url });
+          return;
+        }
+        await navigator.clipboard.writeText(url);
+        if (status) status.textContent = "Link copied";
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          if (status) status.textContent = "Sharing unavailable";
+        }
+      }
+    });
+  };
+
+  const initShare = () => {
+    document.querySelectorAll<HTMLButtonElement>("[data-share]").forEach(bindShare);
+  };
+
+  const initStickyShare = () => {
+    const summary = document.querySelector<HTMLElement>("[data-share-summary]");
+    const toolbar = document.querySelector<HTMLElement>("[data-share-sticky]");
+    if (!summary || !toolbar || toolbar.dataset.stickyBound) return;
+    toolbar.dataset.stickyBound = "true";
+    new IntersectionObserver(([entry]) => {
+      if (entry) toolbar.hidden = entry.boundingClientRect.bottom > 0;
+    }).observe(summary);
+  };
+
+  initShare();
+  initStickyShare();
+  document.addEventListener("astro:page-load", initShare);
+  document.addEventListener("astro:page-load", initStickyShare);
+</script>
+
 <style>
+  .post-masthead {
+    isolation: isolate;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .post-masthead--visual {
+    overflow: hidden;
+    margin-block: calc(-1 * var(--spacing-6));
+    margin-inline: calc(-1 * var(--post-masthead-bleed));
+    padding: var(--spacing-5);
+    background-color: var(--article-hero-surface);
+    color: var(--article-hero-fg);
+  }
+
+  .post-masthead--with-hero::before {
+    position: absolute;
+    z-index: 1;
+    inset-block: 0;
+    inset-inline: 0;
+    background-color: var(--article-hero-overlay);
+    content: "";
+  }
+
+  .post-masthead--without-hero {
+    background-image: linear-gradient(
+      135deg,
+      var(--article-hero-surface),
+      color-mix(in srgb, var(--article-hero-surface) 82%, var(--article-hero-accent))
+    );
+  }
+
+  :global(.page-main:has(.post-masthead--visual)) {
+    --post-masthead-bleed: var(--gutter);
+
+    position: relative;
+  }
+
+  :global(.page-main:has(.post-masthead--visual) > .breadcrumb) {
+    position: absolute;
+    z-index: 3;
+    inset-block-start: var(--spacing-6);
+    inset-inline-start: calc(var(--spacing-5) - var(--post-masthead-bleed));
+    margin: 0;
+    color: var(--article-hero-muted);
+  }
+
+  :global(.page-main:has(.post-masthead--visual) > .breadcrumb a) {
+    color: var(--article-hero-accent);
+  }
+
   .post-header {
-    margin-block-end: var(--spacing-12);
+    z-index: 2;
+    grid-column: 1;
+    grid-row: 1;
+    padding-block: var(--spacing-12) var(--spacing-8);
+  }
+
+  .post-header,
+  .post-intro {
+    inline-size: 100%;
+  }
+
+  .post-content {
+    inline-size: 100%;
+    max-inline-size: var(--article-layout-measure);
+    margin-inline: auto;
+    margin-block-start: var(--spacing-12);
   }
 
   /* Accent border AND accent text, overriding .meta's dim: a draft marker is
@@ -93,10 +274,281 @@ const readingTime = readingTimeMinutes(post.body ?? "");
     margin-block-start: var(--spacing-3);
   }
 
+  .post-masthead--visual .page-title,
+  .post-masthead--visual .post-description {
+    color: var(--article-hero-fg);
+  }
+
+  .post-masthead--visual .post-meta {
+    color: var(--article-hero-muted);
+  }
+
+  .post-masthead--visual .draft-badge {
+    border-color: var(--article-hero-accent);
+    color: var(--article-hero-accent);
+  }
+
+  .post-masthead--visual :global(.tech-tag) {
+    border-color: var(--article-hero-boundary);
+    background-color: transparent;
+    color: var(--article-hero-fg);
+  }
+
   .post-hero {
-    margin-block-start: var(--spacing-8);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    block-size: auto;
+    position: absolute;
+    z-index: 0;
+    inset-block: 0;
+    inset-inline: 0;
+    display: block;
+    inline-size: 100%;
+    min-block-size: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    block-size: 100%;
+    object-fit: cover;
+    filter: saturate(0.35) contrast(0.9);
+  }
+
+  .post-intro {
+    display: contents;
+  }
+
+  .post-content > :global(.prose) {
+    inline-size: 100%;
+    max-inline-size: none;
+    margin-inline: auto;
+  }
+
+  .post-summary {
+    z-index: 2;
+    grid-column: 1;
+    grid-row: 2;
+    inline-size: 100%;
+    max-inline-size: none;
+    margin: 0;
+    padding-block: var(--spacing-6) var(--spacing-8);
+    border-block-start: 0;
+    background-color: transparent;
+  }
+
+  .post-description {
+    color: var(--fg);
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+    text-wrap: balance;
+  }
+
+  .share-toolbar.share-toolbar-inline {
+    margin-block-start: var(--spacing-6);
+  }
+
+  .share-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-block-start: var(--spacing-16);
+    padding-block: var(--spacing-4);
+    border-block: 1px solid var(--border);
+  }
+
+  .share-toolbar-sticky[hidden] {
+    display: none;
+  }
+
+  .share-toolbar-sticky:not([hidden]) {
+    display: none;
+  }
+
+  .share-toolbar ul {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+
+  .share-toolbar :where(a, button) {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 44px;
+    block-size: 44px;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    font: 500 var(--text-xs) / var(--leading-body) var(--font-mono);
+    text-decoration: none;
+  }
+
+  .share-toolbar button {
+    border-color: var(--accent-fill);
+    background-color: var(--accent-fill);
+    color: var(--accent-on-fill);
+  }
+
+  .share-toolbar a:hover,
+  .share-toolbar a:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .post-masthead--visual .share-toolbar {
+    border-color: var(--article-hero-boundary);
+  }
+
+  .post-masthead--visual .share-toolbar a {
+    border-color: var(--article-hero-boundary);
+    color: var(--article-hero-fg);
+  }
+
+  .post-masthead--visual .share-toolbar button {
+    border-color: var(--article-hero-accent);
+    background-color: var(--article-hero-accent);
+    color: var(--article-hero-surface);
+  }
+
+  .post-masthead--visual .share-toolbar a:hover,
+  .post-masthead--visual .share-toolbar a:focus-visible {
+    border-color: var(--article-hero-accent);
+    color: var(--article-hero-accent);
+  }
+
+  @media (max-width: 26.249rem) {
+    .post-summary {
+      padding: var(--spacing-4);
+    }
+
+    .share-toolbar.share-toolbar-inline {
+      margin-block-start: var(--spacing-4);
+    }
+
+    .share-toolbar,
+    .share-toolbar ul {
+      gap: var(--spacing-1);
+    }
+
+    .share-toolbar {
+      padding-block: var(--spacing-3);
+    }
+
+    .share-toolbar :global(svg) {
+      inline-size: 18px;
+      block-size: 18px;
+    }
+  }
+
+  @media (min-width: 26.25rem) {
+    :global(.page-main:has(.post-masthead--visual)) {
+      --post-masthead-bleed: var(--spacing-6);
+    }
+  }
+
+  @media (min-width: 75rem) {
+    .post-masthead {
+      grid-template-columns:
+        minmax(0, 1fr)
+        var(--article-share-rail-measure);
+      column-gap: var(--spacing-16);
+    }
+
+    .post-masthead--visual {
+      block-size: var(--article-hero-block-size);
+    }
+
+    .post-header {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: center;
+      padding-block: 0;
+    }
+
+    .post-summary {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: center;
+      padding: 0;
+      border-block-start: 0;
+      border-inline-start: 0;
+    }
+
+    .post-masthead--visual .share-toolbar,
+    .post-masthead--visual .share-toolbar ul {
+      gap: var(--spacing-1);
+    }
+  }
+
+  @media (min-width: 75.0625rem) {
+    .post-masthead--visual {
+      grid-template-columns:
+        minmax(0, 1fr)
+        minmax(
+          0,
+          calc(
+            var(--article-layout-measure) - var(--article-share-rail-measure) -
+              var(--spacing-16)
+          )
+        )
+        var(--spacing-16)
+        var(--article-share-rail-measure)
+        minmax(0, 1fr);
+      column-gap: 0;
+    }
+
+    .post-masthead--visual .post-header {
+      grid-column: 2;
+    }
+
+    .post-summary {
+      grid-column: 4;
+    }
+
+    :global(.page-main:has(.post-masthead--visual) > .breadcrumb) {
+      inset-inline: 0;
+      inline-size: min(100%, var(--article-layout-measure));
+      margin-inline: auto;
+    }
+  }
+
+  @media (min-width: 80.625rem) {
+    :global(.page-main:has(.post-masthead--visual)) {
+      --post-masthead-bleed: var(--spacing-12);
+    }
+  }
+
+  @media (min-width: 83rem) {
+    .post-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .post-content > :global(.prose) {
+      grid-column: 1;
+      grid-row: 1;
+      max-inline-size: none;
+      margin-inline: 0;
+    }
+
+    .share-toolbar-sticky {
+      position: sticky;
+      inset-block-start: var(--spacing-6);
+      grid-column: 1;
+      grid-row: 1;
+      align-self: start;
+      justify-self: end;
+      flex-direction: column;
+      translate: calc(100% + var(--spacing-4));
+      margin-block-start: 0;
+      padding-block: 0;
+      border-block: 0;
+    }
+
+    .share-toolbar-sticky:not([hidden]) {
+      display: flex;
+    }
+
+    .share-toolbar-sticky ul {
+      flex: none;
+      flex-direction: column;
+    }
   }
 </style>

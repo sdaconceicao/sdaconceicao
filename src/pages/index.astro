@@ -7,45 +7,72 @@ import Section from "../components/content/Section.astro";
 import ArrowLink from "../components/ui/ArrowLink.astro";
 import HomeLayout from "../layouts/HomeLayout.astro";
 import { readingTimeMinutes } from "../lib/dates";
+import { resolveEntryImage } from "../lib/images";
 import { selectHighlights, sortJobs } from "../lib/jobs";
-import { selectLatest } from "../lib/posts";
+import { selectFeaturedArticle, selectLatest } from "../lib/posts";
 import { selectFeatured } from "../lib/projects";
 import { RESUME_HREF, SITE } from "../site";
 
 const jobs = sortJobs(await getCollection("jobs"));
 const featuredProjects = selectFeatured(await getCollection("projects")).slice(0, 3);
 const [leadProject, ...secondaryProjects] = featuredProjects;
-const latestPost = selectLatest(await getCollection("blog"), 1)[0];
+const { featuredPost, otherPosts } = selectFeaturedArticle(await getCollection("blog"));
+const secondaryPosts = selectLatest(otherPosts, 4);
 ---
 
 <HomeLayout title={SITE.name} description={SITE.description}>
-  <Section id="activity" title="Writing & updates" number="01">
-    <div class="activity-grid">
-      <article class="activity-panel" aria-labelledby="latest-writing-title">
-        <header class="activity-heading">
-          <h3 id="latest-writing-title">Latest writing</h3>
-          <ArrowLink href="/blog" direction="ne">All posts</ArrowLink>
-        </header>
-        {
-          latestPost ? (
-            <PostCard
-              title={latestPost.data.title}
-              href={`/blog/${latestPost.id}`}
-              pubDate={latestPost.data.pubDate}
-              description={latestPost.data.description}
-              tags={latestPost.data.tags}
-              readingTime={readingTimeMinutes(latestPost.body ?? "")}
-              variant="signal"
-            />
-          ) : (
-            <p class="activity-empty">Nothing published yet — drafts in progress.</p>
-          )
-        }
-      </article>
+  <Section id="about" title="About" number="01">
+    <div class="about-copy">
+      {SITE.about.map((paragraph) => <p>{paragraph}</p>)}
     </div>
   </Section>
 
-  <Section id="projects" title="Selected projects" number="02">
+  <Section id="activity" title="Writing" number="02">
+    <ArrowLink slot="action" href="/blog" direction="ne">All posts</ArrowLink>
+
+    <div class="writing-layout-container">
+      {
+        featuredPost ? (
+          <div class="writing-layout">
+            <PostCard
+              title={featuredPost.data.title}
+              href={`/blog/${featuredPost.id}`}
+              pubDate={featuredPost.data.pubDate}
+              description={featuredPost.data.description}
+              readingTime={readingTimeMinutes(featuredPost.body ?? "")}
+              dateFormat="month"
+              image={resolveEntryImage(featuredPost.filePath, featuredPost.data.heroImage)}
+              imageAlt={featuredPost.data.heroImageAlt}
+              showThumbnail={featuredPost.data.showThumbnail}
+              variant="home-featured"
+            />
+            {secondaryPosts.length > 0 && (
+              <div class="writing-secondary">
+                {secondaryPosts.map((post) => (
+                  <PostCard
+                    title={post.data.title}
+                    href={`/blog/${post.id}`}
+                    pubDate={post.data.pubDate}
+                    description={post.data.description}
+                    readingTime={readingTimeMinutes(post.body ?? "")}
+                    dateFormat="month"
+                    image={resolveEntryImage(post.filePath, post.data.heroImage)}
+                    imageAlt={post.data.heroImageAlt}
+                    showThumbnail={post.data.showThumbnail}
+                    variant="signal"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <p class="activity-empty">Nothing published yet — drafts in progress.</p>
+        )
+      }
+    </div>
+  </Section>
+
+  <Section id="projects" title="Selected projects" number="03">
     <ArrowLink slot="action" href="/projects" direction="ne">View all projects</ArrowLink>
 
     {
@@ -87,7 +114,7 @@ const latestPost = selectLatest(await getCollection("blog"), 1)[0];
     }
   </Section>
 
-  <Section id="experience" title="Recent experience" number="03">
+  <Section id="experience" title="Recent experience" number="04">
     <ArrowLink slot="action" href={RESUME_HREF} direction="ne" external>
       Full history in resume
     </ArrowLink>
@@ -112,38 +139,144 @@ const latestPost = selectLatest(await getCollection("blog"), 1)[0];
 </HomeLayout>
 
 <style>
+  .about-copy {
+    display: grid;
+    gap: var(--spacing-4);
+    color: var(--fg-muted);
+  }
+
   .project-secondary {
     display: grid;
     gap: var(--spacing-4);
     margin-block-start: var(--spacing-4);
   }
 
-  .activity-grid {
+  .writing-layout-container {
+    container-type: inline-size;
+  }
+
+  .writing-layout,
+  .writing-secondary {
     display: grid;
+    align-items: start;
     gap: var(--spacing-4);
-  }
-
-  .activity-panel {
     min-inline-size: 0;
-    padding: var(--spacing-5);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background-color: var(--surface-1);
   }
 
-  .activity-heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--spacing-3);
-    margin-block-end: var(--spacing-5);
-    font-family: var(--font-mono);
+  .writing-secondary :global(.post-card:nth-child(n + 3)) {
+    display: none;
   }
 
-  .activity-heading h3 {
-    color: var(--fg);
-    font-size: var(--text-base);
-    font-weight: 600;
+  @media (min-width: 48rem) {
+    @container (min-width: 36rem) {
+      .writing-layout:has(.writing-secondary) {
+        position: relative;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+      }
+
+      .writing-layout > :global(.post-card[data-variant="home-featured"]) {
+        grid-column: 1;
+      }
+
+      .writing-secondary {
+        position: absolute;
+        grid-column: 2;
+        grid-row: 1;
+        align-items: stretch;
+        min-block-size: 0;
+        inset-block: 0;
+        inset-inline: 0;
+        grid-auto-rows: minmax(0, 1fr);
+      }
+
+      .writing-secondary :global(.post-card) {
+        min-block-size: 0;
+        overflow: hidden;
+      }
+
+      .writing-secondary :global(.post-layout:has(.post-thumbnail)) {
+        grid-template-columns:
+          calc(var(--spacing-24) + var(--spacing-2) + var(--spacing-4))
+          minmax(0, 1fr);
+      }
+
+      .writing-secondary :global(.post-thumbnail) {
+        max-inline-size: var(--spacing-24);
+        max-block-size: var(--spacing-24);
+        margin-block: var(--spacing-2);
+        margin-inline: var(--spacing-2) var(--spacing-4);
+      }
+
+      .writing-secondary :global(.post-content) {
+        padding-block: var(--spacing-2);
+      }
+
+      .writing-secondary :global(.post-description) {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+    }
+  }
+
+  @media (min-width: 90rem) and (max-width: 105.874rem) {
+    .writing-secondary :global(.post-card:nth-child(n + 2)) {
+      display: none;
+    }
+  }
+
+  @media (min-width: 105.875rem) {
+    .writing-layout:has(.writing-secondary) {
+      grid-template-rows: repeat(2, minmax(0, 1fr)) repeat(2, auto);
+    }
+
+    .writing-layout > :global(.post-card[data-variant="home-featured"]) {
+      grid-row: 1 / span 2;
+    }
+
+    .writing-secondary {
+      display: contents;
+      position: static;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(1)) {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(2)) {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(n + 3)) {
+      display: block;
+      grid-column: 1 / -1;
+    }
+
+    .writing-secondary
+      :global(.post-card:nth-child(n + 3) .post-layout:has(.post-thumbnail)) {
+      grid-template-columns:
+        calc(var(--spacing-32) + var(--spacing-6) + 2 * var(--spacing-2))
+        minmax(0, 1fr);
+    }
+
+    .writing-secondary :global(.post-card:nth-child(n + 3) .post-thumbnail) {
+      inline-size: calc(var(--spacing-32) + var(--spacing-6));
+      max-inline-size: none;
+      max-block-size: none;
+      margin: var(--spacing-2) var(--spacing-4) var(--spacing-2) 0;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(3)) {
+      grid-row: 3;
+    }
+
+    .writing-secondary :global(.post-card:nth-child(4)) {
+      grid-row: 4;
+    }
   }
 
   .activity-empty {

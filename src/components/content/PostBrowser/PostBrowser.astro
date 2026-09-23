@@ -1,0 +1,120 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { readingTimeMinutes } from "../../../lib/dates";
+import { resolveEntryImage } from "../../../lib/images";
+import { collectTags, postResultCount } from "../../../lib/posts";
+import MultiSelect from "../../ui/MultiSelect/MultiSelect.astro";
+import PostCard from "../PostCard.astro";
+import styles from "./PostBrowser.module.css";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+  id?: string;
+}
+
+const { posts, id = "posts" } = Astro.props;
+const tags = collectTags(posts);
+const drawerId = `${id}-filter-drawer`;
+const filterHeadingId = `${id}-filter-heading`;
+const searchInputId = `${id}-search`;
+const resultsHeadingId = `${id}-results-heading`;
+---
+
+<div class={styles.postBrowser} data-post-browser>
+  <button
+    class={styles.openFilters}
+    type="button"
+    aria-haspopup="dialog"
+    aria-controls={drawerId}
+    data-open-filters
+    hidden
+  >
+    Filters
+  </button>
+  <dialog
+    id={drawerId}
+    class={styles.filterDrawer}
+    aria-labelledby={filterHeadingId}
+    data-filter-drawer
+  ></dialog>
+  <aside
+    class={styles.filterSidebar}
+    aria-labelledby={filterHeadingId}
+    data-filter-sidebar
+    hidden
+  >
+    <div class={styles.postFilters} data-filter-panel>
+      <div class={styles.filterHeading}>
+        <h2 id={filterHeadingId}>Filter posts</h2>
+        <button class={`${styles.drawerOnly} ${styles.actionButton}`} type="button" data-close-filters>
+          Close
+        </button>
+      </div>
+      <form class={styles.form} role="search" aria-labelledby={filterHeadingId} data-post-filters>
+        <div class={styles.searchFilter}>
+          <label for={searchInputId}>Search posts</label>
+          <input
+            id={searchInputId}
+            name="search"
+            type="search"
+            placeholder="Title, description, or body…"
+            data-post-search
+          />
+        </div>
+        <MultiSelect
+          id={`${id}-tags`}
+          name="tag"
+          label="Tags"
+          options={tags}
+          placeholder="All tags"
+          description="Matches any selected tag."
+          filter={true}
+        />
+        <button class={styles.actionButton} type="reset">Clear filters</button>
+      </form>
+      <div class={`${styles.drawerOnly} ${styles.drawerResults}`}>
+        <p class={styles.resultCount} role="status" aria-atomic="true" data-drawer-count></p>
+        <button class={styles.actionButton} type="button" data-close-filters>View results</button>
+      </div>
+    </div>
+  </aside>
+
+  <section class={styles.postResults} aria-labelledby={resultsHeadingId}>
+    <h2 id={resultsHeadingId} class="sr-only">Post results</h2>
+    <p class={styles.resultCount} role="status" aria-atomic="true" data-result-count>
+      {postResultCount(posts.length, posts.length)}
+    </p>
+    <div class={styles.postList}>
+      {posts.map((post) => (
+        <div
+          data-post-card
+          data-post-title={post.data.title}
+          data-post-description={post.data.description}
+          data-post-body={post.body ?? ""}
+          data-post-tags={JSON.stringify(post.data.tags)}
+        >
+          <PostCard
+            title={post.data.title}
+            href={`/blog/${post.id}`}
+            pubDate={post.data.pubDate}
+            description={post.data.description}
+            readingTime={readingTimeMinutes(post.body ?? "")}
+            image={resolveEntryImage(post.filePath, post.data.heroImage)}
+            imageAlt={post.data.heroImageAlt}
+            showThumbnail={post.data.showThumbnail}
+          />
+        </div>
+      ))}
+    </div>
+    <p class={styles.emptyState} data-empty-state hidden={posts.length > 0}>
+      No posts found. Try a different search or clear your filters.
+    </p>
+  </section>
+</div>
+
+<script>
+  import { initPostBrowsers } from "./PostBrowser";
+
+  initPostBrowsers();
+  document.addEventListener("astro:page-load", initPostBrowsers);
+</script>

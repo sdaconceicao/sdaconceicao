@@ -18,6 +18,7 @@ const blog = defineCollection({
       pubDate: z.coerce.date(),
       updatedDate: z.coerce.date().optional(),
       draft: z.boolean().default(true),
+      featured: z.boolean().default(false),
       tags: z.array(z.string().min(1)).default([]),
       /**
        * A BARE filename co-located with index.mdx (e.g. "hero.jpg").
@@ -33,6 +34,7 @@ const blog = defineCollection({
        */
       heroImage: z.string().optional(),
       heroImageAlt: z.string().default(""),
+      showThumbnail: z.boolean().default(true),
       canonicalUrl: z.string().url().optional(),
     })
     .refine((data) => !data.heroImage || data.heroImageAlt.trim().length > 0, {
@@ -123,6 +125,8 @@ const projects = defineCollection({
         /** Hand-authored, so a relative "./cover.png" resolves through image(). */
         image: image().optional(),
         imageAlt: z.string().default(""),
+        /** Additional images displayed only on the project detail page. */
+        images: z.array(z.object({ src: image(), alt: z.string().trim().min(1) })).default([]),
         year: z.number().int().min(1990).max(2100).optional(),
         status: z.enum(["live", "archived", "wip"]).default("live"),
         order: z.number().int().default(999),

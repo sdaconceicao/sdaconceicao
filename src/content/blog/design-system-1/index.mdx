@@ -1,0 +1,142 @@
+---
+title: Design Systems - Part 1 - What are design systems?
+description: In this part we'll discuss what a design system is, and why we should care about them.
+pubDate: 2026-01-28
+draft: true
+featured: false
+tags:
+  - design-system
+heroImage: ./cover.png
+heroImageAlt: A cover image for the blog post about agents
+---
+One of the things I’ve learned from working with design systems across multiple companies and sectors is that everybody has a different definition of what a design system is. There’s a lot of confusion around the terminology, and people will use different names for the same things. I want to set a baseline so we’re all starting from the same place and understand what these things are and why we’re doing them.
+
+There are basically four questions I want to answer:
+
+* What is a design system?
+* How do we build it?
+* Why would we want one?
+* How do people get involved?
+
+## What Is a Design System?
+
+At its simplest, a design system is a set of rules and shared components used across an organization. But that definition doesn’t really tell you very much.
+
+Lots of companies use design systems, both big and small, and it’s not just technology companies. IBM has Carbon, Porsche has the Porsche Design System, and Atlassian has its own design system. They all have different looks and use different technologies, but you start seeing very similar ideas in how everything works together. They define their designs, the tools used to build them, and the rules around how those things should be used.
+
+## Design Tokens
+
+Design tokens are one of the most fundamental units of a design system. They represent things like fonts, colors, and other design assets that make up the system.
+
+NCS has a brand, and we have certain colors and fonts associated with that brand. Marketing is going to be heavily involved in making decisions about those things, and those decisions need to feed into what we’re building.
+
+When we make four different products, they shouldn’t feel like they were made by four different companies. When you open Online Services or the Job Information application, they should feel like NCS applications. They should have consistent branding and styling. That starts with the design tokens.
+
+## Usage Guidelines
+
+Usage guidelines are a big part of a design system, and they’re not technical. They tell you when to use certain things.
+
+A common question might be whether a particular situation should use an autocomplete or a select. Another might be whether something should appear in a modal or a drawer. A good design system should provide guidance for those decisions.
+
+We don’t want to leave every one of those decisions up to individuals. One person might think a modal makes sense while somebody else hates modals and always uses drawers. Over time, that leads to an inconsistent application.
+
+Products evolve, multiple people work on them, and people make these decisions. Even with tools like Cursor and other agents, at the end of the day people are making these things. As much as possible, we want guidelines that say: these are the decisions we’ve made as a company, and this is how we do this.
+
+## A Component Library Is Not a Design System
+
+This is probably the area where I see the most confusion. A lot of people think:
+
+design system = component library
+
+The component library is only one piece of the puzzle. It’s probably the flashiest piece and the thing that gives you the most immediate bang for your buck, but it isn’t the whole system.
+
+Without usage guidelines, you don't necessarily know when to use those components. Without design tokens, you don't have the theming that makes those components consistent with the company’s brand. All of those pieces come together to form the design system.
+
+You’ll also hear UI kit and component library used interchangeably. For our purposes, they’re effectively talking about the same thing.
+
+The important distinction is that the component library or UI kit is part of the design system; it is not the design system itself. Having consistent terminology matters because when we’re designing features and talking about functionality as a group, we need to be speaking the same language.
+
+## Governance
+
+The last major piece isn’t technical at all: governance.
+
+Design systems aren't static. People are constantly going to add to them and want to use them in ways we didn't anticipate. Governance exists to provide a process for resolving those questions.
+
+For example, a team might build a feature and think it belongs in the design system because other teams could reuse it. Someone needs to decide whether putting it there actually makes sense.
+
+Building something as a one off is generally quicker. That's part of how companies end up with every application having its own implementation of everything. When you build something for a design system, you can't only think about the immediate situation. You have to think about how it will be reused in different scenarios and combinations you may not have anticipated.
+
+There’s more work involved, so we shouldn’t put something into the design system unless there’s a good reason to.
+
+Governance also determines how people contribute and who is involved. It shouldn't just be a bunch of developers. We want different teams and roles represented: design, marketing, product, development, and potentially others where their perspective makes sense.
+
+You also don't have to sit on the governance group to have a voice. Ideas and requests should come from throughout the company. The governance group is there to establish rules and make decisions around those requests.
+
+Ultimately, if you build the best design system in the world and nobody uses it, there’s no point. We need to build something people actually want and that provides a useful internal service to the company.
+
+## A Design System Is an Internal Product
+
+A design system really ends up being a product itself. In every place I’ve worked, it has been an internal product.
+
+It’s a set of tools that everybody across the company can utilize. It isn’t just a developer product, and it isn’t just a design product. It connects everybody together.
+
+Design needs to use the design system when creating features, and development needs to use those same components when implementing them. Everybody needs to use the same terminology and the same pieces from design through implementation. Otherwise, you don't get the value out of it.
+
+## Atomic Design
+
+Another important concept is atomic design, introduced by Brad Frost. It’s a way of thinking about the elements that make up the UI kit within a design system.
+
+At the component level, there are three basic categories: atoms, molecules, and organisms.
+
+* Atoms are the most basic elements. A button or text field would be examples.
+* Molecules combine multiple atoms. An autosuggest is a good example because it might combine a label, input field, list of options, and buttons.
+* Organisms combine molecules and atoms into something more complex.
+
+The analogy starts to fall apart beyond that, so we move into templates and pages.
+
+* Templates give us a reusable way of arranging things. We don't want to reinvent the wheel every time we build a page. We can establish something like an edit-page template or a view-page template.
+* Pages are composted templates
+
+## Why Should We Care?
+
+The first reason is simple: we don't want to keep reinventing the wheel.
+
+We build something once. We build it really well. We document it. We test it. We make it accessible. We put all of that effort into it, and then hopefully we can reuse it a thousand times.
+
+That doesn't mean everything belongs in the design system. If something is a one-off that's only relevant to one team, don't go through the hassle of putting it into the design system. There's no benefit if nobody else will use it. Governance helps us make that distinction.
+
+The second reason is consistency. That isn't just about visuals; it's also about how things work. If we use autosuggests and dropdowns inconsistently for equivalent situations, people notice that something doesn't feel right.
+
+If we establish that a particular scenario always uses a particular pattern, the user experience becomes much more predictable.
+
+And ultimately, the goal is to make our own lives easier.
+
+There is an upfront investment, but I've done this enough times to see it pay for itself. Designers don't need to create everything from scratch because templates already exist. Developers don't have to build the thirtieth version of a date picker or go searching for another library.
+
+We as a company can spend the time deciding that this is our date picker, make it work really well, and then everybody can use it over and over again.
+
+## The Design System Should Answer Questions
+
+The hope is that eventually you don't have to think as much about these decisions because there's an established answer to most questions.
+
+And when there isn't an answer, that's what governance is there for.
+
+If somebody encounters a scenario we didn't anticipate, they bring it forward. We figure out the answer and add that guidance. The next time somebody encounters the same situation, we don't have Team One doing one thing and Team Two doing something completely different.
+
+We have an established rule: when X happens, do Y.
+
+That's the point—to make everybody's life easier.
+
+## Getting Involved
+
+A good design system needs to have representation from different teams and different roles.
+
+The same applies to contributing code. There shouldn't be some isolated "design system team" responsible for fixing everything.
+
+If you find a bug in the date picker, you should be able to fix it. If your team creates a component that you think other applications could use, bring it forward. Governance can determine whether it makes sense as a shared component, and if it does, we can go through the process of adding it.
+
+This is a shared product, and the goal is for a whole organization to contribute to it.
+
+The end result should be straightforward: developers have documentation they can access without pulling down the repository, designers have reusable components in Figma, reviewers have isolated previews of proposed changes, and consuming applications install the component library like any other dependency.
+
+The work happens once, we put the effort into doing it well, and everybody gets to reuse the result.

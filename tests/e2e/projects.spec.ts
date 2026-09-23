@@ -345,7 +345,7 @@ test("keeps the filter rail fixed while project results grow", async ({ page }) 
   expect(
     thumbnailLayouts.every(
       ({ topOffset, ratio, objectFit }) =>
-        Math.abs(topOffset - 1) <= 1 && Math.abs(ratio - 1.5) <= 0.01 && objectFit === "contain",
+        Math.abs(topOffset - 1) <= 1 && Math.abs(ratio - 16 / 9) <= 0.01 && objectFit === "contain",
     ),
   ).toBe(true);
 });
@@ -381,7 +381,7 @@ test("uses compact project cards through the middle viewport range", async ({ pa
     if (header && firstCard && secondCard && image) {
       expect(Math.round(header.width)).toBe(width < 420 ? width : 64);
       expect(Math.abs(firstCard.y - secondCard.y) <= 1).toBe(sameRow);
-      expect(Math.abs(image.width / image.height - 1.5)).toBeLessThanOrEqual(0.01);
+      expect(Math.abs(image.width / image.height - 16 / 9)).toBeLessThanOrEqual(0.01);
     }
     if (width < 420) {
       await expect(filters).toHaveCount(0);
@@ -495,4 +495,61 @@ test("keeps the desktop result track and project links stable without JavaScript
   await expect(page.getByRole("searchbox")).toHaveCount(0);
   expect((await page.getByRole("region", { name: "Project results" }).boundingBox())?.x).toBe(400);
   await context.close();
+});
+
+test("switches the project gallery with thumbnails and wrapping controls", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/projects/pa-liberty-bells-250");
+  const thumbnails = page.getByRole("group", {
+    name: "Choose an image of Liberty Bells 250",
+  });
+  const buttons = thumbnails.getByRole("button");
+  await expect(buttons).toHaveCount(3);
+
+  const hero = page.getByRole("img", { name: "PA Liberty Bells Homepage" });
+  const [heroBox, thumbnailsBox, previousBox, nextBox, galleryBox, articleBox, objectFit] =
+    await Promise.all([
+      hero.boundingBox(),
+      thumbnails.boundingBox(),
+      page.getByRole("button", { name: "Previous image" }).boundingBox(),
+      page.getByRole("button", { name: "Next image" }).boundingBox(),
+      page.locator("[data-project-gallery]").boundingBox(),
+      page.getByRole("article").boundingBox(),
+      hero.evaluate((image) => getComputedStyle(image).objectFit),
+    ]);
+  expect(heroBox).not.toBeNull();
+  expect(thumbnailsBox).not.toBeNull();
+  expect(previousBox).not.toBeNull();
+  expect(nextBox).not.toBeNull();
+  expect(galleryBox).not.toBeNull();
+  expect(articleBox).not.toBeNull();
+  expect(objectFit).toBe("cover");
+  if (heroBox && thumbnailsBox && previousBox && nextBox && galleryBox && articleBox) {
+    expect(Math.abs(heroBox.width / heroBox.height - 16 / 9)).toBeLessThanOrEqual(0.01);
+    expect(Math.abs(heroBox.x - thumbnailsBox.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs(heroBox.width - thumbnailsBox.width)).toBeLessThanOrEqual(1);
+    expect(galleryBox.y + galleryBox.height).toBeLessThanOrEqual(articleBox.y + articleBox.height);
+    for (const control of [previousBox, nextBox]) {
+      expect(control.y).toBeGreaterThanOrEqual(heroBox.y);
+      expect(control.y + control.height).toBeLessThanOrEqual(heroBox.y + heroBox.height);
+    }
+  }
+
+  await buttons.nth(2).click();
+  await expect(
+    page.getByRole("img", {
+      name: "Liberty Bell map with desktop and mobile location detail panels",
+    }),
+  ).toBeVisible();
+  await expect(buttons.nth(2)).toHaveAttribute("aria-pressed", "true");
+
+  await page.getByRole("button", { name: "Next image" }).click();
+  await expect(page.getByRole("img", { name: "PA Liberty Bells Homepage" })).toBeVisible();
+  await page.getByRole("button", { name: "Previous image" }).click();
+  await expect(buttons.nth(2)).toHaveAttribute("aria-pressed", "true");
+
+  const scan = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    .analyze();
+  expect(scan.violations).toEqual([]);
 });

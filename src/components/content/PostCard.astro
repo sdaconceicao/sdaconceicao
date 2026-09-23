@@ -1,6 +1,7 @@
 ---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import Icon from "../ui/Icon.astro";
-import TechTagList from "../ui/TechTagList.astro";
 import FormattedDate from "./FormattedDate.astro";
 
 interface Props {
@@ -8,58 +9,105 @@ interface Props {
   href: string;
   pubDate: Date;
   description: string;
-  tags: readonly string[];
   readingTime?: number;
-  variant?: "default" | "signal";
+  dateFormat?: "long" | "month";
+  image?: ImageMetadata;
+  imageAlt?: string;
+  showThumbnail?: boolean;
+  variant?: "default" | "featured" | "home-featured" | "signal";
 }
-const { title, href, pubDate, description, tags, readingTime, variant = "default" } = Astro.props;
+const {
+  title,
+  href,
+  pubDate,
+  description,
+  readingTime,
+  dateFormat = "long",
+  image,
+  imageAlt = "",
+  showThumbnail = true,
+  variant = "default",
+} = Astro.props;
+const Heading = variant === "signal" || variant === "home-featured" ? "h3" : "h2";
 ---
 
 <article class="post-card" data-variant={variant}>
-  <p class="post-meta meta">
-    <FormattedDate date={pubDate} format="month" />
-    {
-      readingTime !== undefined && readingTime > 0 && (
-        <>
-          <span aria-hidden="true"> · </span>
-          <span>{readingTime} min read</span>
-        </>
-      )
-    }
-  </p>
-
-  <div>
-    <h3 class="post-title">
-      <a class="post-link" href={href}>
-        <span>{title}</span>
-        <Icon name="arrow-e" size={16} />
-      </a>
-    </h3>
-    <p class="post-description">{description}</p>
-    <TechTagList items={tags} label={`Tags for ${title}`} />
+  <div class="post-layout">
+    {showThumbnail && image && (
+      <Image
+        src={image}
+        alt={imageAlt}
+        class="post-thumbnail"
+        widths={
+          variant === "featured" || variant === "home-featured"
+            ? [320, 480, 640, 960]
+            : [96, 192, 320, 480]
+        }
+        sizes={
+          variant === "featured" || variant === "home-featured"
+            ? "(min-width: 48rem) 34vw, 100vw"
+            : "96px"
+        }
+        fit="contain"
+        loading="lazy"
+      />
+    )}
+    <div class="post-content">
+      <Heading class="post-title">
+        <a class="post-link" href={href}>
+          <span>{title}</span>
+          <Icon name="arrow-e" size={16} />
+        </a>
+      </Heading>
+      <p class="post-meta meta">
+        <FormattedDate date={pubDate} format={dateFormat} />
+        {
+          readingTime !== undefined && readingTime > 0 && (
+            <>
+              <span aria-hidden="true">{variant === "signal" ? " · " : " - "}</span>
+              {variant === "signal" ? (
+                <span
+                  aria-label={`${readingTime} minute${readingTime === 1 ? "" : "s"} read`}
+                >
+                  {readingTime} min
+                </span>
+              ) : (
+                <span>{readingTime} min read</span>
+              )}
+            </>
+          )
+        }
+      </p>
+      <p class="post-description">{description}</p>
+    </div>
   </div>
 </article>
 
 <style>
   .post-card {
     position: relative;
+    overflow: hidden;
     border-radius: var(--radius-sm);
-  }
-
-  .post-card + .post-card {
-    margin-block-start: var(--spacing-8);
+    border: 1px solid var(--border);
+    background-color: var(--surface-1);
+    transition: border-color var(--dur) var(--ease);
   }
 
   .post-card::before {
     content: "";
     position: absolute;
-    z-index: -1;
-    inset: calc(var(--spacing-3) * -1);
-    border: 1px solid var(--border);
-    border-radius: inherit;
-    background-color: var(--surface-1);
+    z-index: 2;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: var(--spacing-1);
+    background-color: var(--accent);
     opacity: 0;
-    transition: opacity var(--dur) var(--ease);
+    transition: opacity var(--dur-fast) var(--ease);
+  }
+
+  .post-card:hover,
+  .post-card:focus-within {
+    border-color: var(--border-strong);
   }
 
   .post-card:hover::before,
@@ -67,8 +115,40 @@ const { title, href, pubDate, description, tags, readingTime, variant = "default
     opacity: 1;
   }
 
+  .post-content {
+    min-inline-size: 0;
+    padding: var(--spacing-4);
+    overflow-wrap: anywhere;
+  }
+
+  .post-layout:has(.post-thumbnail) {
+    display: grid;
+    grid-template-columns: calc(var(--spacing-24) + 2 * var(--spacing-4)) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .post-layout:has(.post-thumbnail) .post-content {
+    padding-inline-start: 0;
+  }
+
+  .post-card:is([data-variant="featured"], [data-variant="home-featured"])
+    .post-layout:has(.post-thumbnail) {
+    display: block;
+  }
+
+  .post-card:is([data-variant="featured"], [data-variant="home-featured"]) .post-thumbnail {
+    inline-size: 100%;
+    max-inline-size: none;
+    max-block-size: none;
+    margin: 0;
+  }
+
+  .post-card:is([data-variant="featured"], [data-variant="home-featured"]) .post-content {
+    padding: var(--spacing-5);
+  }
+
   .post-meta {
-    padding-block-start: 0.2em;
+    margin-block-start: var(--spacing-2);
   }
 
   .post-title {
@@ -96,21 +176,99 @@ const { title, href, pubDate, description, tags, readingTime, variant = "default
     color: var(--accent);
   }
 
+  .post-link :global(.icon) {
+    transition: translate var(--dur-fast) var(--ease);
+  }
+
+  .post-card:hover .post-link :global(.icon),
+  .post-card:focus-within .post-link :global(.icon) {
+    translate: 0.2em 0;
+  }
+
+  .post-thumbnail {
+    inline-size: auto;
+    block-size: auto;
+    max-inline-size: var(--spacing-24);
+    max-block-size: var(--spacing-24);
+    margin: var(--spacing-4);
+    border-radius: var(--radius-sm);
+    justify-self: center;
+  }
+
   .post-description {
     margin-block-start: var(--spacing-2);
     font-size: var(--text-sm);
   }
 
-  .post-card[data-variant="signal"] {
-    display: grid;
-    gap: var(--spacing-2);
+  @media (max-width: 47.999rem) {
+    .post-card:is([data-variant="signal"], [data-variant="home-featured"]) {
+      overflow: visible;
+      border: 0;
+      border-block-end: 1px solid var(--border);
+      border-radius: 0;
+      background-color: transparent;
+    }
+
+    .post-card:is([data-variant="signal"], [data-variant="home-featured"])::before {
+      content: none;
+    }
+
+    .post-card[data-variant="home-featured"] .post-layout:has(.post-thumbnail) {
+      display: grid;
+      grid-template-columns: calc(var(--spacing-24) + 2 * var(--spacing-4)) minmax(0, 1fr);
+    }
+
+    .post-card[data-variant="home-featured"] .post-thumbnail {
+      inline-size: auto;
+      max-inline-size: var(--spacing-24);
+      max-block-size: var(--spacing-24);
+      margin: var(--spacing-4);
+    }
+
+    .post-card[data-variant="home-featured"] .post-content {
+      padding: var(--spacing-4);
+      padding-inline-start: 0;
+    }
   }
 
   @media (min-width: 48rem) {
-    .post-card[data-variant="default"] {
+    .post-card:is([data-variant="default"], [data-variant="signal"]) {
+      overflow: visible;
+      border: 0;
+      border-block-end: 1px solid var(--border);
+      border-radius: 0;
+      background-color: transparent;
+    }
+
+    .post-card:is([data-variant="default"], [data-variant="signal"])::before {
+      content: none;
+    }
+
+    .post-content {
+      padding-block: var(--spacing-5);
+      padding-inline: 0;
+    }
+
+    .post-thumbnail {
+      margin-block: var(--spacing-5);
+    }
+
+    .post-card[data-variant="featured"] .post-layout:has(.post-thumbnail) {
       display: grid;
-      grid-template-columns: var(--timeline-col) 1fr;
-      column-gap: var(--spacing-6);
+      grid-template-columns: minmax(14rem, 34%) minmax(0, 1fr);
+    }
+
+    .post-card[data-variant="featured"] .post-thumbnail {
+      inline-size: 100%;
+      margin: 0;
+    }
+
+    .post-card[data-variant="featured"] .post-content {
+      padding: var(--spacing-5);
+    }
+
+    .post-card[data-variant="home-featured"] .post-content {
+      padding: var(--spacing-5);
     }
   }
 </style>

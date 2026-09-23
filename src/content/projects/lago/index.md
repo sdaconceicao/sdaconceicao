@@ -12,13 +12,18 @@ tech:
   - Playwright
 featured: true
 image: ./cover.png
-imageAlt: "Lago's Button documentation in Storybook: a rendered button above its props table"
+imageAlt: "Lago's documentation on Design Tokens"
+images:
+  - src: ./lago-1.png
+    alt: "Size examples"
+  - src: ./lago-2.png
+    alt: "Light Mode"  
 status: wip
 order: 1
 ---
 
-An accessibility-first design system. Every component is built on
-react-aria-components, so keyboard interaction, focus management, and ARIA
-semantics are correct by construction rather than bolted on. Ships design tokens
-as cascade layers, which means consumers retheme by redefining custom properties
-instead of fighting specificity.
+Lago is an accessibility first design system for building consistent, reusable, and adaptable React applications. Built on React Aria Components, it treats keyboard interaction, focus management, and ARIA semantics as foundational parts of component design rather than accessibility enhancements added after the fact.
+
+The system provides a collection of accessible UI components, design tokens, and usage guidelines that help teams build cohesive product experiences without sacrificing flexibility. Its token architecture uses CSS cascade layers, allowing consuming applications to customize visual styles by redefining tokens and applying their own design language without fighting preset component styling.
+
+I built Lago to explore the architecture and tooling required to create a reusable design system that can support different products and visual identities. The project combines accessible component primitives with a theming model, Storybook documentation, and a development workflow designed to support consistent implementation and ongoing evolution.

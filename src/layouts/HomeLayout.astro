@@ -34,10 +34,10 @@ const { title, description } = Astro.props;
         minmax(0, 1fr)
         minmax(0, calc(4 * var(--spacing-32)));
       grid-template-areas:
+        "about projects"
         "activity projects"
         "experience experience";
       column-gap: var(--spacing-6);
-      align-items: start;
     }
 
     .home-main > :global(section) {
@@ -47,6 +47,10 @@ const { title, description } = Astro.props;
 
     .home-main > :global(#projects) {
       grid-area: projects;
+    }
+
+    .home-main > :global(#about) {
+      grid-area: about;
     }
 
     .home-main > :global(#experience) {

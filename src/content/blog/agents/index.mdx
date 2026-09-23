@@ -1,0 +1,87 @@
+---
+title: All You Ever Wanted to Know About Agents
+description: In this first article in my 4 Part series on Agents, I'm going to
+  describe what actually is an agent and what can they do.
+pubDate: 2026-03-04
+draft: false
+featured: false
+tags:
+  - agents
+  - ai
+#heroImage: ./cover.png
+#heroImageAlt: A cover image for the blog post about agents
+---
+## What Is an Agent?
+
+An agent really is just a Large Language Model (LLM) that is going to try to predict what you want it to say. You give it a prompt and, ideally, you give it some context. Based on what it’s learned in the past, it’s going to try to figure out what the most highly ranked response is given those pieces of information.
+
+Most of the LLM's we’re using have been trained on specific domains of knowledge.  Models like Claude's and Cursor's have been trained on content from sites like Stack Overflow and GitHub.
+
+Oftentimes you will find that a hallucination has occurred, especially if you’re working with something very nuanced. The answer it gave you might not be a good answer.
+
+Make sure you understand what it came back with, because in my opinion, the second you commit it, it’s your code. It’s not the agent’s code. It is your code.  You should be expected to make changes to it in the future.
+
+Whenever, as a team, you go through a review process and that code gets merged into production, eventually it’s not your code anymore. It’s the team’s code. So the team also needs to understand how this works.
+
+## What Can Agents Do?
+
+Agents can pretty much do anything that we do.
+
+### Write Code
+
+This is an obvious one. If you give an agent a technical task, it's going to be able to write your the code to implement it for you, which is great.
+
+### Creating a Technical Plan and Implement It
+
+Something we'll go into more in depth in my next article is the ability for an agent to actually come up with a plan for the work you're doing. This goes beyond making a simple bug fix, and is extremely useful when we start developing complex features in an already complex application.
+
+An agent can help guide you through the process of figuring out:
+
+* What do you actually want in a feature?
+* How will it be implemented in the current system?
+* How wil we confirm it meets these expectations?
+
+### Explaining How a System Works
+
+A lot of the work I’ve done over the last couple of months has been not bothering people and saying
+
+> Hey, tell me how this works.”
+
+Instead, I’ll go through the code and have an agent look at it and say:
+
+> Explain this to me. Tell me how this is working.
+
+It can also tell me, “There’s a problem here,” or “There’s a security issue here.” It can give you really good feedback.
+
+### Code Review
+
+I recently had a pull request that was relatively large and changed the process around password resets. There were changes on both the PHP side and the TypeScript side.  I was very familiar with the TypeScript side, but not as familiar with the PHP side.  To help me, I had an agent review the change set, and it found some issues in the PHP code. With any results you get from an agent, it's important to trust but verify.  I looked into the issues it suggested and confirmed is this actually an issue, or is this a hallucination?
+
+One was a real issue. It was something I, as a senior developer, probably would not have known because I’m not as familiar with some of the backend side of the application.   But it also identified something else as a problem that wasn’t actually a problem. It didn’t have the context that we were intentionally changing the some business logic, so it’s not perfect.
+
+I’ll also do this before I open a PR myself. On more then one occasion, I've had a pre-review catch issues that the next reviewer would likely have had to write up.
+
+### Testing Automation
+
+Agents are an excellent tool for improving automated testing in an existing application. Unit tests in particular can now be handled almost trivially with an agent, letting developers spend more of their time on higher level concerns like UX, architecture, and meeting acceptance criteria.
+
+More recently, agents have become useful for more complex E2E testing as well. With tools like Playwright and its MCP integration, you can get browser based tests up and running quickly, covering real user interactions across multiple steps. This makes it much easier to validate that features actually work as expected, rather than relying solely on unit tests to verify individual pieces of functionality.
+
+### A Peer to Run Ideas Off Of
+
+You can also use it almost like somebody who’s on the level with you.
+
+> I’m having trouble. I don’t know what’s a good way to do something. What are the best practices for X
+
+It can give you that information.  But this is a recurring theme: the less familiar you are with something, the more you really need to verify that what it told you is true.  It will lie to your face and say it with the confidence of the best snake oil salesman in the world.  You really need to be knowledgeable about these things.
+
+This isn’t going to replace you. It’s not going to replace the skills that you have. If anything, it depends upon them even more.  The other thing is that if you don’t ask it something, there’s a good chance it’s not going to take it into consideration.  If you’re a person who doesn’t care too much about testing, it’s probably not going to think about testing unless you’ve got some guardrails in place.
+
+### Working Together through Agent Orchestration
+
+Increasingly, many more advanced agents are taking on a planner implementer pattern. In this pattern, you'll have a more advanced planner model used to figure out what needs done, and how to do it, then cheaper models are given those plans to implement.
+
+This is really useful on multiple levels
+
+1. You're only paying the expensive model to plan. The actual grunt work is done by cheaper models
+2. Multiple agents can work together in parallel on tasks at the same time, cutting down on the total time to finish a task

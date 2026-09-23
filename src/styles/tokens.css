@@ -54,6 +54,15 @@
   --surface-tint: var(--olive-100);
   --code-bg: var(--console-985);
 
+  /* Article mastheads deliberately stay dark in both site themes. The 84%
+   * overlay keeps text contrast predictable even over a white image pixel. */
+  --article-hero-surface: var(--console-985);
+  --article-hero-overlay: color-mix(in srgb, var(--console-985) 84%, transparent);
+  --article-hero-fg: var(--stone-100);
+  --article-hero-muted: var(--stone-300);
+  --article-hero-accent: var(--lime-300);
+  --article-hero-boundary: var(--stone-500);
+
   --fg: var(--ink-950);
   --fg-muted: var(--ink-800);
   --fg-dim: var(--ink-700);
@@ -128,7 +137,11 @@
 
   /* ── Layout ────────────────────────────────────────────────────────────── */
   --layout-max: 96rem;
+  --article-measure: 31.25rem;
+  --article-share-rail-measure: 20.75rem;
+  --article-hero-block-size: 18.75rem;
   --rail-measure: 30rem;
+  --article-layout-measure: calc(var(--article-measure) + var(--spacing-16) + var(--rail-measure));
   --project-filter-rail-measure: 16rem;
   --gutter: clamp(1rem, 3vw, 3rem);
   --job-date-col: 3.5rem;
@@ -136,8 +149,7 @@
   --timeline-col-mobile: 5.75rem;
   --avatar-size: clamp(8rem, 15vw, 11rem);
   --project-card-image-max-block: 250px;
-  --project-card-image-max-inline: 375px;
-  --project-hero-max-block: min(42svh, 40rem);
+  --project-card-image-max-inline: 444px;
 
   /* ── Motion ────────────────────────────────────────────────────────────── */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -218,6 +230,12 @@
     --surface-1: Canvas;
     --surface-2: Canvas;
     --surface-tint: Canvas;
+    --article-hero-surface: Canvas;
+    --article-hero-overlay: Canvas;
+    --article-hero-fg: CanvasText;
+    --article-hero-muted: CanvasText;
+    --article-hero-accent: LinkText;
+    --article-hero-boundary: ButtonBorder;
     --fg: CanvasText;
     --fg-muted: CanvasText;
     --fg-dim: CanvasText;

@@ -1,0 +1,348 @@
+---
+title: Using Your Agents Effectively
+description: In part 2 of my 4 Part series on Agents, we described what actually is an agent
+  and what can they do. In this blog post, we will discuss how to use your
+  agents effectively to get good results without breaking the bank
+pubDate: 2026-03-11
+draft: false
+featured: false
+tags:
+  - agents
+  - ai
+#heroImage: ./cover.png
+#heroImageAlt: A cover image for the blog post about agents
+---
+## Managing Context
+
+Agents take a prompt, but they also need context.
+
+Context is exactly what it sounds like. It’s the code you’re building within.
+
+If you’re in a repo and you say:
+
+I want to make a change to the login screen. I want to add a new button.
+
+It can oftentimes figure it out, but you’re not going to get the best result, and it’s also going to have to go searching for it.
+
+It’s better to give it the context around what you’re changing.
+
+If I’m adding a reset-password button to a login page, I wouldn’t necessarily give it the whole login page. I’d give it the form that’s on that page so it has a good idea of where the changes are going to be made.
+
+If there’s a backend API that it’s hitting, give it that URL as context as well. It doesn’t have to just be source code. It can be HTTP links.
+
+You want to have as much information as you need, but not too much.
+
+The more context you give it, the bigger its thought process is going to be. It’s going to cost you more money and it’s going to take more time.
+
+You want that sweet spot of giving it just enough information to do what it needs to do without any more than that.
+
+In general, I usually wouldn’t give it entire files. I’d give it lines of code. There are situations like bigger refactors where that changes, but generally speaking you’re saying:
+
+Here’s this API endpoint.
+Here’s this method.
+Do something with it.
+
+Give it the minimal amount of information and you will get a quicker response. You will also get a response that uses fewer tokens, and tokens equal money.
+
+Something else to think about is that this is not a thinking person.
+
+Imagine if every interaction you ever had was built upon every single thing that had ever been said to you before.
+
+That is what an agent is doing. Whenever it responds to you, it is looking back at the conversation. All of those things become tokens that are part of the context.
+
+The longer that history is and the more context you give it, the slower it’s going to be and the more tokens and money it’s going to use.
+
+Use the Right Tool for the Right Situation
+
+There are different tools you can use for different use cases.
+
+A lot of people are using Cursor. Claude Code is another option. These tools are useful because you’re coding with context. They can interact with the repository, browser, or shell directly.
+
+That’s different from copying some code out of your repository and pasting it into ChatGPT.
+
+You might get good answers that way, but oftentimes you’re not going to get as good of an answer as when you have these integrated processes in your repo.
+
+With something like Cursor, it sees the repo and you can give it direct context.
+
+## Using the Right Agent Mode for the Job
+
+There are different modes you can use for these agents.
+
+* Agent Mode
+
+  * Agent mode is really good for simple things.
+  * If I see a type error, I’ll go in and say:
+  * Why is there a type error here? Explain it and fix it.
+  * Usually that one line is enough context. It gives a quick response and it’s good.
+  * The same thing applies to a linter error or a small styling error. These are very small, limited things.
+* Debug Mode
+
+  * Debug mode is more bug-focused.
+  * If you’ve got a page where it looks like there’s a race condition and half the time an error occurs, debug mode is aimed more at that kind of thing.
+  * It’s using more context and it’s going to use more tokens because it’s thinking more.
+* Plan Mode
+
+  * Plan mode is where I’m falling more and more.
+  * That’s when you’re talking about complex things: building a new page from scratch or doing a major refactor.
+  * Before it does anything, it’s going to come back with a Markdown document that basically says:
+
+Here’s what I’m going to do.
+
+If you didn’t give it enough information, it’s also going to ask you questions.
+
+If you say:
+
+I want a new login page.
+
+It might ask:
+
+Do you support two-factor authentication?
+Which providers do you need?
+Do you just want simple login?
+
+It keeps asking those questions and builds out a document telling you exactly what it’s going to build.
+
+Once you agree on that, it goes and does the work.
+
+Ask Mode
+
+Ask mode is exactly what it sounds like. It’s very lightweight, and it’s not allowed to change anything.
+
+That’s generally where I would ask for a pull request review because I don’t want it to change the code. I just want to know what’s good and bad in it.
+
+It’s also great for asking how something currently works:
+
+How does authentication currently work?
+
+Or:
+
+What is the best way of doing X?
+
+Ask mode can be useful there as well.
+
+## Picking the Right Models for the Job
+
+There are also different models you can use.
+
+Auto and Sonnet are what I tend to work in when something is small and quick. They’re fast models and they’re able to do simple things.
+
+When I start getting into complex stuff, like a difficult bug fix or building a large feature, that’s generally when I would move over to Opus.
+
+Opus is slower.
+
+With Sonnet, it can feel like:
+
+Go do this.
+OK, I’m doing it.
+OK, it’s done.
+
+With Opus there is a lot more thinking.
+
+That brings up another important point:
+
+Don’t just put in a prompt and walk away for five minutes.
+
+You really should watch what it’s doing, because you can often catch it going down a bad path.
+
+You can see it thinking about something and say:
+
+No, no. I didn’t mean that.
+
+Otherwise you come back five minutes later and it’s gone down a rabbit hole you didn’t want it to.
+
+Always be watching what it’s doing, especially with planning and the larger models.
+
+
+## How Do You Get Good Results?
+
+First, manage your context. Don’t give it too much, but don’t give it too little.
+
+Use the proper modes and models based on your use case.
+
+If you’re making a small bug fix, there’s a certain tool you’re going to use.
+
+If you’re building out a whole new feature or doing a major refactor, you should be using planning and probably a different model.
+
+Skills and rules are really beneficial for making things reproducible so that things feel consistent with each other.
+
+### Make the Codebase Agent-Friendly
+
+The number-one important thing is making the codebase agent-friendly.
+
+Agents and people are very similar.
+
+They want the same things.
+
+### Testing
+
+We want to have testing in place.
+
+Having unit testing isn’t just about regressions. It makes development easier.
+
+If I make a major change, I don’t have to cross my fingers and hope that it was fine.
+
+I’ve got a set of tests in place that tell me I didn’t break things I didn’t look at with my eyes.
+
+Unit testing is probably the number-one most important thing. Get that in there.
+
+### Documentation
+
+Have things well documented.
+
+These agents are not geniuses.
+
+If you’ve got a codebase that makes your head explode, they’re going to have the same problems.
+
+They’re going to have a hard time figuring it out and they’re going to be spinning their wheels doing basically the same things you would as a developer.
+
+### Consistent Design Patterns
+
+Very connected to that is having consistent design patterns.
+
+If you’re using fetch, Axios, and 30 different ways of interacting with APIs, it’s going to get confused.
+
+Which one do you use?
+
+What would you do as a developer?
+
+You’d have to ask somebody:
+
+I see that you’re using five different ways to talk to an API. Which one am I supposed to use?
+
+The agent has to do the same thing.
+
+That wastes tokens and time.
+
+If there’s one way in this repo that we do something, and it’s this way, the agents are going to be much better.
+
+Especially if you’ve got those decisions codified into rules and skills:
+
+We use fetch for all of our API interactions.
+We use Jest for unit testing.
+Our frontend components are built in React and follow these rules.
+
+It doesn’t have to ask you questions. You’ve already told it.
+
+So you’re going to get a consistent answer each time instead of having it guess.
+
+## Making the codebase agent-friendly also makes it developer-friendly.
+
+### Verify At Each Phase
+
+As I’m doing things, I’m always verifying the changes.  Especially if it’s a big change, I want to go through it in steps.
+
+### Commit Often
+
+Commit often.
+
+Always have good places where you can say:
+
+OK, I know it’s good right now, so I’m going to commit.
+
+If there’s a problem later, that’s OK. You can go back to those commits.
+
+Now you know the problem happened somewhere between these two places.
+
+Do the testing constantly and confirm that things are doing what you expect.
+
+Give the Agent Access to the Environment
+
+Have agents access the environment where possible.
+
+Cursor has browsers built into it.
+
+When I was having issues with something not looking correct, I had it go into the browser itself.
+
+It wasn’t guessing how it worked.
+
+I could tell it:
+
+My username is this. Log in as this. Go to this page and you’ll see the problem.
+
+Just like I was working with another person, except a much faster person.
+
+Give it access to the browser. Give it a terminal if it’s a backend process.
+
+Give it that level of information.
+
+How Can Agents Make You a Better Developer?
+
+Treat the agents as the tools they are and use them appropriately.
+
+You have to be the expert.
+
+I want to say that a million times:
+
+You are the expert.
+
+This is not replacing you as a developer.
+
+If you feel that it is, you’re not using it correctly.
+
+Think about it as an android versus a cyborg.
+
+We want to be cyborgs.
+
+We want to be a mix of the person and the machine combined, and we want to use these tools to help us be better.
+
+They are not replacing us.
+
+They are augmenting us and making us better.
+
+Watch for hallucinations and everything associated with them.
+
+You are the master. You are the one in charge of this thing.
+
+Don’t let it do all the work for you.
+
+You have to understand how it works.
+
+Use spec-driven development when it makes sense.
+
+If the feature is:
+
+Change the login button to say “Submit” instead of “Login.”
+
+You do not need to write a spec for that. It’s a one-line change.
+
+If we’re rebuilding the login page?
+
+Yeah. Go use the spec. Use that spec-driven approach.
+
+Use it when it’s appropriate.
+
+Treat Testing as a Contract
+
+Testing is super crucial.
+
+View testing as a contract.
+
+If I write a test that says when you give an add method the numbers one and two, it returns three, that is a contract between you and the agent.
+
+Now, if I make a change, that contract has to continue to be fulfilled.
+
+Have the testing in place.
+
+Doing these changes in a repo without testing is much harder.
+
+It’s doable, but it is much harder because you have less faith when you make broad changes.
+
+Watch Your Usage
+
+You can look at your usage and see what these prompts are costing.
+
+Even if the request is included in your subscription, it can still tell you something like:
+
+This prompt would have cost six cents.
+
+Or:
+
+This one cost three dollars because you used two million tokens.
+
+You can look at that and say:
+
+OK, I know what that was. That was when it went off the rails and did all that other stuff.
+
+Think about the prompts you’re doing.
+
+Try to avoid big, long prompts that become those huge, expensive requests if possible.

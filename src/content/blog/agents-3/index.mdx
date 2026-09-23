@@ -1,0 +1,60 @@
+---
+title: Rules, Skills, MCPs and How to Use Them with Agents
+description: In Part 3 of my 4 Part series on Agents, we will discuss how to use
+  rules and skills with agents to get the best results. advanced concepts.
+pubDate: 2026-03-18
+draft: false
+featured: false
+tags:
+  - agents
+  - ai
+---
+## Rules
+
+Rules are things you can have at the project level or even at your own user level. They sit in the background of your agents without you having to explicitly talk about them.  For example, you can have a rule targeted at TSX files. Any time the agent makes a change to a TSX file, it can automatically know:
+
+* follow this naming convention
+* use this template
+* unit tests are required
+* follow these React component rules
+
+The nice part is that these rules are plain text. They’re Markdown files. It’s not code or anything fancy That makes them really useful for people too. If a new developer comes into the system, we would traditionally have a document saying telling them these same things, but now the rules files can serve both purposes.   It becomes a single source of truth for what we as a team do.
+
+## Skills
+
+Skills are basically rules-based, repeatable actions.  They’re great for things that don’t have to be part of your everyday interactions.  For example, imagine a project is running with PHP 7 and needs to upgrade to PHP 8. You could build a skill could explain all the things to watch out for: PHP 8 breaking changes, method signature changes, and everything else involved in that migration.
+
+Another really good use case is pull request review.  Instead of manually telling it what to look for every time, you could have a pull-request-review skill that says:
+
+* check these rules
+* confirm X, Y, and Z
+* verify tests
+* look for these classes of problems
+
+That becomes a repeatable process.
+
+## Sharing Skills
+
+Skills can be scoped at the project level or at the user level.
+
+We could have a repo that was just skills and have company-wide skills that everybody checks out.
+
+Something like PHP 7 to PHP 8 could very much be a org wide skill because we have a lot of repos we might want to change. Something like SVG handling might make more sense at the project level.
+
+Code review would be another excellent example of something that could be shared by everybody. We’re doing code reviews the same way whether it’s PHP or JavaScript.
+
+## MCP Integration
+
+MCPs are a way for AI agents to interact with other systems more directly.   Pull request review is a good example.  You could have a Jira MCP in place. Based on the branch naming convention, the agent can tell which Jira ticket the branch is associated with.
+
+It can say:
+
+> Give me all the information from that Jira ticket.
+
+Then it pulls out the acceptance criteria.
+
+Now connect to the GitHub MCP and say:
+
+> Give me all the changes associated with this branch compared to the target branch.
+
+From those two things, it can compare the implementation to the acceptance criteria.  It really is close to how a good reviewer would work.

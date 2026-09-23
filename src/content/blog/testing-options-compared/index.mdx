@@ -1,0 +1,63 @@
+---
+title: Testing Options Compared
+description: A deep dive into the world of agents, from the basics to the most advanced concepts.
+pubDate: 2025-12-17
+draft: true
+#heroImage: ./cover.png
+#heroImageAlt: A cover image for the blog post about agents
+tags:
+  - agents
+  - ai
+---
+
+
+The goal of testing automation is to build confidence in an application by providing a way to reliably confirm a feature does what it’s expected to across multiple scenarios. This is especially important as time goes on, and features are updated. Often times an unintended consequence of these changes is a regression in another seemingly unrelated feature.
+
+Having someone manually test all of these scenarios anytime something changes isn’t feasible, so luckily we have options.
+
+## Testing Options Compared
+
+| | Unit | Component | Integration | E2E |
+|---|---|---|---|---|
+| **Tooling** | - Jest | - Jest + Testing Library | - Cypress/Playwright Jest + Testing Library + Storybook | - Cypress/Playwright |
+| **Summary** | - Granular testing in isolation - Small tests for each use case of the code | - Testing a group of functionality (not necessarily a visual React component) in isolation - Small tests for each use case of the code - Run quickly | - Testing groups of components together in isolation - Mock APIs used | - Testing workflows in an entire system together - Live data used |
+| **Setup** | - Setup Jest in repo | - Similar to unit tests - Jest and a tool for handling jsdom, like Testing Library | - Needs a temporary deployed env when running in CI- Mock API services run in parallel | - Requires deployed environments to run against |
+| **Speed** | - Run quickly | - Run quickly | - Slow to bootstrap as they run in a browser | - Slowest as they run in a browser, and can be limited by network connections |
+| **Flaky? (false positives)** | - No, since they are so deterministic | - Generally not, but child components/animations etc. can introduce race conditions that lead to failures in visual components | - Flakier than component tests as there is more potential for race conditions and performance issues due to actual usage in a browser | - Flakiest tests as they can fail for reasons outside of your control&nbsp;&nbsp;- 3rd party servers down&nbsp;&nbsp;- Slow internet connection |
+| **Live Data** | ❌ | ❌ | ❌ | ✅ |
+| **When do they run?** | - On every commit- Merge Requests | - On every commit- Merge Requests | - On every commit- Merge Requests | - Cron Jobs daily- On deployments |
+| **Example** | - Testing a pure function that converts from one unit of measurement to another | - Testing a media query hook that detects screen size and device type- Testing a text input | - Testing that a user can edit their account against a mock API, and that the changes are persisted throughout the app | - Testing that a user can login and update their account settings |
+
+
+Testing as part of the Dev Process
+Test Driven Development
+
+Writing tests first to match Acceptance Criteria, then building the feature around it
+
+Not always practical
+
+Build your solution to be testable
+
+Testable often = a11y
+
+More accessible ux often makes for a better experience for end users
+
+Examples of hard to test UX that is also less accessible
+
+Hover events which don’t work in mobile interfaces
+
+Complex multi step modals
+
+Avoid using test ids and brittle class selectors. Use text where possible, particularly within icons via aria labels.
+
+Keep your tests with what they’re testing as much as possible. This makes it more obvious if something has test coverage.
+
+Unit/Component tests should be in the same folder as their targets
+
+Integration/e2e should be with the project
+
+Fail quickly
+
+Smaller quicker tests are the easiest to debug and run. Focus on making as many as you can, and not relying heavily on slower e2e tests except for things you need.
+
+Unit > Component > Integration > e2e
