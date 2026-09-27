@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { requirePublishedPost } from "./helpers/posts";
 
 test.describe("seo and metadata", () => {
   test("the homepage sets a canonical url", async ({ page }) => {
@@ -17,7 +18,8 @@ test.describe("seo and metadata", () => {
   });
 
   test("a post is marked up as an article with a published time", async ({ page }) => {
-    await page.goto("/blog/local-storage-options");
+    const post = await requirePublishedPost(page);
+    await page.goto(post.href);
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "article");
     await expect(page.locator('meta[property="article:published_time"]')).toHaveCount(1);
   });

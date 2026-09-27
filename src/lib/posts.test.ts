@@ -49,6 +49,14 @@ describe("isPublished", () => {
     expect(isPublished(newer)).toBe(true);
     expect(isPublished(unpublished)).toBe(false);
   });
+
+  it("treats a missing draft flag as unpublished", () => {
+    const unmarked = {
+      id: "unmarked",
+      data: { pubDate: new Date("2026-01-01") },
+    } as unknown as Post;
+    expect(isPublished(unmarked)).toBe(false);
+  });
 });
 
 describe("selectPublished", () => {
@@ -114,6 +122,12 @@ describe("post filters", () => {
     expect(postResultCount(0, 0)).toBe("0 of 0 posts");
     expect(postResultCount(1, 1)).toBe("1 of 1 post");
     expect(postResultCount(2, 5)).toBe("2 of 5 posts");
+  });
+
+  it("matches an empty query against empty copy, but not a real search term", () => {
+    const empty = { title: "", description: "", body: "", tags: [] };
+    expect(matchesPost(empty, "", [])).toBe(true);
+    expect(matchesPost(empty, "hero", [])).toBe(false);
   });
 });
 

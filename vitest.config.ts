@@ -12,7 +12,7 @@ import { getViteConfig } from "astro/config";
 export default getViteConfig({
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "oauth/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "oauth/**/*.test.ts", "tests/e2e/helpers/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],

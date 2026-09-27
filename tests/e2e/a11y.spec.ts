@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
+import { getPublishedPostData, requirePublishedPost } from "./helpers/posts";
 
 const scan = (page: Page) =>
   new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]);
@@ -21,7 +22,8 @@ test.describe("accessibility", () => {
   });
 
   test("a blog post has no axe violations", async ({ page }) => {
-    await page.goto("/blog/local-storage-options");
+    const post = await requirePublishedPost(page);
+    await page.goto(post.href);
     const results = await scan(page).analyze();
     expect(results.violations).toEqual([]);
   });
@@ -39,7 +41,9 @@ test.describe("accessibility", () => {
   });
 
   test("every page has one main landmark", async ({ page }) => {
-    for (const path of ["/", "/blog", "/blog/local-storage-options"]) {
+    const { posts } = await getPublishedPostData(page);
+    const paths = ["/", "/blog", "/projects", ...posts.slice(0, 1).map((post) => post.href)];
+    for (const path of paths) {
       await page.goto(path);
       await expect(page.getByRole("main")).toHaveCount(1);
     }
