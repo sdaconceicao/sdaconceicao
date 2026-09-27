@@ -1,6 +1,6 @@
 import { test, type Page } from "@playwright/test";
 import { matchesPost, postResultCount } from "../../../src/lib/posts";
-import { findNarrowingQuery, findUniqueQuery } from "./query";
+import { findNarrowingQuery, findUniqueQuery, parseJsonStringArray } from "./query";
 
 export interface PublishedPost {
   title: string;
@@ -19,16 +19,6 @@ export interface PublishedPostData {
 
 let cache: Promise<PublishedPostData> | null = null;
 
-const parseTags = (value: string | null): string[] => {
-  if (!value) return [];
-  try {
-    const tags: unknown = JSON.parse(value);
-    return Array.isArray(tags) && tags.every((tag) => typeof tag === "string") ? tags : [];
-  } catch {
-    return [];
-  }
-};
-
 const scrape = async (page: Page): Promise<PublishedPostData> => {
   await page.goto("/blog");
   const empty = page.getByText("No published posts yet.", { exact: true });
@@ -45,7 +35,7 @@ const scrape = async (page: Page): Promise<PublishedPostData> => {
       title: (await card.getAttribute("data-post-title")) ?? "",
       description: (await card.getAttribute("data-post-description")) ?? "",
       body: (await card.getAttribute("data-post-body")) ?? "",
-      tags: parseTags(await card.getAttribute("data-post-tags")),
+      tags: parseJsonStringArray(await card.getAttribute("data-post-tags")),
       href: (await card.getByRole("heading").getByRole("link").getAttribute("href")) ?? "",
       hasThumbnail: (await card.locator("img").count()) > 0,
     });

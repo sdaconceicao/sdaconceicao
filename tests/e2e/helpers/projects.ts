@@ -3,7 +3,12 @@ import {
   matchesProject,
   projectResultCount,
 } from "../../../src/components/content/ProjectBrowser/ProjectBrowser";
-import { findUniquePrefix, findUniqueQuery } from "./query";
+import {
+  findUniquePrefix,
+  findUniqueQuery,
+  parseJsonStringArray,
+  parseProjectStatus,
+} from "./query";
 
 export const STATUS_LABELS = {
   live: "Live",
@@ -30,19 +35,6 @@ export interface CatalogProjectData {
 
 let cache: Promise<CatalogProjectData> | null = null;
 
-const parseTags = (value: string | null): string[] => {
-  if (!value) return [];
-  try {
-    const tags: unknown = JSON.parse(value);
-    return Array.isArray(tags) && tags.every((tag) => typeof tag === "string") ? tags : [];
-  } catch {
-    return [];
-  }
-};
-
-const parseStatus = (value: string | null): ProjectStatus =>
-  value === "archived" || value === "wip" ? value : "live";
-
 const scrape = async (page: Page): Promise<CatalogProjectData> => {
   await page.goto("/projects");
   const results = page.getByRole("region", { name: "Project results" });
@@ -52,8 +44,8 @@ const scrape = async (page: Page): Promise<CatalogProjectData> => {
   for (const card of cards) {
     projects.push({
       title: (await card.getAttribute("data-project-title")) ?? "",
-      tech: parseTags(await card.getAttribute("data-project-tags")),
-      status: parseStatus(await card.getAttribute("data-project-status")),
+      tech: parseJsonStringArray(await card.getAttribute("data-project-tags")),
+      status: parseProjectStatus(await card.getAttribute("data-project-status")),
       href: (await card.getByRole("heading").getByRole("link").getAttribute("href")) ?? "",
       hasImage: (await card.locator("img").count()) > 0,
     });

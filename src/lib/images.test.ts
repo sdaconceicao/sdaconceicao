@@ -56,4 +56,9 @@ describe("resolveEntryImage", () => {
     expect(resolveEntryImage(undefined, "hero.png", modules)).toBeUndefined();
     expect(resolveEntryImage("src/content/blog/p/index.mdx", undefined, modules)).toBeUndefined();
   });
+
+  it("is undefined for an empty filename, the same as a missing hero", async () => {
+    const { resolveEntryImage } = await import("./images");
+    expect(resolveEntryImage("src/content/blog/p/index.mdx", "", modules)).toBeUndefined();
+  });
 });

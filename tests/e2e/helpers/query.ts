@@ -1,5 +1,18 @@
 const WORD = /[\p{L}\p{N}]{3,}/gu;
 
+export const parseJsonStringArray = (value: string | null): string[] => {
+  if (!value) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) && parsed.every((item) => typeof item === "string") ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+export const parseProjectStatus = (value: string | null): "live" | "wip" | "archived" =>
+  value === "archived" || value === "wip" ? value : "live";
+
 export const wordsIn = (text: string): string[] => [
   ...new Set(text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().match(WORD) ?? []),
 ];
