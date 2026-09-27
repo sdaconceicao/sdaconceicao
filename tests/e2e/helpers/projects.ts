@@ -3,12 +3,7 @@ import {
   matchesProject,
   projectResultCount,
 } from "../../../src/components/content/ProjectBrowser/ProjectBrowser";
-import {
-  findUniquePrefix,
-  findUniqueQuery,
-  parseJsonStringArray,
-  parseProjectStatus,
-} from "./query";
+import { findUniqueQuery, parseJsonStringArray, parseProjectStatus } from "./query";
 
 export const STATUS_LABELS = {
   live: "Live",
@@ -29,7 +24,6 @@ export interface CatalogProject {
 export interface CatalogProjectData {
   count: number;
   tags: string[];
-  statuses: ProjectStatus[];
   projects: CatalogProject[];
 }
 
@@ -56,7 +50,6 @@ const scrape = async (page: Page): Promise<CatalogProjectData> => {
     tags: [...new Set(projects.flatMap((project) => project.tech))].sort((a, b) =>
       a.localeCompare(b),
     ),
-    statuses: [...new Set(projects.map((project) => project.status))],
     projects,
   };
 };
@@ -94,31 +87,23 @@ export const findUniqueProjectQuery = (
   return found ? { query: found.query, project: found.item } : undefined;
 };
 
-export const findSkillPrefix = (tags: readonly string[]) => findUniquePrefix(tags);
-
 export const findProjectGallery = async (
   page: Page,
   projects: readonly CatalogProject[],
 ): Promise<{ project: CatalogProject; imageCount: number; alts: string[] } | undefined> => {
   for (const project of projects.filter((item) => item.hasImage && item.href)) {
     await page.goto(project.href);
-    const thumbnails = page.getByRole("group", {
-      name: `Choose an image of ${project.title}`,
-    });
-    const buttons = thumbnails.getByRole("button");
+    const buttons = page
+      .getByRole("group", { name: `Choose an image of ${project.title}` })
+      .getByRole("button");
     const imageCount = await buttons.count();
     if (imageCount < 2) continue;
 
-    const alts: string[] = [];
-    for (const button of await buttons.all()) {
-      const label = (await button.innerText()).trim();
-      alts.push(label.replace(/^Show image \d+:\s*/, ""));
-    }
+    const alts = await Promise.all(
+      (await buttons.all()).map(async (button) =>
+        (await button.innerText()).trim().replace(/^Show image \d+:\s*/, ""),
+      ),
+    );
     return { project, imageCount, alts };
   }
-
-  const single = projects.find((project) => project.hasImage && project.href);
-  if (!single) return undefined;
-  await page.goto(single.href);
-  return { project: single, imageCount: 1, alts: [] };
 };

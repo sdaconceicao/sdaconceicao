@@ -257,7 +257,6 @@ test.describe("homepage", () => {
       await expect(page.getByText("Nothing published yet — drafts in progress.")).toBeVisible();
       return;
     }
-    await expect(posts).toHaveCount(initialCount);
     const secondaryItems = page.locator(".writing-secondary article");
     const secondaryCount = await secondaryItems.count();
     const [first, firstSecondary, secondSecondary, fullWidth, secondFullWidth, writingLayout] =

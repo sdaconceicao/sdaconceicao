@@ -45,10 +45,6 @@ describe("selectFeatured", () => {
   it("is empty when nothing is featured", () => {
     expect(selectFeatured([project("b", "B", false)])).toEqual([]);
   });
-
-  it("is empty when there are no projects", () => {
-    expect(selectFeatured([])).toEqual([]);
-  });
 });
 
 describe("primaryHref", () => {

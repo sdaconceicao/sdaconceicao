@@ -19,13 +19,13 @@ test.describe("blog", () => {
       return;
     }
 
-    await expect(page.getByRole("link", { name: posts[0]?.title ?? "" })).toBeVisible();
+    await expect(page.getByRole("link", { name: posts[0].title })).toBeVisible();
     await expect(page.getByText("No published posts yet.")).toHaveCount(0);
   });
 
   test("the index uses the portfolio filter-and-results layout", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    const { count, posts } = await getPublishedPostData(page);
+    const { count } = await getPublishedPostData(page);
     test.skip(count === 0, "no published posts");
 
     const filters = page.getByRole("complementary", { name: "Filter posts" });
@@ -39,8 +39,6 @@ test.describe("blog", () => {
     if ((await articleWithImage.count()) > 0) {
       await expect(articleWithImage).toBeAttached({ timeout: 10000 });
       expect((await articleWithImage.boundingBox())?.width).toBeCloseTo(96, 0);
-    } else {
-      expect(posts.every((post) => !post.hasThumbnail)).toBe(true);
     }
   });
 

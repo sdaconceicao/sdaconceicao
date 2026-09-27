@@ -4,12 +4,12 @@ import { checkedBoxes, toggleMultiSelectOption } from "./helpers/filters";
 import {
   expectedProjectCount,
   findProjectGallery,
-  findSkillPrefix,
   findUniqueProjectQuery,
   getProjectCatalog,
   matchingProjects,
   STATUS_LABELS,
 } from "./helpers/projects";
+import { findUniquePrefix } from "./helpers/query";
 
 const toggleSkill = (page: Page, skill: string) =>
   toggleMultiSelectOption(page, "Skills", skill, true);
@@ -158,9 +158,9 @@ test("supports keyboard filtering and keeps focus in the control", async ({ page
   const optionSearch = page.getByRole("searchbox", { name: "Search skills" });
   await expect(optionSearch).toBeFocused();
 
-  const typed = findSkillPrefix(tags) ?? {
-    option: tags[0] ?? "",
-    prefix: (tags[0] ?? "").slice(0, 3),
+  const typed = findUniquePrefix(tags) ?? {
+    option: tags[0],
+    prefix: tags[0].slice(0, 3),
   };
   await optionSearch.fill(typed.prefix);
   await optionSearch.press("ArrowDown");
@@ -249,7 +249,7 @@ test("searching skills preserves selections, handles no matches, and clears skil
   ).toBeVisible();
 
   if (secondSkill) {
-    const prefix = findSkillPrefix([secondSkill])?.prefix ?? secondSkill.slice(0, 3);
+    const prefix = secondSkill.slice(0, 3);
     await search.fill(prefix);
     await page.getByRole("checkbox", { name: secondSkill, exact: true }).check();
     await page.getByRole("button", { name: "Done", exact: true }).click();
@@ -625,12 +625,6 @@ test("switches the project gallery with thumbnails and wrapping controls", async
   });
   const buttons = thumbnails.getByRole("button");
   const hero = page.getByRole("img").first();
-
-  if (imageCount < 2) {
-    await expect(hero).toBeVisible();
-    return;
-  }
-
   await expect(buttons).toHaveCount(imageCount);
   const [heroBox, thumbnailsBox, previousBox, nextBox, galleryBox, articleBox, objectFit] =
     await Promise.all([

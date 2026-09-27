@@ -1,4 +1,4 @@
-import { test, type Page } from "@playwright/test";
+import { type Page, test } from "@playwright/test";
 import { matchesPost, postResultCount } from "../../../src/lib/posts";
 import { findNarrowingQuery, findUniqueQuery, parseJsonStringArray } from "./query";
 
@@ -52,8 +52,7 @@ export const requirePublishedPost = async (page: Page): Promise<PublishedPost> =
   const { posts } = await getPublishedPostData(page);
   const post = posts[0];
   test.skip(!post?.href, "no published posts");
-  if (!post?.href) throw new Error("no published posts");
-  return post;
+  return post as PublishedPost;
 };
 
 export const getPublishedPostData = async (page: Page): Promise<PublishedPostData> => {
@@ -109,14 +108,10 @@ export const findPostWithHero = async (
   posts: readonly PublishedPost[],
   hasHero: boolean,
 ): Promise<PublishedPost | undefined> => {
-  const preferred = hasHero
-    ? posts.filter((post) => post.hasThumbnail)
-    : posts.filter((post) => !post.hasThumbnail);
-  for (const post of [...preferred, ...posts.filter((item) => !preferred.includes(item))]) {
+  for (const post of posts) {
     if (!post.href) continue;
     await page.goto(post.href);
-    const heroCount = await page.locator(".post-hero").count();
-    if (heroCount > 0 === hasHero) return post;
+    if ((await page.locator(".post-hero").count()) > 0 === hasHero) return post;
   }
 };
 
