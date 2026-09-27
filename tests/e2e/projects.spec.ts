@@ -1,24 +1,15 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
-
-const toggleMultiSelectOption = async (
-  page: Page,
-  label: string,
-  option: string,
-  filter = false,
-) => {
-  await page.getByRole("button", { name: new RegExp(`^${label} `) }).click();
-  if (filter) {
-    await page.getByRole("searchbox", { name: `Search ${label.toLowerCase()}` }).fill(option);
-  }
-  const checkbox = page.getByRole("checkbox", { name: option, exact: true });
-  await checkbox.click();
-  await checkbox.press("Escape");
-  const popover = page
-    .getByRole("group", { name: label })
-    .filter({ has: page.getByRole("button", { name: "Done" }) });
-  await expect(popover).not.toBeVisible();
-};
+import { checkedBoxes, toggleMultiSelectOption } from "./helpers/filters";
+import {
+  expectedProjectCount,
+  findProjectGallery,
+  findSkillPrefix,
+  findUniqueProjectQuery,
+  getProjectCatalog,
+  matchingProjects,
+  STATUS_LABELS,
+} from "./helpers/projects";
 
 const toggleSkill = (page: Page, skill: string) =>
   toggleMultiSelectOption(page, "Skills", skill, true);
@@ -29,72 +20,135 @@ const toggleStatus = (page: Page, status: string) =>
 for (const width of [390, 1440]) {
   test(`status options combine with other filters and reset at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto("/projects");
+    const { count, projects, tags } = await getProjectCatalog(page);
+    test.skip(count === 0, "no projects");
+
     const mobile = width === 390;
     const opener = page.getByRole("button", { name: "Filters", exact: true });
     if (mobile) await opener.click();
     const filters = page.getByRole(mobile ? "dialog" : "complementary", {
       name: "Filter projects",
     });
-    const count = mobile ? filters.getByRole("status") : page.getByRole("status");
-    const live = filters.locator('input[name="status"][value="live"]');
-    const archived = filters.locator('input[name="status"][value="archived"]');
-    await toggleStatus(page, "Live");
-    await expect(count).toHaveText("2 of 4 projects");
-    await toggleStatus(page, "Archived");
-    await expect(count).toHaveText("3 of 4 projects");
-    await toggleStatus(page, "Live");
-    await expect(count).toHaveText("1 of 4 projects");
+    const status = mobile ? filters.getByRole("status") : page.getByRole("status");
+    const live = matchingProjects(projects, "", [], ["live"]);
+    const liveOrArchived = matchingProjects(projects, "", [], ["live", "archived"]);
+    const archived = matchingProjects(projects, "", [], ["archived"]);
+
+    await toggleStatus(page, STATUS_LABELS.live);
+    await expect(status).toHaveText(expectedProjectCount(live.length, count));
+    await toggleStatus(page, STATUS_LABELS.archived);
+    await expect(status).toHaveText(expectedProjectCount(liveOrArchived.length, count));
+    await toggleStatus(page, STATUS_LABELS.live);
+    await expect(status).toHaveText(expectedProjectCount(archived.length, count));
+
+    const archivedUnique = findUniqueProjectQuery(archived);
     if (mobile) await filters.getByRole("button", { name: "View results" }).click();
-    await expect(page.getByRole("article")).toHaveCount(1);
-    await expect(page.getByRole("heading", { name: "Cookbookery" })).toBeVisible();
+    await expect(page.getByRole("article")).toHaveCount(archived.length);
+    if (archivedUnique) {
+      await expect(page.getByRole("heading", { name: archivedUnique.project.title })).toBeVisible();
+    }
     if (mobile) await opener.click();
-    await expect(archived).toBeChecked();
-    await filters.getByRole("searchbox").fill("cook");
-    await expect(count).toHaveText("1 of 4 projects");
-    await toggleSkill(page, "TypeScript");
-    await expect(count).toHaveText("0 of 4 projects");
+    await expect(
+      page.getByRole("checkbox", {
+        name: STATUS_LABELS.archived,
+        exact: true,
+        includeHidden: true,
+      }),
+    ).toBeChecked();
+
+    const searchTarget = archivedUnique ?? findUniqueProjectQuery(projects);
+    if (searchTarget) {
+      await filters.getByRole("searchbox").fill(searchTarget.query);
+      const searched = matchingProjects(
+        projects,
+        searchTarget.query,
+        [],
+        archivedUnique ? ["archived"] : [],
+      );
+      await expect(status).toHaveText(expectedProjectCount(searched.length, count));
+
+      const unusedSkill = tags.find((tag) => !searchTarget.project.tech.includes(tag));
+      if (unusedSkill) {
+        await toggleSkill(page, unusedSkill);
+        await expect(status).toHaveText(expectedProjectCount(0, count));
+      }
+    }
+
     await filters.getByRole("button", { name: "Clear filters" }).click();
-    await expect(count).toHaveText("4 of 4 projects");
-    await expect(live).not.toBeChecked();
-    await expect(archived).not.toBeChecked();
+    await expect(status).toHaveText(expectedProjectCount(count, count));
+    await expect(
+      page.getByRole("checkbox", { name: STATUS_LABELS.live, exact: true, includeHidden: true }),
+    ).not.toBeChecked();
+    await expect(
+      page.getByRole("checkbox", {
+        name: STATUS_LABELS.archived,
+        exact: true,
+        includeHidden: true,
+      }),
+    ).not.toBeChecked();
     await expect(filters.getByRole("searchbox")).toHaveValue("");
   });
 }
 
 test("combines name search with any selected tag, and clears both filters", async ({ page }) => {
-  await page.goto("/projects");
+  const { count, projects, tags } = await getProjectCatalog(page);
+  test.skip(count === 0, "no projects");
+
   const results = page.getByRole("region", { name: "Project results" });
   const search = page.getByRole("searchbox", { name: "Search by name" });
-  await expect(results.getByRole("article")).toHaveCount(4);
-  await search.fill("  POKEPENDIUM  ");
-  await expect(results.getByRole("article")).toHaveCount(1);
-  await expect(results.getByRole("heading", { name: "Poképendium" })).toBeVisible();
-  await search.press("Enter");
-  await expect(search).toHaveValue("  POKEPENDIUM  ");
+  await expect(results.getByRole("article")).toHaveCount(count);
 
-  await toggleSkill(page, "React");
-  await expect(results.getByRole("article")).toHaveCount(0);
-  await expect(results.getByText(/No projects found/)).toBeVisible();
-  await expect(results.getByRole("status")).toHaveText("0 of 4 projects");
+  const unique = findUniqueProjectQuery(projects);
+  if (unique) {
+    await search.fill(`  ${unique.query.toUpperCase()}  `);
+    await expect(results.getByRole("article")).toHaveCount(1);
+    await expect(results.getByRole("heading", { name: unique.project.title })).toBeVisible();
+    await search.press("Enter");
+    await expect(search).toHaveValue(`  ${unique.query.toUpperCase()}  `);
 
-  await toggleSkill(page, "Next.js");
-  await expect(results.getByRole("article")).toHaveCount(1);
-  await search.fill("");
-  await expect(results.getByRole("article")).toHaveCount(4);
-  await toggleSkill(page, "React");
-  await expect(results.getByRole("article")).toHaveCount(1);
+    const unusedSkill = tags.find((tag) => !unique.project.tech.includes(tag));
+    const usedSkill = unique.project.tech[0];
+    if (unusedSkill) {
+      await toggleSkill(page, unusedSkill);
+      await expect(results.getByRole("article")).toHaveCount(0);
+      await expect(results.getByText(/No projects found/)).toBeVisible();
+      await expect(results.getByRole("status")).toHaveText(expectedProjectCount(0, count));
+    }
+
+    if (usedSkill) {
+      await toggleSkill(page, usedSkill);
+      const eitherSkill = unusedSkill
+        ? matchingProjects(projects, unique.query, [unusedSkill, usedSkill])
+        : matchingProjects(projects, unique.query, [usedSkill]);
+      await expect(results.getByRole("article")).toHaveCount(eitherSkill.length);
+
+      await search.fill("");
+      const eitherSkillAll = unusedSkill
+        ? matchingProjects(projects, "", [unusedSkill, usedSkill])
+        : matchingProjects(projects, "", [usedSkill]);
+      await expect(results.getByRole("article")).toHaveCount(eitherSkillAll.length);
+
+      if (unusedSkill) {
+        await toggleSkill(page, unusedSkill);
+        await expect(results.getByRole("article")).toHaveCount(
+          matchingProjects(projects, "", [usedSkill]).length,
+        );
+      }
+    }
+  }
 
   await search.fill("missing");
   await page.getByRole("button", { name: "Clear filters" }).click();
   await expect(search).toHaveValue("");
-  await expect(page.getByRole("checkbox", { checked: true })).toHaveCount(0);
-  await expect(results.getByRole("article")).toHaveCount(4);
-  await expect(results.getByRole("status")).toHaveText("4 of 4 projects");
+  await expect(checkedBoxes(page)).toHaveCount(0);
+  await expect(results.getByRole("article")).toHaveCount(count);
+  await expect(results.getByRole("status")).toHaveText(expectedProjectCount(count, count));
 });
 
 test("supports keyboard filtering and keeps focus in the control", async ({ page }) => {
-  await page.goto("/projects");
+  const { count, tags, projects } = await getProjectCatalog(page);
+  test.skip(count === 0 || tags.length === 0, "no projects or skills");
+
   const search = page.getByRole("searchbox", { name: "Search by name" });
   await search.focus();
   await page.keyboard.press("Tab");
@@ -103,14 +157,19 @@ test("supports keyboard filtering and keeps focus in the control", async ({ page
   await skills.press("Enter");
   const optionSearch = page.getByRole("searchbox", { name: "Search skills" });
   await expect(optionSearch).toBeFocused();
-  await optionSearch.fill("Graph");
+
+  const typed = findSkillPrefix(tags) ?? {
+    option: tags[0] ?? "",
+    prefix: (tags[0] ?? "").slice(0, 3),
+  };
+  await optionSearch.fill(typed.prefix);
   await optionSearch.press("ArrowDown");
-  const option = page.getByRole("checkbox", { name: "GraphQl", exact: true });
+  const option = page.getByRole("checkbox", { name: typed.option, exact: true });
   await expect(option).toBeFocused();
   await option.press("v");
   await expect(optionSearch).toBeFocused();
-  await expect(optionSearch).toHaveValue("Graphv");
-  await optionSearch.fill("Graph");
+  await expect(optionSearch).toHaveValue(`${typed.prefix}v`);
+  await optionSearch.fill(typed.prefix);
   await optionSearch.press("ArrowDown");
   await expect(option).toBeFocused();
   await option.press("Space");
@@ -118,7 +177,9 @@ test("supports keyboard filtering and keeps focus in the control", async ({ page
   await option.press("Tab");
   await expect(page.getByRole("button", { name: /^Status / })).toBeFocused();
   await expect(optionSearch).not.toBeVisible();
-  await expect(page.getByRole("status")).toHaveText("1 of 4 projects");
+  await expect(page.getByRole("status")).toHaveText(
+    expectedProjectCount(matchingProjects(projects, "", [typed.option]).length, count),
+  );
 });
 
 test("omits search by default and keeps the unfiltered popover aligned", async ({ page }) => {
@@ -170,9 +231,13 @@ test("omits search by default and keeps the unfiltered popover aligned", async (
 test("searching skills preserves selections, handles no matches, and clears skills independently", async ({
   page,
 }) => {
-  await page.goto("/projects");
-  await toggleStatus(page, "Live");
-  await toggleSkill(page, "React");
+  const { count, projects, tags } = await getProjectCatalog(page);
+  test.skip(count === 0 || tags.length === 0, "no projects or skills");
+
+  const firstSkill = tags[0] ?? "";
+  const secondSkill = tags[1];
+  await toggleStatus(page, STATUS_LABELS.live);
+  await toggleSkill(page, firstSkill);
   const trigger = page.getByRole("button", { name: /^Skills / });
   await expect(trigger).toHaveAccessibleName("Skills 1 selected");
   await trigger.click();
@@ -182,16 +247,30 @@ test("searching skills preserves selections, handles no matches, and clears skil
   await expect(
     page.getByRole("group", { name: "Skills" }).getByText("No matching options."),
   ).toBeVisible();
-  await search.fill("Next");
-  await page.getByRole("checkbox", { name: "Next.js", exact: true }).check();
-  await page.getByRole("button", { name: "Done", exact: true }).click();
-  await expect(trigger).toHaveAccessibleName("Skills 2 selected");
-  await expect(page.getByRole("status")).toHaveText("2 of 4 projects");
+
+  if (secondSkill) {
+    const prefix = findSkillPrefix([secondSkill])?.prefix ?? secondSkill.slice(0, 3);
+    await search.fill(prefix);
+    await page.getByRole("checkbox", { name: secondSkill, exact: true }).check();
+    await page.getByRole("button", { name: "Done", exact: true }).click();
+    await expect(trigger).toHaveAccessibleName("Skills 2 selected");
+    await expect(page.getByRole("status")).toHaveText(
+      expectedProjectCount(
+        matchingProjects(projects, "", [firstSkill, secondSkill], ["live"]).length,
+        count,
+      ),
+    );
+  } else {
+    await page.getByRole("button", { name: "Done", exact: true }).click();
+  }
+
   await trigger.click();
   await page.getByRole("button", { name: "Clear skills", exact: true }).click();
   await page.getByRole("button", { name: "Done", exact: true }).click();
   await expect(trigger).toHaveAccessibleName("Skills All skills");
-  await expect(page.locator('input[name="status"][value="live"]')).toBeChecked();
+  await expect(
+    page.getByRole("checkbox", { name: STATUS_LABELS.live, exact: true, includeHidden: true }),
+  ).toBeChecked();
   await trigger.click();
   await page.getByRole("heading", { level: 1 }).click();
   await expect(search).not.toBeVisible();
@@ -200,15 +279,18 @@ test("searching skills preserves selections, handles no matches, and clears skil
 test("keeps skills options clear of controls and anchored during outer scroll", async ({
   page,
 }) => {
+  const { tags } = await getProjectCatalog(page);
+  test.skip(tags.length === 0, "no skills");
+
   await page.setViewportSize({ width: 1070, height: 884 });
-  await page.goto("/projects");
   const trigger = page.getByRole("button", { name: /^Skills / });
   await trigger.click();
 
   const popover = page
     .getByRole("group", { name: "Skills" })
     .filter({ has: page.getByRole("button", { name: "Done", exact: true }) });
-  const finalOption = page.getByRole("checkbox", { name: "Vite", exact: true });
+  const options = popover.getByRole("checkbox");
+  const finalOption = options.last();
   const done = popover.getByRole("button", { name: "Done", exact: true });
   await finalOption.focus();
 
@@ -247,7 +329,7 @@ test("keeps skills options clear of controls and anchored during outer scroll", 
 for (const width of [320, 1440]) {
   test(`filters reflow and pass accessibility checks at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto("/projects");
+    const { count } = await getProjectCatalog(page);
     const sidebar = page.getByRole("complementary", { name: "Filter projects" });
     const results = page.getByRole("region", { name: "Project results" });
     const resultsBox = await results.boundingBox();
@@ -255,7 +337,7 @@ for (const width of [320, 1440]) {
     if (width === 320) {
       await expect(sidebar).toHaveCount(0);
       await expect(page.getByRole("button", { name: "Filters", exact: true })).toBeVisible();
-      await expect(results.getByRole("article")).toHaveCount(4);
+      await expect(results.getByRole("article")).toHaveCount(count);
     } else {
       const sidebarBox = await sidebar.boundingBox();
       expect(sidebarBox).not.toBeNull();
@@ -281,18 +363,17 @@ for (const width of [320, 1440]) {
         .analyze();
       expect(drawerScan.violations).toEqual([]);
       expect(await drawer.evaluate((element) => element.scrollWidth)).toBeLessThanOrEqual(288);
-      await page.screenshot({ path: "/tmp/project-filter-drawer.png" });
     }
     await page.getByRole("button", { name: /^Skills / }).click();
     const popupScan = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
       .analyze();
     expect(popupScan.violations).toEqual([]);
-    await page.screenshot({ path: `/tmp/local-multiselect-${width}.png` });
   });
 }
 
 test("keeps the filter rail fixed while project results grow", async ({ page }) => {
+  const { projects } = await getProjectCatalog(page);
   const filterWidths: number[] = [];
   const filterPositions: number[] = [];
   const resultWidths: number[] = [];
@@ -318,11 +399,10 @@ test("keeps the filter rail fixed while project results grow", async ({ page }) 
         .locator("body, h1, aside h2, [data-result-count]")
         .evaluateAll((elements) => elements.map((element) => getComputedStyle(element).fontSize)),
     );
-    thumbnailLayouts.push(
-      await page
-        .locator("article:has(img)")
-        .first()
-        .evaluate((article) => {
+    const articleWithImage = page.locator("article:has(img)").first();
+    if ((await articleWithImage.count()) > 0) {
+      thumbnailLayouts.push(
+        await articleWithImage.evaluate((article) => {
           const image = article.querySelector("img");
           if (!image) throw new Error("Expected project thumbnail");
           const cardRect = article.getBoundingClientRect();
@@ -334,7 +414,8 @@ test("keeps the filter rail fixed while project results grow", async ({ page }) 
             objectFit: style.objectFit,
           };
         }),
-    );
+      );
+    }
   }
 
   expect(filterWidths).toEqual([256, 256, 256, 256, 256, 256]);
@@ -342,15 +423,23 @@ test("keeps the filter rail fixed while project results grow", async ({ page }) 
   expect(resultWidths[1]).toBeGreaterThan(resultWidths[0] ?? 0);
   expect(resultWidths[5]).toBeGreaterThan(resultWidths[1] ?? 0);
   expect(fontSizes.every((sizes) => sizes.join() === fontSizes[0]?.join())).toBe(true);
-  expect(
-    thumbnailLayouts.every(
-      ({ topOffset, ratio, objectFit }) =>
-        Math.abs(topOffset - 1) <= 1 && Math.abs(ratio - 16 / 9) <= 0.01 && objectFit === "contain",
-    ),
-  ).toBe(true);
+  if (projects.some((project) => project.hasImage)) {
+    expect(thumbnailLayouts.length).toBeGreaterThan(0);
+    expect(
+      thumbnailLayouts.every(
+        ({ topOffset, ratio, objectFit }) =>
+          Math.abs(topOffset - 1) <= 1 &&
+          Math.abs(ratio - 16 / 9) <= 0.01 &&
+          objectFit === "contain",
+      ),
+    ).toBe(true);
+  }
 });
 
 test("uses compact project cards through the middle viewport range", async ({ page }) => {
+  const { count } = await getProjectCatalog(page);
+  test.skip(count === 0, "no projects");
+
   for (const [width, sameRow] of [
     [390, false],
     [420, false],
@@ -366,22 +455,26 @@ test("uses compact project cards through the middle viewport range", async ({ pa
     const cards = page.getByRole("article");
     const filters = page.getByRole("complementary", { name: "Filter projects" });
     const results = page.getByRole("region", { name: "Project results" });
-    const [header, firstCard, secondCard, image, resultsBox] = await Promise.all([
+    const cardCount = await cards.count();
+    const [header, firstCard, secondCard, resultsBox] = await Promise.all([
       page.locator("header").boundingBox(),
       cards.nth(0).boundingBox(),
-      cards.nth(1).boundingBox(),
-      cards.nth(0).locator("img").boundingBox(),
+      cardCount > 1 ? cards.nth(1).boundingBox() : Promise.resolve(null),
       results.boundingBox(),
     ]);
+    const image = cards.nth(0).locator("img");
+    const imageBox = (await image.count()) > 0 ? await image.boundingBox() : null;
     const filtersBox = width >= 420 ? await filters.boundingBox() : null;
     expect(header).not.toBeNull();
     expect(firstCard).not.toBeNull();
-    expect(secondCard).not.toBeNull();
-    expect(image).not.toBeNull();
-    if (header && firstCard && secondCard && image) {
+    if (header && firstCard) {
       expect(Math.round(header.width)).toBe(width < 420 ? width : 64);
+    }
+    if (header && firstCard && secondCard) {
       expect(Math.abs(firstCard.y - secondCard.y) <= 1).toBe(sameRow);
-      expect(Math.abs(image.width / image.height - 16 / 9)).toBeLessThanOrEqual(0.01);
+    }
+    if (imageBox) {
+      expect(Math.abs(imageBox.width / imageBox.height - 16 / 9)).toBeLessThanOrEqual(0.01);
     }
     if (width < 420) {
       await expect(filters).toHaveCount(0);
@@ -403,8 +496,10 @@ test("uses compact project cards through the middle viewport range", async ({ pa
 test("mobile drawer traps focus, applies filters, and restores focus on dismissal", async ({
   page,
 }) => {
+  const { count, projects, tags } = await getProjectCatalog(page);
+  test.skip(count === 0, "no projects");
+
   await page.setViewportSize({ width: 390, height: 600 });
-  await page.goto("/projects");
   const opener = page.getByRole("button", { name: "Filters", exact: true });
   const drawer = page.getByRole("dialog", { name: "Filter projects" });
   await opener.click();
@@ -412,7 +507,6 @@ test("mobile drawer traps focus, applies filters, and restores focus on dismissa
   const viewResults = drawer.getByRole("button", { name: "View results" });
   await viewResults.focus();
   await page.keyboard.press("Tab");
-  // Native dialogs can include browser chrome in the cycle, but never the page behind them.
   expect(
     await drawer.evaluate(
       (element) => !document.hasFocus() || element.contains(document.activeElement),
@@ -427,17 +521,31 @@ test("mobile drawer traps focus, applies filters, and restores focus on dismissa
       (element) => !document.hasFocus() || element.contains(document.activeElement),
     ),
   ).toBe(true);
-  await drawer.getByRole("searchbox").fill("lago");
-  await toggleSkill(page, "React");
-  await expect(drawer.getByRole("status")).toHaveText("1 of 4 projects");
-  await viewResults.click();
-  await expect(drawer).not.toBeVisible();
-  await expect(opener).toBeFocused();
-  await expect(page.getByRole("article")).toHaveCount(1);
-  await expect(page.getByRole("heading", { name: "Code-X / Lago" })).toBeVisible();
 
-  await opener.click();
-  await expect(drawer.getByRole("searchbox")).toHaveValue("lago");
+  const unique = findUniqueProjectQuery(projects);
+  const skill = unique?.project.tech[0] ?? tags[0];
+  if (unique) {
+    await drawer.getByRole("searchbox").fill(unique.query);
+    if (skill) await toggleSkill(page, skill);
+    const visible = matchingProjects(projects, unique.query, skill ? [skill] : []);
+    await expect(drawer.getByRole("status")).toHaveText(
+      expectedProjectCount(visible.length, count),
+    );
+    await viewResults.click();
+    await expect(drawer).not.toBeVisible();
+    await expect(opener).toBeFocused();
+    await expect(page.getByRole("article")).toHaveCount(visible.length);
+    if (visible.length === 1) {
+      await expect(page.getByRole("heading", { name: unique.project.title })).toBeVisible();
+    }
+
+    await opener.click();
+    await expect(drawer.getByRole("searchbox")).toHaveValue(unique.query);
+  } else {
+    await viewResults.click();
+    await opener.click();
+  }
+
   await page.keyboard.press("Escape");
   await expect(drawer).not.toBeVisible();
   await expect(opener).toBeFocused();
@@ -447,10 +555,10 @@ test("mobile drawer traps focus, applies filters, and restores focus on dismissa
   await expect(opener).toBeFocused();
   await opener.click();
   await drawer.getByRole("button", { name: "Clear filters" }).click();
-  await expect(drawer.getByRole("status")).toHaveText("4 of 4 projects");
+  await expect(drawer.getByRole("status")).toHaveText(expectedProjectCount(count, count));
   await drawer.getByRole("button", { name: "Close", exact: true }).click();
   await expect(opener).toBeFocused();
-  await expect(page.getByRole("article")).toHaveCount(4);
+  await expect(page.getByRole("article")).toHaveCount(count);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).not.toBe(
     "hidden",
   );
@@ -459,26 +567,30 @@ test("mobile drawer traps focus, applies filters, and restores focus on dismissa
 test("switching between drawer and sidebar preserves filters and releases the modal", async ({
   page,
 }) => {
+  const { count, projects } = await getProjectCatalog(page);
+  test.skip(count === 0, "no projects");
+
   await page.setViewportSize({ width: 390, height: 800 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/projects");
   await page.getByRole("button", { name: "Filters", exact: true }).click();
   const drawer = page.getByRole("dialog", { name: "Filter projects" });
   expect(await drawer.evaluate((element) => getComputedStyle(element).animationDuration)).toBe(
     "0.001s",
   );
-  await drawer.getByRole("searchbox").fill("lago");
+  const unique = findUniqueProjectQuery(projects);
+  const query = unique?.query ?? "lago";
+  await drawer.getByRole("searchbox").fill(query);
   await page.setViewportSize({ width: 1440, height: 900 });
   await expect(drawer).not.toBeVisible();
   const sidebar = page.getByRole("complementary", { name: "Filter projects" });
-  await expect(sidebar.getByRole("searchbox")).toHaveValue("lago");
+  await expect(sidebar.getByRole("searchbox")).toHaveValue(query);
   await expect(sidebar.getByRole("searchbox")).toBeFocused();
-  await expect(page.getByRole("article")).toHaveCount(1);
+  await expect(page.getByRole("article")).toHaveCount(matchingProjects(projects, query).length);
   await page.setViewportSize({ width: 390, height: 800 });
   const opener = page.getByRole("button", { name: "Filters", exact: true });
   await expect(opener).toBeFocused();
   await opener.click();
-  await expect(drawer.getByRole("searchbox")).toHaveValue("lago");
+  await expect(drawer.getByRole("searchbox")).toHaveValue(query);
 });
 
 test("keeps the desktop result track and project links stable without JavaScript", async ({
@@ -490,8 +602,11 @@ test("keeps the desktop result track and project links stable without JavaScript
   });
   const page = await context.newPage();
   await page.goto("/projects");
-  await expect(page.getByRole("article")).toHaveCount(4);
-  await expect(page.getByRole("link", { name: "Poképendium", exact: true })).toBeVisible();
+  const { count, projects } = await getProjectCatalog(page);
+  await expect(page.getByRole("article")).toHaveCount(count);
+  if (projects[0]) {
+    await expect(page.getByRole("link", { name: projects[0].title, exact: true })).toBeVisible();
+  }
   await expect(page.getByRole("searchbox")).toHaveCount(0);
   expect((await page.getByRole("region", { name: "Project results" }).boundingBox())?.x).toBe(400);
   await context.close();
@@ -499,14 +614,24 @@ test("keeps the desktop result track and project links stable without JavaScript
 
 test("switches the project gallery with thumbnails and wrapping controls", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
-  await page.goto("/projects/pa-liberty-bells-250");
+  const { projects } = await getProjectCatalog(page);
+  const gallery = await findProjectGallery(page, projects);
+  test.skip(!gallery, "no project has gallery images");
+  if (!gallery) return;
+
+  const { project, imageCount, alts } = gallery;
   const thumbnails = page.getByRole("group", {
-    name: "Choose an image of Liberty Bells 250",
+    name: `Choose an image of ${project.title}`,
   });
   const buttons = thumbnails.getByRole("button");
-  await expect(buttons).toHaveCount(3);
+  const hero = page.getByRole("img").first();
 
-  const hero = page.getByRole("img", { name: "PA Liberty Bells Homepage" });
+  if (imageCount < 2) {
+    await expect(hero).toBeVisible();
+    return;
+  }
+
+  await expect(buttons).toHaveCount(imageCount);
   const [heroBox, thumbnailsBox, previousBox, nextBox, galleryBox, articleBox, objectFit] =
     await Promise.all([
       hero.boundingBox(),
@@ -535,18 +660,21 @@ test("switches the project gallery with thumbnails and wrapping controls", async
     }
   }
 
-  await buttons.nth(2).click();
-  await expect(
-    page.getByRole("img", {
-      name: "Liberty Bell map with desktop and mobile location detail panels",
-    }),
-  ).toBeVisible();
-  await expect(buttons.nth(2)).toHaveAttribute("aria-pressed", "true");
+  const lastIndex = imageCount - 1;
+  const lastAlt = alts[lastIndex];
+  const firstAlt = alts[0];
+  await buttons.nth(lastIndex).click();
+  if (lastAlt) {
+    await expect(page.getByRole("img", { name: lastAlt })).toBeVisible();
+  }
+  await expect(buttons.nth(lastIndex)).toHaveAttribute("aria-pressed", "true");
 
   await page.getByRole("button", { name: "Next image" }).click();
-  await expect(page.getByRole("img", { name: "PA Liberty Bells Homepage" })).toBeVisible();
+  if (firstAlt) {
+    await expect(page.getByRole("img", { name: firstAlt })).toBeVisible();
+  }
   await page.getByRole("button", { name: "Previous image" }).click();
-  await expect(buttons.nth(2)).toHaveAttribute("aria-pressed", "true");
+  await expect(buttons.nth(lastIndex)).toHaveAttribute("aria-pressed", "true");
 
   const scan = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])

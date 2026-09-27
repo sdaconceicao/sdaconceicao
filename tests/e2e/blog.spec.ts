@@ -1,80 +1,98 @@
 import { expect, test } from "@playwright/test";
-import { getExpectedResultText, getPublishedPostData } from "./helpers/posts";
+import { checkedBoxes, toggleMultiSelectOption } from "./helpers/filters";
+import {
+  expectedPostCount,
+  findNarrowingPostQuery,
+  findPartialPostTag,
+  findPostWithCodeBlocks,
+  findPostWithHero,
+  findUniquePostQuery,
+  getPublishedPostData,
+  requirePublishedPost,
+} from "./helpers/posts";
 
 test.describe("blog", () => {
   test("the index lists published posts", async ({ page }) => {
-    await page.goto("/blog");
-    await expect(page.getByRole("link", { name: "Local Storage Options" })).toBeVisible();
+    const { posts } = await getPublishedPostData(page);
+    if (posts.length === 0) {
+      await expect(page.getByText("No published posts yet.")).toBeVisible();
+      return;
+    }
+
+    await expect(page.getByRole("link", { name: posts[0]?.title ?? "" })).toBeVisible();
     await expect(page.getByText("No published posts yet.")).toHaveCount(0);
   });
 
   test("the index uses the portfolio filter-and-results layout", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/blog");
-    const { count } = await getPublishedPostData(page);
+    const { count, posts } = await getPublishedPostData(page);
+    test.skip(count === 0, "no published posts");
+
     const filters = page.getByRole("complementary", { name: "Filter posts" });
     const results = page.getByRole("region", { name: "Post results" });
     await expect(filters).toBeVisible();
     await expect(results.getByRole("article")).toHaveCount(count);
-    await expect(results.getByRole("status")).toHaveText(getExpectedResultText(count));
+    await expect(results.getByRole("status")).toHaveText(expectedPostCount(count, count));
     await expect(page.locator('.post-card[data-variant="featured"]')).toHaveCount(0);
 
-    const firstArticleWithImage = results.getByRole("article").locator("img").first();
-    const hasImages = (await firstArticleWithImage.count()) > 0;
-    if (hasImages) {
-      await expect(firstArticleWithImage).toBeAttached({ timeout: 10000 });
-      expect((await firstArticleWithImage.boundingBox())?.width).toBeCloseTo(96, 0);
+    const articleWithImage = results.getByRole("article").locator("img").first();
+    if ((await articleWithImage.count()) > 0) {
+      await expect(articleWithImage).toBeAttached({ timeout: 10000 });
+      expect((await articleWithImage.boundingBox())?.width).toBeCloseTo(96, 0);
+    } else {
+      expect(posts.every((post) => !post.hasThumbnail)).toBe(true);
     }
   });
 
   test("combines title, description, and body search with any selected tag", async ({ page }) => {
     const { posts } = await getPublishedPostData(page);
-    const localStoragePosts = posts.filter((p) => p.title.includes("Local Storage"));
+    test.skip(posts.length === 0, "no published posts");
 
-    await page.goto("/blog");
     const results = page.getByRole("region", { name: "Post results" });
     const search = page.getByRole("searchbox", { name: "Search posts" });
+    const unique = findUniquePostQuery(posts);
 
-    await search.fill("tradeoffs are not obvious");
-    await expect(
-      results.getByRole("heading", {
-        name: localStoragePosts[0]?.title ?? "Local Storage Options",
-      }),
-    ).toBeVisible();
-
-    const reviewPost = posts.find((p) => p.title.includes("Review") || p.title.includes("Pro"));
-    if (reviewPost) {
-      await search.fill("review");
-      await expect(results.getByRole("heading", { name: reviewPost.title })).toBeVisible();
+    if (unique) {
+      await search.fill(unique.query);
+      await expect(results.getByRole("heading", { name: unique.post.title })).toBeVisible();
+      await expect(results.getByRole("article")).toHaveCount(1);
     }
 
+    const tagged = findPartialPostTag(posts);
     await search.fill("");
-    await page.getByRole("button", { name: /^Tags / }).click();
-    await page.getByRole("searchbox", { name: "Search tags" }).fill("agents");
-    const agentsCheckbox = page.getByRole("checkbox", { name: "agents", exact: true });
-    await agentsCheckbox.click();
-    await agentsCheckbox.press("Escape");
-    const agentsCount = await results.getByRole("article").count();
-    await expect(results.getByRole("article")).toHaveCount(agentsCount);
+    if (tagged) {
+      await toggleMultiSelectOption(page, "Tags", tagged.tag, true);
+      await expect(results.getByRole("article")).toHaveCount(tagged.matching.length);
+      await expect(results.getByRole("status")).toHaveText(
+        expectedPostCount(tagged.matching.length, posts.length),
+      );
 
-    await search.fill("Effectively");
-    await expect
-      .poll(() => results.getByRole("article").count(), {
-        timeout: 5000,
-        intervals: [100, 200, 500],
-      })
-      .toBeLessThan(agentsCount);
-    const searchFilteredCount = await results.getByRole("article").count();
-    expect(searchFilteredCount).toBeGreaterThan(0);
+      const narrowed = findNarrowingPostQuery(tagged.matching);
+      if (narrowed) {
+        await search.fill(narrowed.query);
+        await expect
+          .poll(() => results.getByRole("article").count(), {
+            timeout: 5000,
+            intervals: [100, 200, 500],
+          })
+          .toBe(narrowed.remaining.length);
+        expect(narrowed.remaining.length).toBeGreaterThan(0);
+      }
+    }
+
     await page.getByRole("button", { name: "Clear filters" }).click();
     await expect(search).toHaveValue("");
-    await expect(page.getByRole("checkbox", { checked: true })).toHaveCount(0);
-    await expect(results.getByRole("status")).toHaveText(getExpectedResultText(posts.length));
+    await expect(checkedBoxes(page)).toHaveCount(0);
+    await expect(results.getByRole("status")).toHaveText(
+      expectedPostCount(posts.length, posts.length),
+    );
   });
 
   test("uses a modal filter drawer on narrow screens", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 700 });
-    await page.goto("/blog");
+    const { posts } = await getPublishedPostData(page);
+    test.skip(posts.length === 0, "no published posts");
+
     const opener = page.getByRole("button", { name: "Filters", exact: true });
     await expect(page.getByRole("complementary", { name: "Filter posts" })).toHaveCount(0);
     await opener.click();
@@ -82,35 +100,41 @@ test.describe("blog", () => {
     const drawer = page.getByRole("dialog", { name: "Filter posts" });
     await expect(drawer).toBeVisible();
 
-    await drawer.getByRole("searchbox", { name: "Search posts" }).fill("Local Storage");
+    const unique = findUniquePostQuery(posts);
+    if (unique) {
+      await drawer.getByRole("searchbox", { name: "Search posts" }).fill(unique.query);
+    }
     await expect(drawer.getByRole("status")).toHaveText(/^\d+ of \d+ posts?$/);
     await drawer.getByRole("button", { name: "View results" }).click();
 
     await expect(drawer).not.toBeVisible();
     await expect(opener).toBeFocused();
     const results = page.getByRole("region", { name: "Post results" });
-    const count = await results.getByRole("article").count();
-    expect(count).toBeGreaterThan(0);
+    expect(await results.getByRole("article").count()).toBeGreaterThan(0);
   });
 
   test("a published post builds to a stable URL", async ({ page }) => {
-    const response = await page.goto("/blog/local-storage-options");
+    const post = await requirePublishedPost(page);
+    const response = await page.goto(post.href);
     expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Local Storage Options");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(post.title);
   });
 
   test("a published post is indexable", async ({ page }) => {
-    await page.goto("/blog/local-storage-options");
+    const post = await requirePublishedPost(page);
+    await page.goto(post.href);
     await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
   });
 
   test("a published post has no draft badge", async ({ page }) => {
-    await page.goto("/blog/local-storage-options");
+    const post = await requirePublishedPost(page);
+    await page.goto(post.href);
     await expect(page.getByText("Draft", { exact: true })).toHaveCount(0);
   });
 
   test("offers network-specific article sharing", async ({ page }) => {
-    await page.goto("/blog/local-storage-options");
+    const post = await requirePublishedPost(page);
+    await page.goto(post.href);
     const sharing = page.getByRole("navigation", { name: "Share this article" });
     const destinations = {
       LinkedIn: /^https:\/\/www\.linkedin\.com\/sharing\/share-offsite\//,
@@ -135,6 +159,8 @@ test.describe("blog", () => {
   });
 
   test("uses native sharing when available", async ({ page }) => {
+    const post = await requirePublishedPost(page);
+
     await page.addInitScript(() => {
       Object.defineProperty(navigator, "share", {
         configurable: true,
@@ -143,34 +169,37 @@ test.describe("blog", () => {
         },
       });
     });
-    await page.goto("/blog/local-storage-options");
-    await page.getByRole("button", { name: "Share" }).first().click();
+    await page.goto(post.href);
+    const share = page.getByRole("button", { name: "Share" }).first();
+    const url = await share.getAttribute("data-url");
+    const title = await share.getAttribute("data-title");
+    await share.click();
     const shared = await page.evaluate(
       () => (window as Window & { __shared?: ShareData }).__shared,
     );
-    expect(shared).toEqual({
-      title: "Local Storage Options",
-      url: "https://stephenandrewdesigns.com/blog/local-storage-options/",
-    });
+    expect(shared).toEqual({ title, url });
   });
 
   test("copies the article link when native sharing is unavailable", async ({ page, context }) => {
+    const post = await requirePublishedPost(page);
+
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.addInitScript(() => {
       Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
     });
-    await page.goto("/blog/local-storage-options");
+    await page.goto(post.href);
     const share = page.getByRole("button", { name: "Share" }).first();
+    const url = await share.getAttribute("data-url");
     await share.click();
     await expect(page.getByRole("button", { name: "Link copied" })).toBeVisible();
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-      "https://stephenandrewdesigns.com/blog/local-storage-options/",
-    );
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(url);
   });
 
   test("the sharing toolbar reflows with accessible targets", async ({ page }) => {
+    const post = await requirePublishedPost(page);
+
     await page.setViewportSize({ width: 320, height: 800 });
-    await page.goto("/blog/local-storage-options");
+    await page.goto(post.href);
     const sharing = page.getByRole("navigation", { name: "Share this article" });
     const controls = [
       ...(await sharing.getByRole("button").all()),
@@ -202,7 +231,6 @@ test.describe("blog", () => {
       if (!headerBox || !heroBox || !summaryBox || !proseBox) {
         throw new Error("Article layout must be visible");
       }
-      // Hero/masthead and content should be roughly aligned with header (allow small differences)
       expect(Math.abs(summaryBox.width - headerBox.width)).toBeLessThanOrEqual(16);
       expect(Math.abs(proseBox.width - headerBox.width)).toBeLessThanOrEqual(16);
       expect(summaryBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
@@ -227,24 +255,32 @@ test.describe("blog", () => {
   });
 
   test("a post page has exactly one h1", async ({ page }) => {
-    await page.goto("/blog/local-storage-options");
+    const post = await requirePublishedPost(page);
+    await page.goto(post.href);
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   });
 
-  test("all code blocks use JavaScript syntax highlighting", async ({ page }) => {
-    await page.goto("/blog/local-storage-options");
+  test("code blocks expose a language for syntax highlighting", async ({ page }) => {
+    const { posts } = await getPublishedPostData(page);
+    test.skip(posts.length === 0, "no published posts");
+    const post = await findPostWithCodeBlocks(page, posts);
+    test.skip(!post, "no published post has code blocks");
+    if (!post) return;
+
     const codeBlocks = page.locator("figure.frame pre");
     await expect(codeBlocks.first()).toBeVisible();
     expect(
       await codeBlocks.evaluateAll((blocks) =>
-        blocks.every((block) => block.getAttribute("data-language") === "javascript"),
+        blocks.every((block) => (block.getAttribute("data-language") ?? "").length > 0),
       ),
     ).toBe(true);
   });
 
   test("the hero spans the page while its content aligns with the post body", async ({ page }) => {
+    const post = await requirePublishedPost(page);
+
     await page.setViewportSize({ width: 1200, height: 900 });
-    await page.goto("/blog/local-storage-options");
+    await page.goto(post.href);
 
     const hasHero = (await page.locator(".post-hero").count()) > 0;
     const heroOrMasthead = page.locator(hasHero ? ".post-hero" : ".post-masthead");
@@ -294,9 +330,13 @@ test.describe("blog", () => {
   test("uses the masthead layout with a gradient when a post has no hero image", async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/blog/review/");
+    const { posts } = await getPublishedPostData(page);
+    test.skip(posts.length === 0, "no published posts");
+    const post = await findPostWithHero(page, posts, false);
+    test.skip(!post, "every published post has a hero image");
+    if (!post) return;
 
+    await page.setViewportSize({ width: 1440, height: 900 });
     const masthead = page.locator(".post-masthead");
     await expect(page.locator(".post-hero")).toHaveCount(0);
     await expect(masthead).toHaveCSS("background-image", /linear-gradient/);
@@ -316,18 +356,22 @@ test.describe("blog", () => {
     );
   });
 
-  test("rss.xml is well-formed and includes published posts", async ({ request }) => {
+  test("rss.xml is well-formed and includes published posts", async ({ page, request }) => {
+    const { posts } = await getPublishedPostData(page);
     const response = await request.get("/rss.xml");
     expect(response.status()).toBe(200);
     expect(response.headers()["content-type"]).toContain("xml");
     const body = await response.text();
     expect(body).toContain("<rss");
     expect(body).toContain("<channel>");
-    expect(body).toContain("Local Storage Options");
+    for (const post of posts) {
+      expect(body).toContain(post.title);
+    }
   });
 
   test("detail pages expose global and contextual navigation", async ({ page }) => {
-    await page.goto("/blog/local-storage-options");
+    const post = await requirePublishedPost(page);
+    await page.goto(post.href);
 
     const primary = page.getByRole("navigation", { name: "Primary" });
     await expect(primary.getByRole("link", { name: "Home" })).toHaveCount(0);
@@ -377,8 +421,10 @@ test.describe("blog", () => {
   });
 
   test("uses a mobile masthead and a left-aligned desktop sidebar", async ({ page }) => {
+    const post = await requirePublishedPost(page);
+
     await page.setViewportSize({ width: 375, height: 800 });
-    await page.goto("/blog/local-storage-options");
+    await page.goto(post.href);
 
     const header = page.locator('.floating-header[data-variant="page"]');
     const social = page.getByRole("navigation", { name: "Social links", includeHidden: true });

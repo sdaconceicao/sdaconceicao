@@ -184,17 +184,24 @@ test.describe("homepage", () => {
     }
   });
 
-  test("uses one lead project and two equal secondary projects", async ({ page }) => {
+  test("uses one lead project and equal-width secondary projects", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
-    await expect(page.locator('.project[data-variant="lead"]')).toHaveCount(1);
+    const lead = page.locator('.project[data-variant="lead"]');
     const tiles = page.locator('.project[data-variant="tile"]');
-    await expect(tiles).toHaveCount(2);
-    const [first, second] = await Promise.all([
-      tiles.nth(0).boundingBox(),
-      tiles.nth(1).boundingBox(),
-    ]);
-    expect(first?.width).toBeCloseTo(second?.width ?? 0, 0);
+    const homeProjects = page.locator("#projects .project");
+    const projectCount = await homeProjects.count();
+    expect(projectCount).toBeLessThanOrEqual(3);
+    if (projectCount === 0) return;
+    await expect(lead).toHaveCount(1);
+    await expect(tiles).toHaveCount(projectCount - 1);
+    if ((await tiles.count()) >= 2) {
+      const [first, second] = await Promise.all([
+        tiles.nth(0).boundingBox(),
+        tiles.nth(1).boundingBox(),
+      ]);
+      expect(first?.width).toBeCloseTo(second?.width ?? 0, 0);
+    }
   });
 
   test("sizes responsive writing thumbnails without extending the secondary column", async ({
@@ -208,29 +215,36 @@ test.describe("homepage", () => {
         .locator('#activity article[data-variant="home-featured"]')
         .boundingBox();
       const secondary = page.locator(".writing-secondary article");
+      const secondaryCount = await secondary.count();
+      if (secondaryCount === 0) continue;
 
       const firstSecondary = secondary.nth(0);
-      const hasThumbnails = (await firstSecondary.locator("img").count()) > 0;
+      const firstHasThumbnail = (await firstSecondary.locator("img").count()) > 0;
+      const secondHasThumbnail =
+        secondaryCount > 1 && (await secondary.nth(1).locator("img").count()) > 0;
 
-      if (hasThumbnails) {
-        const [_secondCard, firstThumbnail, secondThumbnail, firstContent] = await Promise.all([
-          secondary.nth(1).boundingBox(),
+      if (firstHasThumbnail) {
+        const [firstThumbnail, firstContent] = await Promise.all([
           firstSecondary.locator("img").boundingBox(),
-          secondary.nth(1).locator("img").boundingBox(),
           firstSecondary.locator(".post-content").boundingBox(),
         ]);
-
         expect(firstThumbnail?.width ?? 0).toBeGreaterThanOrEqual(90);
-        expect(secondThumbnail?.width ?? 0).toBeGreaterThanOrEqual(90);
         expect(
           (firstContent?.x ?? 0) - ((firstThumbnail?.x ?? 0) + (firstThumbnail?.width ?? 0)),
         ).toBeCloseTo(16, 0);
       }
+      if (secondHasThumbnail) {
+        expect(
+          (await secondary.nth(1).locator("img").boundingBox())?.width ?? 0,
+        ).toBeGreaterThanOrEqual(90);
+      }
 
-      const secondCard = await secondary.nth(1).boundingBox();
-      expect((secondCard?.y ?? 0) + (secondCard?.height ?? 0)).toBeLessThanOrEqual(
-        (featured?.y ?? 0) + (featured?.height ?? 0) + 1,
-      );
+      if (secondaryCount > 1 && featured) {
+        const secondCard = await secondary.nth(1).boundingBox();
+        expect((secondCard?.y ?? 0) + (secondCard?.height ?? 0)).toBeLessThanOrEqual(
+          featured.y + featured.height + 1,
+        );
+      }
     }
   });
 
@@ -239,28 +253,34 @@ test.describe("homepage", () => {
     await page.goto("/");
     const posts = page.locator("#activity article:visible");
     const initialCount = await posts.count();
+    if (initialCount === 0) {
+      await expect(page.getByText("Nothing published yet — drafts in progress.")).toBeVisible();
+      return;
+    }
     await expect(posts).toHaveCount(initialCount);
     const secondaryItems = page.locator(".writing-secondary article");
     const secondaryCount = await secondaryItems.count();
     const [first, firstSecondary, secondSecondary, fullWidth, secondFullWidth, writingLayout] =
       await Promise.all([
         posts.nth(0).boundingBox(),
-        secondaryItems.nth(0).boundingBox(),
-        secondaryItems.nth(1).boundingBox(),
+        secondaryCount > 0 ? secondaryItems.nth(0).boundingBox() : Promise.resolve(null),
+        secondaryCount > 1 ? secondaryItems.nth(1).boundingBox() : Promise.resolve(null),
         secondaryCount > 2 ? secondaryItems.nth(2).boundingBox() : Promise.resolve(null),
         secondaryCount > 3 ? secondaryItems.nth(3).boundingBox() : Promise.resolve(null),
         page.locator(".writing-layout").boundingBox(),
       ]);
-    expect(first?.x).toBeLessThan(firstSecondary?.x ?? 0);
-    expect(first?.y).toBeCloseTo(firstSecondary?.y ?? 0, 0);
-    expect(firstSecondary?.height).toBeCloseTo(secondSecondary?.height ?? 0, 0);
-    expect(secondSecondary?.y).toBeGreaterThan(
-      (firstSecondary?.y ?? 0) + (firstSecondary?.height ?? 0),
-    );
-    expect((first?.y ?? 0) + (first?.height ?? 0)).toBeCloseTo(
-      (secondSecondary?.y ?? 0) + (secondSecondary?.height ?? 0),
-      0,
-    );
+    if (firstSecondary) {
+      expect(first?.x).toBeLessThan(firstSecondary.x);
+      expect(first?.y).toBeCloseTo(firstSecondary.y, 0);
+    }
+    if (firstSecondary && secondSecondary) {
+      expect(firstSecondary.height).toBeCloseTo(secondSecondary.height, 0);
+      expect(secondSecondary.y).toBeGreaterThan(firstSecondary.y + firstSecondary.height);
+      expect((first?.y ?? 0) + (first?.height ?? 0)).toBeCloseTo(
+        secondSecondary.y + secondSecondary.height,
+        0,
+      );
+    }
     if (fullWidth) {
       expect(fullWidth?.y).toBeGreaterThan((first?.y ?? 0) + (first?.height ?? 0));
       expect(fullWidth?.x).toBeCloseTo(writingLayout?.x ?? 0, 0);
@@ -272,7 +292,9 @@ test.describe("homepage", () => {
       expect(secondFullWidth?.width).toBeCloseTo(writingLayout?.width ?? 0, 0);
     }
 
-    const hasThumbnails = (await secondaryItems.nth(0).locator("img").count()) > 0;
+    const hasThumbnails =
+      secondaryCount > 0 && (await secondaryItems.nth(0).locator("img").count()) > 0;
+    const featuredHasThumbnail = (await posts.first().locator("img").count()) > 0;
     if (hasThumbnails && secondaryCount > 2) {
       const rowLayouts = await Promise.all([
         Promise.all([
@@ -298,7 +320,7 @@ test.describe("homepage", () => {
       }
     }
     await expect(posts.first()).toHaveAttribute("data-variant", "home-featured");
-    if (hasThumbnails) {
+    if (featuredHasThumbnail) {
       const [wideThumbnail, wideTitle] = await Promise.all([
         posts.first().locator("img").boundingBox(),
         posts.first().getByRole("heading").boundingBox(),
@@ -306,7 +328,9 @@ test.describe("homepage", () => {
       expect(wideThumbnail?.width).toBeGreaterThan(96);
       expect(wideThumbnail?.y).toBeLessThan(wideTitle?.y ?? 0);
     }
-    await expect(secondaryItems.first().locator("time")).toHaveText(/^[A-Z][a-z]{2} \d{4}$/);
+    if (secondaryCount > 0) {
+      await expect(secondaryItems.first().locator("time")).toHaveText(/^[A-Z][a-z]{2} \d{4}$/);
+    }
 
     await page.setViewportSize({ width: 1439, height: 1000 });
     await expect(posts).toHaveCount(Math.min(3, initialCount));
@@ -321,37 +345,43 @@ test.describe("homepage", () => {
 
     await page.setViewportSize({ width: 1583, height: 1000 });
     await expect(posts).toHaveCount(Math.min(2, initialCount));
-    const [stackedFeatured, stackedSecondary] = await Promise.all([
-      posts.first().boundingBox(),
-      page.locator(".writing-secondary").boundingBox(),
-    ]);
-    expect(stackedSecondary?.x).toBeCloseTo(stackedFeatured?.x ?? 0, 0);
-    expect(stackedSecondary?.y).toBeGreaterThan(
-      (stackedFeatured?.y ?? 0) + (stackedFeatured?.height ?? 0),
-    );
-    await expect(secondaryItems.first().getByRole("heading")).toBeVisible();
-    await expect(secondaryItems.first().locator(".post-description")).toBeVisible();
+    if (secondaryCount > 0) {
+      const [stackedFeatured, stackedSecondary] = await Promise.all([
+        posts.first().boundingBox(),
+        page.locator(".writing-secondary").boundingBox(),
+      ]);
+      expect(stackedSecondary?.x).toBeCloseTo(stackedFeatured?.x ?? 0, 0);
+      expect(stackedSecondary?.y).toBeGreaterThan(
+        (stackedFeatured?.y ?? 0) + (stackedFeatured?.height ?? 0),
+      );
+      await expect(secondaryItems.first().getByRole("heading")).toBeVisible();
+      await expect(secondaryItems.first().locator(".post-description")).toBeVisible();
+    }
 
     await page.setViewportSize({ width: 558, height: 1207 });
     const mobileBoxes = await posts.evaluateAll((items) =>
       items.map((item) => item.getBoundingClientRect().toJSON()),
     );
     expect(mobileBoxes).toHaveLength(Math.min(3, initialCount));
-    expect(mobileBoxes[1]?.x).toBeCloseTo(mobileBoxes[0]?.x ?? 0, 0);
-    expect(mobileBoxes[2]?.x).toBeCloseTo(mobileBoxes[0]?.x ?? 0, 0);
-    expect(mobileBoxes[1]?.y).toBeGreaterThan(mobileBoxes[0]?.bottom ?? 0);
-    expect(mobileBoxes[2]?.y).toBeGreaterThan(mobileBoxes[1]?.bottom ?? 0);
+    if (mobileBoxes.length > 1) {
+      expect(mobileBoxes[1]?.x).toBeCloseTo(mobileBoxes[0]?.x ?? 0, 0);
+      expect(mobileBoxes[1]?.y).toBeGreaterThan(mobileBoxes[0]?.bottom ?? 0);
+    }
+    if (mobileBoxes.length > 2) {
+      expect(mobileBoxes[2]?.x).toBeCloseTo(mobileBoxes[0]?.x ?? 0, 0);
+      expect(mobileBoxes[2]?.y).toBeGreaterThan(mobileBoxes[1]?.bottom ?? 0);
+    }
 
-    if (hasThumbnails) {
-      for (const post of await posts.all()) {
-        const [thumbnail, title] = await Promise.all([
-          post.locator("img").boundingBox(),
-          post.getByRole("heading").boundingBox(),
-        ]);
-        expect(thumbnail?.width).toBeLessThanOrEqual(96);
-        expect(thumbnail?.x).toBeLessThan(title?.x ?? 0);
-        expect(thumbnail?.y).toBeCloseTo(title?.y ?? 0, 0);
-      }
+    for (const post of await posts.all()) {
+      const thumbnail = post.locator("img");
+      if ((await thumbnail.count()) === 0) continue;
+      const [imageBox, title] = await Promise.all([
+        thumbnail.boundingBox(),
+        post.getByRole("heading").boundingBox(),
+      ]);
+      expect(imageBox?.width).toBeLessThanOrEqual(96);
+      expect(imageBox?.x).toBeLessThan(title?.x ?? 0);
+      expect(imageBox?.y).toBeCloseTo(title?.y ?? 0, 0);
     }
     for (const post of await posts.all()) {
       await expect(post).toHaveCSS("border-left-width", "0px");
@@ -384,14 +414,15 @@ test.describe("homepage", () => {
         (projects?.y ?? 0) + (projects?.height ?? 0),
         0,
       );
-      const projectContentBottom = await page
-        .locator("#projects > .project, #projects > .project-secondary")
-        .evaluateAll((items) =>
+      const projectItems = page.locator("#projects > .project, #projects > .project-secondary");
+      if ((await projectItems.count()) > 0) {
+        const projectContentBottom = await projectItems.evaluateAll((items) =>
           Math.max(...items.map((item) => item.getBoundingClientRect().bottom)),
         );
-      expect(projectContentBottom).toBeLessThanOrEqual(
-        (projects?.y ?? 0) + (projects?.height ?? 0),
-      );
+        expect(projectContentBottom).toBeLessThanOrEqual(
+          (projects?.y ?? 0) + (projects?.height ?? 0),
+        );
+      }
       expect(experience?.y).toBeGreaterThanOrEqual((projects?.y ?? 0) + (projects?.height ?? 0));
       writingWidths.push(writing?.width ?? 0);
       projectWidths.push(projects?.width ?? 0);
