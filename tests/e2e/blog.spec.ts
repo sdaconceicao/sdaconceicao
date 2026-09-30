@@ -385,7 +385,7 @@ test.describe("blog", () => {
 
     const social = page.getByRole("navigation", { name: "Social links" });
     await expect(social.getByRole("link")).toHaveCount(4);
-    for (const name of ["GitHub", "LinkedIn", "NPM", "Resume"]) {
+    for (const name of ["GitHub", "LinkedIn", "NPM", "Email"]) {
       await expect(social.getByRole("link", { name, exact: true })).toBeVisible();
     }
 

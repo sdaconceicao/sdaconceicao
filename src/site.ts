@@ -35,5 +35,5 @@ export const SOCIALS = [
   { label: "GitHub", href: "https://github.com/sdaconceicao", icon: "github" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/sdaconceicao", icon: "linkedin" },
   { label: "NPM", href: "https://www.npmjs.com/~sdaconceicao", icon: "npm" },
-  { label: "Resume", href: RESUME_HREF, icon: "file-text" },
+  { label: "Email", href: "mailto:stephen.daconceicao@gmail.com", icon: "email" },
 ] as const;

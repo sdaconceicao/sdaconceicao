@@ -151,9 +151,13 @@ test.describe("homepage", () => {
     await expect(socials).toBeInViewport();
     await expect(nav.getByRole("link")).toHaveCount(4);
     await expect(socials.getByRole("link")).toHaveCount(4);
-    for (const name of ["GitHub", "LinkedIn", "NPM", "Resume"]) {
+    for (const name of ["GitHub", "LinkedIn", "NPM", "Email"]) {
       await expect(socials.getByRole("link", { name, exact: true })).toBeVisible();
     }
+    await expect(socials.getByRole("link", { name: "Email" })).toHaveAttribute(
+      "href",
+      "mailto:stephen.daconceicao@gmail.com",
+    );
     const bounds = await socials.boundingBox();
     expect((bounds?.y ?? 0) + (bounds?.height ?? 0)).toBeCloseTo(800, 0);
 

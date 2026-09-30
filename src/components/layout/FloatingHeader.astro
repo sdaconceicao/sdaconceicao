@@ -81,7 +81,7 @@ const icons: Record<string, IconName> = {
                 <a
                   href={item.href}
                   rel={/^https?:/i.test(item.href) ? "me noopener noreferrer" : "noopener noreferrer"}
-                  target="_blank"
+                  target={/^https?:/i.test(item.href) ? "_blank" : undefined}
                 >
                   <Icon name={item.icon as IconName} size={20} />
                   <span class="floating-tooltip" aria-hidden="true">{item.label}</span>
