@@ -457,6 +457,30 @@ const NameTag = variant === "home" ? "h1" : "p";
       gap: var(--spacing-2);
     }
 
+    .rail[data-variant="home"] .rail-intro {
+      display: grid;
+      grid-template-columns: var(--avatar-size) minmax(0, 1fr);
+      column-gap: var(--spacing-4);
+    }
+
+    .rail[data-variant="home"] .rail-identity {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .rail[data-variant="home"] .rail-tagline {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: center;
+      max-inline-size: none;
+      font-size: var(--text-4xl);
+    }
+
+    .rail[data-variant="home"] .rail-role,
+    .rail[data-variant="home"] .rail-actions {
+      grid-column: 1 / -1;
+    }
+
     .rail-identity {
       grid-row: auto;
       margin-block-end: var(--spacing-1);
