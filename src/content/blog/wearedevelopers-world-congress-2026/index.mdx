@@ -1,0 +1,68 @@
+---
+title: WeAreDevelopers World Congress 2026
+description: I just got back from the 2026 World Congress for WeAreDevelopers,
+  and it was alot to unpack.
+pubDate: 2026-09-29
+draft: false
+featured: false
+tags:
+  - ai
+  - conference
+  - models
+heroImage: thumb.jpg
+heroImageAlt: John Romero at the WeAreDevelopers World Congress 2026
+showThumbnail: true
+---
+Last week, I had the opportunity to attend the WeAreDevelopers conference in San Jose, CA. Besides the beautiful weather, swag, and getting to spend time with coworkers and people in the field, I also walked away from the conference with more questions than answers on some of the biggest topics on my mind as of late.
+
+## Local Models are Improving for the Right Tasks (with the right hardware)
+
+It's been over a year since I'd tried to run models locally, and the landscape has changed dramatically in that time. Tools like [Unsloth Desktop](https://unsloth.ai/) make the process way easier to setup, with really no manual setup at all necessary. Searching for and installing models is also integrated in, which leads to the challenge of figuring out what can you run based on your hardware.
+
+Full 16 bit models are still out of the question for most, but 4-8 bit model provide often good enough results at a fraction of the memory requirements.  Just don't go trying to use them for navigation data to Mars.
+
+Macs are especially suited to this task, as their ram is shared, meaning you can use your system memory just like video ram. A Macbook running 24gb can then reasonably run models like:
+
+* Qwen3-Coder 30B for basic coding issues, like fixing linting and test failures
+* Gemma 3 12B for general questions / vision
+
+## The Importance of Sandboxes
+
+With agents becoming more capable as mentioned above, there's more of a temptation to hand them full control to do some of the more mundane things in our day to day work.  The potential risks for this are huge, and probably in no small part because Docker was one of the main sponsors of the event, the need for securing your agents within a sandbox was heavily discussed. Many examples were given of agents going rogue, although conspicuously not the infamous Hugging Face incident, were discussed as to why you need to put guardrails on your agents.
+
+* Never give direct file system access. Provide limited access to a mirrored folder for it to work in.
+* Use tools like SBX to keep secrets from ever touching a model. The model calls api's with a dummy key, and SBX handles actually putting it in the network request
+* Don't give an agent access to your email. Just don't.
+
+## Sharing Context For Long Term Work
+
+A common theme across multiple products I was being sold was that work is being done with agents locally, and all of the context around that work is being lost once the task is complete. Being able to take advantage of that context would be helpful, both in working on future issues, as well as debugging and reviewing the existing work.
+
+Several products took different approaches to this problem:
+
+* [Entire](https://entire.io/) tries to store that information in the git repo itself as meta data, breaking it out into sessions with breakpoints. Through their tools, you can then look at all of the tool calls and interactions associated with a feature.
+* [Switch](https://www.flintai.dev/products/switch) broke these same sessions out into chat rooms, and integrated with all of the major platforms. You could then connect your agents to the room, and have them work on the feature. All information was then stored a postgres db.
+
+One of the interesting challenges that this introduces though is we're adding even more information for people to review. It's becoming increasingly difficult for developer to keep up with Pull Requests as it is, and having to rely further on agents to help review agent code. Adding this additional layer on top of that is going to require rethinking the process as a whole, otherwise most of the additional context is just going to be more noise to work around.
+
+## But Not Too Much Context
+
+While on one hand we're trying to find ways to bring context out of the local dev environment and share it across teams to take advantage of that work, we're simultaneously also trying to avoid shipping too much context to our agents to keep token usage down, and get faster responses. This means keeping your context focused and leaned is now more important then ever, and can be even harder. Old advice about caching is largely counterproductive, as it can cause agents to have outdated and unneeded info, while clearing cache can also cause issues with forcing the agents to do a full recache.
+
+The best advice I heard was to try doing compaction at the edge, after each interaction. Storing the full output of a tool run just to find an answer is silly. Just saving the answer after the work was done is all you really need.
+
+## Will Any Of These Products Exist in 6 Months?
+
+It was hard not to notice a pattern of businesses and panels at the conference. Everyone has the next best solution to whatever your current AI problem is. The smart ones I think tried to integrate themselves into your current process, and didn't require you to upturn your entire SDLC to do things their way. They were more complementary to existing processes over reinventing the wheel. I say this because I strongly question whether some of any of these products will even exist in 6 months in any recognizable way.
+
+With how fast everything is moving, many panels admitted that when they planned the talk 9+ months ago the market was so different from what it is now that they had to completely rethink their talk. The same I think is true for many of these products that are solving problems that likely will either be solved or be obsolete in the near future. With many of them, larger companies might just copy their solution and build it into their product. Why even bother acquiring them when you've got the tools to just build it yourself?
+
+With any of these solutions, I'm heavily weighing the benefits of trying to learn and integrate them into my processes vs just waiting it out and seeing where the chips fall.
+
+## Being Able to Learn is the Most Important Skill, Always
+
+Of all of the talks I attended, the one I think I got the most out of and will stick with me the longest was from John Romero, the creator of many classic games such as Doom and Quake. His talk centered on the progression of his career, and of the constant learning it involved. He went from memorizing memory tables for one architecture to having to start over from scratch as that system became obsolete. Throughout it all, he never stopped learning how to learn, and was always keeping up with the times so he didn't become obsolete with them. With the speed the industry is moving now with weekly innovations, I think that message is more important then ever to take to heart.
+
+## Final Thoughts?
+
+I left the conference with some new tools I wanted to experiment with, along with a lot of questions. I think if I had to sum it up, what we accomplish as developers won't be changing as much as how we achieve it. More then ever being coders, we have always been problem solvers, and having that kind of a way of thinking, when combined with all of the new tools available to us, means we can build things better and faster then ever before, and so can any of our competition. Using those tools both effectively and ethically, while avoiding the quick and dirty solutions that are so tempting with unrestricted agents producing code we don't have time to understand, will be crucial to avoiding becoming a cautionary tale at the next tech conference.
