@@ -163,6 +163,7 @@
  * fluid steps here prevents text reflow while a wide viewport is resized. */
 @media (min-width: 64rem) {
   :root {
+    --avatar-size: 11rem;
     --text-xs: 0.8125rem;
     --text-sm: 0.875rem;
     --text-base: 1.0625rem;
