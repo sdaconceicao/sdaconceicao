@@ -219,10 +219,10 @@ test.describe("blog", () => {
     for (const width of [600, 1024]) {
       await page.setViewportSize({ width, height: 800 });
       await expect(readingShare).toBeHidden();
-      const heroOrMasthead = page.locator(".post-hero, .post-masthead");
+      const masthead = page.locator(".post-masthead");
       const [headerBox, heroBox, summaryBox, proseBox] = await Promise.all([
         page.locator(".post-header").boundingBox(),
-        heroOrMasthead.boundingBox(),
+        masthead.boundingBox(),
         summary.boundingBox(),
         page.locator(".prose").boundingBox(),
       ]);
