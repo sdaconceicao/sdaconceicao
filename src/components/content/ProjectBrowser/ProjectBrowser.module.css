@@ -105,7 +105,8 @@
 }
 
 @media (max-width: 26.249rem) {
-  .sidebar {
+  /* Keep focused filters mounted until the script moves them into the drawer. */
+  .sidebar:has(> .filterSidebar[hidden]) {
     display: none;
   }
 }

@@ -449,7 +449,8 @@ test.describe("homepage", () => {
 
     await page.setViewportSize({ width: 1045, height: 900 });
     await page.goto("/");
-    await expect(page.locator(".social-label").first()).toBeVisible();
+    // The fixed desktop rail is narrower than the social-label container cutoff.
+    await expect(page.locator(".social-label").first()).toBeHidden();
     await expect(page.getByRole("button", { name: /Switch to .* theme/ })).toBeVisible();
 
     // The stacked tablet rail also has room for labels.

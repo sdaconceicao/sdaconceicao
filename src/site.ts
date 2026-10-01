@@ -3,12 +3,12 @@
 export const SITE = {
   name: "Stephen Andrew Designs",
   author: "Stephen da Conceicao",
-  role: "Software Engineer and tinkerer",
+  role: "Software Engineer and Thing Maker",
   tagline: "Just call me Steve",
   description:
     "I’m a software engineer who enjoys building great products and great teams. I care about helping people grow, automating the tedious work, and keeping things simple and reliable.",
   about: [
-    "I’m a frontend web developer focused on accessibility, CI automation, and building consistent, usable experiences. I’m very interested in how design systems and AI can make development more efficient while improving the overall UX. I enjoy finding better ways to build, test, and maintain software rather than just making it work.",
+    "I’m a software engineer focused on accessibility, CI automation, and building consistent, usable experiences. I’m very interested in how design systems and AI can make development more efficient while improving the overall UX. I enjoy finding better ways to build, test, and maintain software rather than just making it work.",
     "Outside of software, I like building things in the physical world through woodworking and 3D printing.",
   ],
   url: "https://stephenandrewdesigns.com",
