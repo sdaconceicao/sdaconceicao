@@ -1,5 +1,5 @@
 ---
-title: Code-X / Lago
+title: Lago
 description: A React design system built on react-aria-components, providing accessible components, design tokens, and guidelines for building applications.
 repo: https://github.com/sdaconceicao/lago
 url: https://main--6a4eb38660443c1eee94713d.chromatic.com/

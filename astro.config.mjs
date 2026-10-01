@@ -2,6 +2,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
+import { activityDevPlugin } from "./scripts/activity-dev-plugin.mjs";
 
 export default defineConfig({
   // Load-bearing: canonical URLs, the sitemap, and RSS all use this origin.
@@ -10,6 +11,7 @@ export default defineConfig({
   // GitHub Pages serves the generated dist/ directory. The Decap OAuth proxy is
   // a separate Vercel project rooted at oauth/.
   output: "static",
+  vite: { plugins: [activityDevPlugin()] },
 
   trailingSlash: "ignore",
   build: { format: "directory" },

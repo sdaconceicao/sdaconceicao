@@ -1,0 +1,118 @@
+.projectFilters {
+  padding: var(--spacing-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-1);
+}
+
+.filterHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.projectFilters h2 {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+}
+
+:global([data-filter-sidebar]) .drawerOnly {
+  display: none;
+}
+
+.drawerResults {
+  display: grid;
+  gap: var(--spacing-3);
+  margin-block-start: var(--spacing-6);
+}
+
+:global([data-filter-drawer]) .projectFilters {
+  border: 0;
+  border-radius: 0;
+  padding-block-end: calc(var(--spacing-5) + env(safe-area-inset-bottom));
+}
+
+.form,
+.nameFilter {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.form {
+  margin-block-start: var(--spacing-5);
+  gap: var(--spacing-6);
+  font-size: var(--text-sm);
+}
+
+.nameFilter input {
+  min-inline-size: 0;
+  inline-size: 100%;
+  min-block-size: 44px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+.nameFilter input::placeholder {
+  color: var(--fg-dim);
+  opacity: 1;
+}
+
+.resultCount {
+  color: var(--fg-dim);
+  font-size: var(--text-sm);
+  margin-block-start: var(--spacing-4);
+}
+
+.actionButton {
+  min-block-size: 44px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+}
+
+.actionButton:hover,
+.actionButton:focus-visible {
+  background-color: var(--surface-2);
+}
+
+@media (min-width: 26.25rem) and (max-width: 63.999rem) {
+  .projectFilters {
+    padding: var(--spacing-4);
+  }
+
+  .form {
+    margin-block-start: var(--spacing-4);
+    gap: var(--spacing-4);
+  }
+}
+
+@media (min-width: 30rem) and (max-width: 63.999rem) {
+  .form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nameFilter {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 48rem) and (max-width: 63.999rem) {
+  .form {
+    grid-template-columns: minmax(12rem, 1.5fr) repeat(2, minmax(0, 1fr)) auto;
+    align-items: start;
+    gap: var(--spacing-3);
+  }
+
+  .nameFilter {
+    grid-column: auto;
+  }
+
+  .form > .actionButton {
+    margin-block-start: calc(1lh + var(--spacing-2));
+  }
+}

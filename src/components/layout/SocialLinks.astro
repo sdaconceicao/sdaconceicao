@@ -17,7 +17,7 @@ const { items, size = 22, showLabels = false } = Astro.props;
           class="social-link"
           href={item.href}
           rel={/^https?:/i.test(item.href) ? "me noopener noreferrer" : "noopener noreferrer"}
-          target="_blank"
+          target={/^https?:/i.test(item.href) ? "_blank" : undefined}
 		>
 			<Icon name={item.icon as IconName} size={size} />
 			<span class="sr-only">{item.label}</span>

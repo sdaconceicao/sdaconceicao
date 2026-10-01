@@ -1,0 +1,23 @@
+---
+import styles from "./GitHubActivity.module.css";
+---
+
+<section class={styles.activity} aria-labelledby="activity-heading" data-github-activity>
+  <div class={styles.topline}>
+    <h2 id="activity-heading">GitHub activity</h2>
+    <a href="https://github.com/sdaconceicao">Profile <span aria-hidden="true">↗</span></a>
+  </div>
+  <p class={styles.caption} data-activity-period>Current three-month window</p>
+  <p class={styles.status} role="status" data-activity-status>Loading activity…</p>
+  <div class={styles.calendarContainer} data-activity-plot hidden>
+    <svg class={styles.calendar} data-activity-calendar></svg>
+  </div>
+  <p class={styles.footer} data-activity-total hidden></p>
+</section>
+
+<script>
+  import { initGitHubActivity } from "./GitHubActivity";
+
+  initGitHubActivity();
+  document.addEventListener("astro:page-load", initGitHubActivity);
+</script>

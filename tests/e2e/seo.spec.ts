@@ -10,6 +10,15 @@ test.describe("seo and metadata", () => {
     );
   });
 
+  test("the declared favicon is served", async ({ page, request }) => {
+    await page.goto("/");
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/favicon.ico?v=1");
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute("type", "image/x-icon");
+    const response = await request.get("/favicon.ico?v=1");
+    expect(response.status()).toBe(200);
+    expect((await response.body()).byteLength).toBeGreaterThan(0);
+  });
+
   test("open graph tags are present", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
@@ -69,6 +78,7 @@ test.describe("seo and metadata", () => {
     expect(body).toContain("branch: main\n");
     expect(body).toContain("base_url: https://auth.stephenandrewdesigns.com\n");
     expect(body).toContain("auth_endpoint: api/auth");
+    expect(body).toContain("logo_url: https://stephenandrewdesigns.com/favicon.ico");
   });
 
   test("the webmanifest has a real name", async ({ request }) => {
@@ -77,5 +87,11 @@ test.describe("seo and metadata", () => {
     const manifest = await response.json();
     expect(manifest.name).toBe("Stephen Andrew Designs");
     expect(manifest.name.length).toBeGreaterThan(0);
+    expect(manifest.icons).toContainEqual({
+      src: "/favicon.ico",
+      sizes: "any",
+      type: "image/x-icon",
+      purpose: "any",
+    });
   });
 });
