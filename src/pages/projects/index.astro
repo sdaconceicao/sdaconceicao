@@ -13,6 +13,17 @@ const projects = sortProjects(await getCollection("projects"));
   backHref="/#projects"
   backLabel="Back home"
 >
-  <h1 class="page-title">Projects</h1>
+  <div>
+    <h1 class="page-title">Projects</h1>
+    <div class="introduction">
+      <p>I've worked on a variety of projects, from small side projects to published open source libraries.</p>
+      <p>I've tried to highlight the tech stacks and problems I was solving with each project, with links to the code and live demos where available.</p>
+    </div>
+  </div>
   <ProjectBrowser projects={projects} />
 </PageLayout>
+
+<style>
+  .introduction { margin-block-start: var(--spacing-4); }
+  .introduction p + p { margin-block-start: var(--spacing-3); }
+</style>

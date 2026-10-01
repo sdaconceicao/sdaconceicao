@@ -1,8 +1,6 @@
 import type { Page } from "@playwright/test";
-import {
-  matchesProject,
-  projectResultCount,
-} from "../../../src/components/content/ProjectBrowser/ProjectBrowser";
+import { projectResultCount } from "../../../src/components/content/ProjectBrowser/ProjectBrowser";
+import { matchesProject } from "../../../src/components/content/ProjectFilters/ProjectFilters";
 import { findUniqueQuery, parseJsonStringArray, parseProjectStatus } from "./query";
 
 export const STATUS_LABELS = {

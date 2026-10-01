@@ -1,0 +1,69 @@
+---
+import type { CollectionEntry } from "astro:content";
+import MultiSelect from "../../ui/MultiSelect/MultiSelect.astro";
+import { projectTags } from "./ProjectFilters";
+import styles from "./ProjectFilters.module.css";
+
+interface Props {
+  projects: CollectionEntry<"projects">[];
+  id: string;
+  headingId: string;
+}
+
+const { projects, id, headingId } = Astro.props;
+const tags = projectTags(projects.map((project) => project.data));
+const statuses = [
+  { label: "Live", value: "live" },
+  { label: "In progress", value: "wip" },
+  { label: "Archived", value: "archived" },
+];
+const nameInputId = `${id}-name`;
+---
+
+<div class={styles.projectFilters} data-filter-panel>
+  <div class={styles.filterHeading}>
+    <h2 id={headingId}>Filter projects</h2>
+    <button
+      class={`${styles.drawerOnly} ${styles.actionButton}`}
+      type="button"
+      data-close-filters
+    >
+      Close
+    </button>
+  </div>
+  <form class={styles.form} role="search" aria-labelledby={headingId} data-project-filters>
+    <div class={styles.nameFilter}>
+      <label for={nameInputId}>Search by name</label>
+      <input
+        id={nameInputId}
+        name="name"
+        type="search"
+        placeholder="Project name…"
+        data-project-name
+      />
+    </div>
+    <MultiSelect
+      id={`${id}-tags`}
+      name="tag"
+      label="Skills"
+      options={tags}
+      placeholder="All skills"
+      description="Matches any selected skill."
+      filter={true}
+    />
+    <MultiSelect
+      id={`${id}-status`}
+      name="status"
+      label="Status"
+      options={statuses}
+      placeholder="All statuses"
+      description="Current status of the project."
+    />
+
+    <button class={styles.actionButton} type="reset">Clear filters</button>
+  </form>
+  <div class={`${styles.drawerOnly} ${styles.drawerResults}`}>
+    <p class={styles.resultCount} role="status" aria-atomic="true" data-drawer-count></p>
+    <button class={styles.actionButton} type="button" data-close-filters>View results</button>
+  </div>
+</div>

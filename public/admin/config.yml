@@ -33,7 +33,7 @@ publish_mode: simple
 
 site_url: https://stephenandrewdesigns.com
 display_url: https://stephenandrewdesigns.com
-logo_url: https://stephenandrewdesigns.com/favicon.svg
+logo_url: https://stephenandrewdesigns.com/favicon.ico
 
 # Global fallback only. The blog collection overrides both to "" to co-locate.
 media_folder: public/images/uploads

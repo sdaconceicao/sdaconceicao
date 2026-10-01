@@ -1,8 +1,9 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import MultiSelect from "../../ui/MultiSelect/MultiSelect.astro";
+import GitHubActivity from "../GitHubActivity/GitHubActivity.astro";
 import ProjectCard from "../ProjectCard.astro";
-import { projectResultCount, projectTags } from "./ProjectBrowser";
+import ProjectFilters from "../ProjectFilters/ProjectFilters.astro";
+import { projectResultCount } from "./ProjectBrowser";
 import styles from "./ProjectBrowser.module.css";
 
 interface Props {
@@ -11,15 +12,8 @@ interface Props {
 }
 
 const { projects, id = "projects" } = Astro.props;
-const tags = projectTags(projects.map((project) => project.data));
-const statuses = [
-  { label: "Live", value: "live" },
-  { label: "In progress", value: "wip" },
-  { label: "Archived", value: "archived" },
-];
 const drawerId = `${id}-filter-drawer`;
 const filterHeadingId = `${id}-filter-heading`;
-const nameInputId = `${id}-name`;
 const resultsHeadingId = `${id}-results-heading`;
 ---
 
@@ -40,66 +34,20 @@ const resultsHeadingId = `${id}-results-heading`;
     aria-labelledby={filterHeadingId}
     data-filter-drawer
   ></dialog>
-  <aside
-    class={styles.filterSidebar}
-    aria-labelledby={filterHeadingId}
-    data-filter-sidebar
-    hidden
-  >
-    <div class={styles.projectFilters} data-filter-panel>
-      <div class={styles.filterHeading}>
-        <h2 id={filterHeadingId}>Filter projects</h2>
-        <button
-          class={`${styles.drawerOnly} ${styles.actionButton}`}
-          type="button"
-          data-close-filters
-        >
-          Close
-        </button>
-      </div>
-      <form class={styles.form} role="search" aria-labelledby={filterHeadingId} data-project-filters>
-        <div class={styles.nameFilter}>
-          <label for={nameInputId}>Search by name</label>
-          <input
-            id={nameInputId}
-            name="name"
-            type="search"
-            placeholder="Project name…"
-            data-project-name
-          />
-        </div>
-        <MultiSelect
-          id={`${id}-tags`}
-          name="tag"
-          label="Skills"
-          options={tags}
-          placeholder="All skills"
-          description="Matches any selected skill."
-          filter={true}
-        />
-        <MultiSelect
-          id={`${id}-status`}
-          name="status"
-          label="Status"
-          options={statuses}
-          placeholder="All statuses"
-          description="Current status of the project."
-        />
-
-        <button class={styles.actionButton} type="reset">Clear filters</button>
-      </form>
-      <div class={`${styles.drawerOnly} ${styles.drawerResults}`}>
-        <p class={styles.resultCount} role="status" aria-atomic="true" data-drawer-count></p>
-        <button class={styles.actionButton} type="button" data-close-filters>View results</button>
-      </div>
-    </div>
-  </aside>
+  <div class={styles.sidebar}>
+    <aside
+      class={styles.filterSidebar}
+      aria-labelledby={filterHeadingId}
+      data-filter-sidebar
+      hidden
+    >
+      <ProjectFilters projects={projects} id={id} headingId={filterHeadingId} />
+    </aside>
+    <GitHubActivity />
+  </div>
 
   <section class={styles.projectResults} aria-labelledby={resultsHeadingId}>
     <h2 id={resultsHeadingId} class="sr-only">Project results</h2>
-    <p class={styles.resultCount} role="status" aria-atomic="true" data-result-count>
-      {projectResultCount(projects.length, projects.length)}
-    </p>
     <div class={styles.projectList}>
       {projects.map((project) => (
         <div
@@ -122,6 +70,9 @@ const resultsHeadingId = `${id}-results-heading`;
         </div>
       ))}
     </div>
+    <p class={styles.resultCount} role="status" aria-atomic="true" data-result-count>
+      {projectResultCount(projects.length, projects.length)}
+    </p>
     <p class={styles.emptyState} data-empty-state hidden={projects.length > 0}>
       No projects found. Try a different name or clear your filters.
     </p>

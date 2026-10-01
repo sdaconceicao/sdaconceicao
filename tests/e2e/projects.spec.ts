@@ -17,6 +17,125 @@ const toggleSkill = (page: Page, skill: string) =>
 const toggleStatus = (page: Page, status: string) =>
   toggleMultiSelectOption(page, "Status", status);
 
+test("live GitHub activity matches the filter rail and hides below it", async ({ page }) => {
+  const days = Array.from({ length: 92 }, (_, index) => {
+    const date = new Date(Date.UTC(2026, 6, index + 1)).toISOString().slice(0, 10);
+    return {
+      date,
+      contributionCount: index % 5,
+      contributionLevel: [
+        "NONE",
+        "FIRST_QUARTILE",
+        "SECOND_QUARTILE",
+        "THIRD_QUARTILE",
+        "FOURTH_QUARTILE",
+      ][index % 5],
+    };
+  });
+  let requests = 0;
+  await page.route("https://auth.stephenandrewdesigns.com/api/activity", async (route) => {
+    requests += 1;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      headers: { "access-control-allow-origin": "*" },
+      body: JSON.stringify({ from: "2026-07-01", to: "2026-09-30", total: 412, days }),
+    });
+  });
+
+  for (const width of [1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/projects/");
+    const activity = page.getByRole("region", { name: "GitHub activity" });
+    await expect(activity.getByRole("img", { name: /412 GitHub contributions/ })).toBeVisible();
+    await expect(activity.locator("rect")).toHaveCount(92);
+    await expect(activity.getByText("412 contributions")).toBeVisible();
+    const emptyFill = await activity
+      .locator('rect[data-level="0"]')
+      .first()
+      .evaluate((cell) => getComputedStyle(cell).fill);
+    const activeFill = await activity
+      .locator('rect[data-level="4"]')
+      .first()
+      .evaluate((cell) => getComputedStyle(cell).fill);
+    expect(activeFill).not.toBe(emptyFill);
+    const filters = await page
+      .getByRole("complementary", { name: "Filter projects" })
+      .boundingBox();
+    const panel = await activity.boundingBox();
+    expect(
+      filters &&
+        panel &&
+        panel.y > filters.y + filters.height &&
+        Math.abs(panel.x - filters.x) < 2 &&
+        Math.abs(panel.width - filters.width) < 2,
+    ).toBeTruthy();
+    if (width === 1024) {
+      const scan = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+        .analyze();
+      expect(scan.violations).toEqual([]);
+    }
+  }
+
+  for (const width of [1023, 800, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/projects/");
+    await expect(
+      page.getByRole("region", { name: "GitHub activity", includeHidden: true }),
+    ).toBeHidden();
+  }
+  expect(requests).toBe(2);
+});
+
+test("GitHub activity renders a different date window and shows API errors", async ({ page }) => {
+  const start = Date.UTC(2025, 10, 1);
+  const days = Array.from({ length: 92 }, (_, index) => ({
+    date: new Date(start + index * 86_400_000).toISOString().slice(0, 10),
+    contributionCount: index === 61 ? 1 : 0,
+    contributionLevel: index === 61 ? "FIRST_QUARTILE" : "NONE",
+  }));
+  let fail = false;
+  await page.route("https://auth.stephenandrewdesigns.com/api/activity", (route) =>
+    route.fulfill({
+      status: fail ? 502 : 200,
+      contentType: "application/json",
+      headers: { "access-control-allow-origin": "*" },
+      body: fail
+        ? JSON.stringify({ error: "GitHub unavailable" })
+        : JSON.stringify({ from: "2025-11-01", to: "2026-01-31", total: 1, days }),
+    }),
+  );
+
+  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.goto("/projects/");
+  const activity = page.getByRole("region", { name: "GitHub activity" });
+  await expect(
+    activity.getByRole("img", {
+      name: "1 GitHub contributions from November 1 to January 31, 2026",
+    }),
+  ).toBeVisible();
+  await expect(activity.locator("rect")).toHaveCount(92);
+  await expect(activity.locator("rect").nth(0).locator("title")).toHaveText(
+    "0 contributions on 2025-11-01",
+  );
+  await expect(activity.locator("rect").nth(30).locator("title")).toHaveText(
+    "0 contributions on 2025-12-01",
+  );
+  await expect(activity.locator("rect").nth(61).locator("title")).toHaveText(
+    "1 contribution on 2026-01-01",
+  );
+  await expect(activity.locator("rect").nth(61)).toHaveAttribute("x", "150");
+  await expect(activity.locator("rect").nth(91).locator("title")).toHaveText(
+    "0 contributions on 2026-01-31",
+  );
+
+  fail = true;
+  await page.reload();
+  await expect(activity.getByRole("status")).toHaveText("Activity is unavailable right now.");
+  await expect(activity.locator("rect")).toHaveCount(0);
+});
+
 for (const width of [390, 1440]) {
   test(`status options combine with other filters and reset at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -29,7 +148,9 @@ for (const width of [390, 1440]) {
     const filters = page.getByRole(mobile ? "dialog" : "complementary", {
       name: "Filter projects",
     });
-    const status = mobile ? filters.getByRole("status") : page.getByRole("status");
+    const status = mobile
+      ? filters.getByRole("status")
+      : page.getByRole("region", { name: "Project results" }).getByRole("status");
     const live = matchingProjects(projects, "", [], ["live"]);
     const liveOrArchived = matchingProjects(projects, "", [], ["live", "archived"]);
     const archived = matchingProjects(projects, "", [], ["archived"]);
@@ -177,9 +298,9 @@ test("supports keyboard filtering and keeps focus in the control", async ({ page
   await option.press("Tab");
   await expect(page.getByRole("button", { name: /^Status / })).toBeFocused();
   await expect(optionSearch).not.toBeVisible();
-  await expect(page.getByRole("status")).toHaveText(
-    expectedProjectCount(matchingProjects(projects, "", [typed.option]).length, count),
-  );
+  await expect(
+    page.getByRole("region", { name: "Project results" }).getByRole("status"),
+  ).toHaveText(expectedProjectCount(matchingProjects(projects, "", [typed.option]).length, count));
 });
 
 test("omits search by default and keeps the unfiltered popover aligned", async ({ page }) => {
@@ -254,7 +375,9 @@ test("searching skills preserves selections, handles no matches, and clears skil
     await page.getByRole("checkbox", { name: secondSkill, exact: true }).check();
     await page.getByRole("button", { name: "Done", exact: true }).click();
     await expect(trigger).toHaveAccessibleName("Skills 2 selected");
-    await expect(page.getByRole("status")).toHaveText(
+    await expect(
+      page.getByRole("region", { name: "Project results" }).getByRole("status"),
+    ).toHaveText(
       expectedProjectCount(
         matchingProjects(projects, "", [firstSkill, secondSkill], ["live"]).length,
         count,
