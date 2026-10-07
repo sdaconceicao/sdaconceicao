@@ -1,7 +1,9 @@
 ---
-title: Understanding Local Models
-description: To more effectively use the right model for the right situation,
-  it's important to understand the basics around models
+title: Using Local Models - Understanding how Models Work
+description: As hardware improves and models become increasingly capable,
+  running your own models locally is becoming an attractive option. To choose
+  the right model for a given task while accounting for your hardware and other
+  constraints, it’s important to understand the basics of how models work.
 pubDate: 2026-10-06
 draft: true
 featured: false
@@ -9,12 +11,62 @@ tags: []
 heroImage: ""
 showThumbnail: true
 ---
-## Quantization
+Before we dive into how to run your models locally to start tackling your latest project, it's good to take a step back and make sure we understand what tools we have and how they work.
 
+## Model vs Agent vs Harness
 
+One of the most confusing parts of the AI discussion is the boundaries between what is an Agent, a Harness, and the actual Models. Part of the problem is there isn't full agreement on what each of these are, so I'll try to go with the most common usages for each. Most modern AI coding products, such as Claude Code and Cursor, combine the agent and harness into a single product, while allowing the underlying model to be selected or changed.
+
+|         | Harness                 | Agent                        | Model                    |
+| ------- | ----------------------- | ---------------------------- | ------------------------ |
+| Role    | Environment             | Worker                       | Intelligence / Reasoning |
+| Example | Claude Code / OpenHands | Claude Code / mini-SWE-agent | Opus 5.5 / Qwen 3        |
+
+**Harnesses** are the actual environment all of your work is done in, while **Agents** are the processes responsible for interacting with the **Model**, which is the brains of the outfit. When you start thinking about running your own systems, you have greater control of all 3 layers, and can pick and choose what makes sense for your current process. Like Claude's environment but not their models? Use Claude as your Harness and Agent and point it at Qwen.
+
+## Model Capabilities
+
+Different models have different capabilities, and importantly, different performance as a result of that. A model that can do everything is inherently going to either be slower or require more resources to accomplish the same task that a less broadly capable model can. It's important, especially when thinking about which model to use for a given task, which model can do what you need and nothing more then that.
+
+### Input
+
+* Text: The most basic input is plain text
+* Vision: Viewing a static image and understanding it
+* Audio: Reading in audio input and using it
+* Video: Viewing video input and recognizing it
+
+### Output
+
+* Text
+* Image Generation
+* Video Generation
+* Speech
+
+### Cognitive
+
+* Reasoning
+* Coding
+* Conversation
+* Multilingual
+
+### Actions
+
+* Tool Use
+* Computer Use
+* Agentic Execution
+
+## Quantization and Open Weights
+
+If you choose to run a model locally, the models you'll likely be dealing with have open weights. **Open weights** are the learned numerical parameters that encode what the model learned during training. During inference, when the model processes your prompt, those weights are used to transform the input into the output.
+
+Open weight models are often released with weights in a relatively high-precision format, such as FP16 or BF16, along with lower precision or quantized versions. These high precision values give you the best results, but in exchange also requires a much larger amount of memory to use. Quantization tries to resolve this by reducing the numerical precision of those weights, balancing accuracy for performance. 
+
+### Examples of Quantization:
+
+* 16-bit weight:  1011010010110010
+* 8-bit weight:   10110100
+* 4-bit weight:   1011
+
+Most open weights will start at 16 bits, and will later have quantized versions made from 2-8 bits. For many local setups, 4-bit quantization offers a particularly good balance between memory usage, performance, and model quality.  The more bits that are dropped, the more likely issues like Hallucinations can occur.
 
 ## Inference in Tokens Per Second
-
-
-
-## Thinking vs Instruct
