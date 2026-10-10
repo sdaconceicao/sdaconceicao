@@ -70,3 +70,7 @@ Open weight models are often released with weights in a relatively high-precisio
 Most open weights will start at 16 bits, and will later have quantized versions made from 2-8 bits. For many local setups, 4-bit quantization offers a particularly good balance between memory usage, performance, and model quality.  The more bits that are dropped, the more likely issues like Hallucinations can occur.
 
 ## Inference in Tokens Per Second
+
+Inference is ultimately what we're here for, getting an answer to your prompt, ideally in a reasonable amount of time. The goal for picking a model is trying to balance the quality of a response with a reasonable inference time on the hardware you have available. 
+
+Inference is measured in tokens per second, and a reasonably responsive rate would be in the range of 15-20 tk/s.

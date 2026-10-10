@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import me from "../../assets/me.png";
-import { PAGE_LINKS, RESUME_HREF, SECTIONS, SITE, SOCIALS } from "../../site";
+import { PAGE_LINKS, RESUME_HREF, SECTIONS, SITE, SOCIAL_LINKS } from "../../site";
 import ArrowLink from "../ui/ArrowLink.astro";
 import ThemeToggle from "../ui/ThemeToggle.astro";
 import ScrollSpyNav from "./ScrollSpyNav.astro";
@@ -47,6 +47,8 @@ const NameTag = variant === "home" ? "h1" : "p";
         />
       </div>
       <NameTag class="rail-tagline">{SITE.tagline}</NameTag>
+
+      <p class="rail-author">{SITE.author}</p>
       <p class="rail-role">{SITE.role}</p>
       {
         variant === "home" && (
@@ -101,7 +103,7 @@ const NameTag = variant === "home" ? "h1" : "p";
     )}
   </div>
 
-  <SocialLinks items={SOCIALS} showLabels={variant === "home"} />
+  <SocialLinks items={SOCIAL_LINKS} showLabels={variant === "home"} />
 </header>
 
 <style>
@@ -153,6 +155,11 @@ const NameTag = variant === "home" ? "h1" : "p";
     grid-row: 1 / span 2;
   }
 
+  .rail-author,
+  .rail-role {
+    grid-column: 2;
+  }
+
   .rail-avatar {
     flex-shrink: 0;
     inline-size: var(--spacing-20);
@@ -176,6 +183,13 @@ const NameTag = variant === "home" ? "h1" : "p";
 
   .rail-actions {
     grid-column: 1 / -1;
+  }
+
+  .rail-author {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-xxl);
+    font-weight: 800;
   }
 
   .rail-role {
@@ -273,6 +287,33 @@ const NameTag = variant === "home" ? "h1" : "p";
   }
 
   @media (max-width: 47.99rem) {
+    .rail[data-variant="home"] .rail-intro {
+      display: flow-root;
+    }
+
+    .rail[data-variant="home"] .rail-identity {
+      float: inline-start;
+      margin-inline-end: var(--spacing-3);
+      margin-block-end: var(--spacing-3);
+    }
+
+    .rail[data-variant="home"] .rail-avatar {
+      display: block;
+    }
+
+    .rail[data-variant="home"] .rail-tagline {
+      max-inline-size: none;
+    }
+
+    .rail[data-variant="home"] .rail-tagline,
+    .rail[data-variant="home"] .rail-author {
+      margin-block-end: var(--spacing-3);
+    }
+
+    .rail[data-variant="home"] .rail-actions {
+      clear: both;
+    }
+
     .rail[data-variant="compact"] {
       gap: var(--spacing-3);
       padding-block: var(--spacing-3);
@@ -297,6 +338,7 @@ const NameTag = variant === "home" ? "h1" : "p";
     }
 
     .rail[data-variant="compact"] .rail-role,
+    .rail[data-variant="compact"] .rail-author,
     .rail[data-variant="compact"] :global(.socials) {
       display: none;
     }
@@ -304,6 +346,10 @@ const NameTag = variant === "home" ? "h1" : "p";
     .rail[data-variant="compact"] .rail-theme {
       display: block;
     }
+    .rail-author{
+      font-size: var(--text-xl);
+    }
+
   }
 
   @media (min-width: 48rem) {
@@ -333,7 +379,6 @@ const NameTag = variant === "home" ? "h1" : "p";
     .rail-tagline {
       max-inline-size: none;
     }
-
     .rail-tagline,
     .rail-actions {
       grid-column: 2;
@@ -477,6 +522,7 @@ const NameTag = variant === "home" ? "h1" : "p";
     }
 
     .rail[data-variant="home"] .rail-role,
+    .rail[data-variant="home"] .rail-author,
     .rail[data-variant="home"] .rail-actions {
       grid-column: 1 / -1;
     }

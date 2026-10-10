@@ -1,5 +1,5 @@
 ---
-import { SITE, SOCIALS } from "../../site";
+import { SITE, SOCIAL_LINKS } from "../../site";
 import SocialLinks from "./SocialLinks.astro";
 
 const year = new Date().getFullYear();
@@ -10,16 +10,18 @@ const isHome = Astro.url.pathname === "/";
   {
     isHome && (
       <nav class="footer-socials" aria-label="Social links" data-floating-socials hidden>
-        <SocialLinks items={SOCIALS} />
+        <SocialLinks items={SOCIAL_LINKS} />
       </nav>
     )
   }
-  <p>
-    Designed and built by {SITE.author}. &copy; {year} {SITE.name}.
-  </p>
-  <p class="footer-meta">
-    Built with <a href="https://astro.build" rel="noopener noreferrer" target="_blank">Astro</a>.
-  </p>
+  <div data-nosnippet>
+    <p>
+      Designed and built by {SITE.author}. &copy; {year} {SITE.name}.
+    </p>
+    <p class="footer-meta">
+      Built with <a href="https://astro.build" rel="noopener noreferrer" target="_blank">Astro</a>.
+    </p>
+  </div>
 </footer>
 
 <style>

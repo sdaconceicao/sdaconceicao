@@ -1,19 +1,31 @@
 /** Single source of truth for identity, nav, and social links. */
 
 export const SITE = {
-  name: "Stephen Andrew Designs",
+  name: "Stephen da Conceicao — Portfolio & Blog",
+  brandName: "Stephen Andrew Designs",
   author: "Stephen da Conceicao",
   role: "Software Engineer and Thing Maker",
   tagline: "Just call me Steve",
   description:
-    "I’m a software engineer who enjoys building great products and great teams. I care about helping people grow, automating the tedious work, and keeping things simple and reliable.",
+    "I’m Stephen da Conceicao, a software engineer who enjoys building great products and great teams. I care about helping people grow, automating the tedious work, and keeping things simple and reliable.",
   about: [
-    "I’m a software engineer focused on accessibility, CI automation, and building consistent, usable experiences. I’m very interested in how design systems and AI can make development more efficient while improving the overall UX. I enjoy finding better ways to build, test, and maintain software rather than just making it work.",
+    "I’m Stephen da Conceicao, a software engineer focused on accessibility, CI automation, and building consistent, usable experiences. I’m very interested in how design systems and AI can make development more efficient while improving the overall UX. I enjoy finding better ways to build, test, and maintain software rather than just making it work.",
     "Outside of software, I like building things in the physical world through woodworking and 3D printing.",
   ],
   url: "https://stephenandrewdesigns.com",
+  socials: [
+    { label: "GitHub", href: "https://github.com/sdaconceicao", icon: "github" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/sdaconceicao", icon: "linkedin" },
+    { label: "NPM", href: "https://www.npmjs.com/~sdaconceicao", icon: "npm" },
+  ],
+  email: "stephen.daconceicao@gmail.com",
   locale: "en",
 } as const;
+
+export const SOCIAL_LINKS = [
+  ...SITE.socials,
+  { label: "Email", href: `mailto:${SITE.email}`, icon: "email" },
+] as const;
 
 export const SECTIONS = [
   { id: "about", label: "About" },
@@ -29,11 +41,4 @@ export const RESUME_HREF = "/Resume.pdf";
 export const PAGE_LINKS = [
   { id: "activity", href: "/blog", label: "Writing" },
   { id: "projects", href: "/projects", label: "Projects" },
-] as const;
-
-export const SOCIALS = [
-  { label: "GitHub", href: "https://github.com/sdaconceicao", icon: "github" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/sdaconceicao", icon: "linkedin" },
-  { label: "NPM", href: "https://www.npmjs.com/~sdaconceicao", icon: "npm" },
-  { label: "Email", href: "mailto:stephen.daconceicao@gmail.com", icon: "email" },
 ] as const;
