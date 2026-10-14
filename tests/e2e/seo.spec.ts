@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { SITE } from "../../src/site";
 import { requirePublishedPost } from "./helpers/posts";
 
 test.describe("seo and metadata", () => {
@@ -33,11 +34,11 @@ test.describe("seo and metadata", () => {
     await expect(page.locator('meta[property="article:published_time"]')).toHaveCount(1);
   });
 
-  test("the title carries the brand without duplicating it", async ({ page }) => {
+  test("the title uses the configured site name without duplicating it", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle("Stephen Andrew Designs");
+    await expect(page).toHaveTitle(SITE.name);
     await page.goto("/blog");
-    await expect(page).toHaveTitle("Writing · Stephen Andrew Designs");
+    await expect(page).toHaveTitle(`Writing · ${SITE.name}`);
   });
 
   test("the sitemap exists and excludes admin", async ({ request }) => {

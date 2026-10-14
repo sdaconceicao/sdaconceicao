@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import me from "../../assets/me.png";
-import { SOCIALS } from "../../site";
+import { SITE, SOCIAL_LINKS } from "../../site";
 import Icon, { type IconName } from "../ui/Icon.astro";
 import ThemeToggle from "../ui/ThemeToggle.astro";
 
@@ -76,7 +76,7 @@ const icons: Record<string, IconName> = {
         <span class="nav-separator" aria-hidden="true" />
         <nav class="social-nav" aria-label="Social links">
           <ul role="list">
-            {SOCIALS.map((item) => (
+            {SOCIAL_LINKS.map((item) => (
               <li>
                 <a
                   href={item.href}
