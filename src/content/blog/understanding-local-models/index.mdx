@@ -28,32 +28,51 @@ One of the most confusing parts of the AI discussion is the boundaries between w
 
 Different models have different capabilities, and importantly, different performance as a result of that. A model that can do everything is inherently going to either be slower or require more resources to accomplish the same task that a less broadly capable model can. It's important, especially when thinking about which model to use for a given task, which model can do what you need and nothing more then that.
 
-### Input
+## Inputs
 
-* Text: The most basic input is plain text
-* Vision: Viewing a static image and understanding it
-* Audio: Reading in audio input and using it
-* Video: Viewing video input and recognizing it
+A model's supported input types determine what information it can work with. This is an important consideration when choosing a model for a particular task. For example, analyzing a screenshot requires vision capabilities, while transcribing a recording requires audio input.
 
-### Output
+| Input Type | Description                                         | Example Use Case                                                                                   |
+| ---------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| **Text**   | Processes written text and prompts.                 | Answering questions, summarizing documents, or generating code.                                    |
+| **Vision** | Analyzes images and visual information.             | Understanding screenshots, interpreting diagrams, or identifying objects in photographs.           |
+| **Audio**  | Processes spoken language or other audio signals.   | Transcribing recordings, understanding spoken questions, or analyzing audio content.               |
+| **Video**  | Analyzes video frames, potentially alongside audio. | Summarizing video footage, understanding recorded demonstrations, or identifying events in a clip. |
 
-* Text
-* Image Generation
-* Video Generation
-* Speech
+## Outputs
 
-### Cognitive
+Input capabilities determine what a model can understand, while output capabilities determine what it can produce. A model that can understand images, for example, does not necessarily have the ability to generate them.
 
-* Reasoning
-* Coding
-* Conversation
-* Multilingual
+| Output Type          | Description                                          | Example Use Case                                                           |
+| -------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------- |
+| **Text**             | Generates written responses.                         | Answering questions, writing articles, or generating code.                 |
+| **Image Generation** | Creates images from text prompts or other inputs.    | Generating illustrations, designing concepts, or creating visual assets.   |
+| **Audio Generation** | Produces speech or other audio.                      | Reading text aloud, generating voice responses, or creating audio content. |
+| **Video Generation** | Generates video sequences from text or other inputs. | Creating animations, short clips, or synthetic video footage.              |
 
-### Actions
+## Cognitive Capabilities
 
-* Tool Use
-* Computer Use
-* Agentic Execution
+Beyond input and output types, models vary in their ability to solve problems and perform different kinds of tasks. These capabilities help determine which models are best suited to a particular workload.
+
+* **Reasoning:** Works through complex problems, evaluates alternatives, and solves multistep tasks.
+* **Coding:** Generates, explains, debugs, and refactors code. Some models are particularly well suited to software development.
+* **Conversation and instruction following:** Understands requests, follows instructions, and maintains context across a conversation.
+* **Multilingual capabilities:** Understands and generates text across different languages, with varying levels of proficiency.
+* **Structured data and extraction:** Extracts information from unstructured inputs and produces structured outputs, such as JSON.
+* **Long-context processing:** Works with large amounts of input, such as lengthy documents or extensive codebases, within its context window.
+
+## Actions and Tool Use
+
+Some models can do more than generate responses. When integrated with an appropriate harness or agent, they can interact with external tools and systems to accomplish tasks.
+
+The available actions depend on both the model's capabilities and the software surrounding it. A model may support tool calling, for example, but still require an agent or harness to execute the requested tools.
+
+* **Tool Use:** Selects and invokes available tools, such as APIs, database queries, or search functions.
+* **Computer Use:** Interacts with graphical interfaces through actions such as clicking, typing, and navigating applications.
+* **Agentic Execution:** Supports workflows in which a model repeatedly takes actions, observes the results, and decides what to do next.
+* **Code Execution:** Runs code in an execution environment to calculate results, test logic, or perform data analysis.
+
+These capabilities are not necessarily built directly into the model. Tool use and agentic execution, in particular, depend on how the model is integrated with the surrounding system.
 
 ## Quantization and Open Weights
 
@@ -74,3 +93,11 @@ Most open weights will start at 16 bits, and will later have quantized versions 
 Inference is ultimately what we're here for, getting an answer to your prompt, ideally in a reasonable amount of time. The goal for picking a model is trying to balance the quality of a response with a reasonable inference time on the hardware you have available. 
 
 Inference is measured in tokens per second, and a reasonably responsive rate would be in the range of 15-20 tk/s.
+
+## Prioritizing What You Need
+
+It can be tempting to choose a model that can handle every possible task, but broader capabilities can come with trade offs in hardware requirements, memory usage, and response time. Instead, focus on the capabilities you actually need for your intended use case. If you don't plan to work with images, for example, a text only model may be a better choice than a multimodal model.
+
+These trade offs are especially important for applications that require realtime interaction, such as voice assistants or interactive coding tools. In these situations, response speed can be nearly as important as accuracy. A model that produces excellent results but takes too long to respond may provide a worse overall experience than a smaller, faster model that performs the task well enough.
+
+The goal isn't to find the most capable model or the smallest one. It's to find the model that provides the right balance of capabilities, quality, speed, and hardware requirements for your specific needs.
